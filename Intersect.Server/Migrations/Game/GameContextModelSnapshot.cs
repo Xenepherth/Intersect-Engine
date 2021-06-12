@@ -207,7 +207,18 @@ namespace Intersect.Server.Migrations.Game
 
                     b.Property<int>("AttackSpeedValue");
 
-                    b.Property<bool>("Bound");
+                    b.Property<bool>("CanBag");
+
+                    b.Property<bool>("CanBank");
+
+                    b.Property<bool>("CanDrop")
+                        .HasColumnName("Bound");
+
+                    b.Property<bool>("CanGuildBank");
+
+                    b.Property<bool>("CanSell");
+
+                    b.Property<bool>("CanTrade");
 
                     b.Property<int>("Cooldown");
 
@@ -222,6 +233,8 @@ namespace Intersect.Server.Migrations.Game
                     b.Property<int>("DamageType");
 
                     b.Property<string>("Description");
+
+                    b.Property<int>("DropChanceOnDeath");
 
                     b.Property<Guid>("EquipmentAnimationId")
                         .HasColumnName("EquipmentAnimation");
@@ -250,6 +263,10 @@ namespace Intersect.Server.Migrations.Game
                         .HasColumnName("UsageRequirements");
 
                     b.Property<string>("MalePaperdoll");
+
+                    b.Property<int>("MaxBankStack");
+
+                    b.Property<int>("MaxInventoryStack");
 
                     b.Property<string>("Name");
 

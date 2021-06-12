@@ -1,0 +1,91 @@
+From a1841f201d58dc5ae39c78b9fef6894b6dca042c Mon Sep 17 00:00:00 2001
+From: Bandana <aurelende@protonmail.com>
+Date: Sun, 5 Apr 2020 19:39:57 -0400
+Subject: [PATCH 14/15] auto hit fix
+
+Signed-off-by: Bandana <aurelende@protonmail.com>
+---
+ Intersect.Client/Entities/Entity.cs |  2 ++
+ Intersect.Client/Entities/Player.cs | 15 +++++++--------
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/Intersect.Client/Entities/Entity.cs b/Intersect.Client/Entities/Entity.cs
+index 2646fa03..5f200cd0 100644
+--- a/Intersect.Client/Entities/Entity.cs
++++ b/Intersect.Client/Entities/Entity.cs
+@@ -94,6 +94,8 @@ public enum LabelType
+ 
+         public bool IsMoving;
+ 
++        public bool IsATarget = false;
++
+         //Caching
+         public MapInstance LatestMap;
+ 
+diff --git a/Intersect.Client/Entities/Player.cs b/Intersect.Client/Entities/Player.cs
+index 7cceb754..78466f6e 100644
+--- a/Intersect.Client/Entities/Player.cs
++++ b/Intersect.Client/Entities/Player.cs
+@@ -59,8 +59,6 @@ public class Player : Entity
+ 
+         public int TargetType;
+ 
+-        public bool TargetOnFocus;
+-
+         public Player(Guid id, PlayerEntityPacket packet) : base(id, packet)
+         {
+             for (var i = 0; i < Options.MaxHotbar; i++)
+@@ -1089,7 +1087,7 @@ public bool TryAttack()
+                         if (en.Value.CurrentMap == map &&
+                             en.Value.CanBeAttacked())
+                         {
+-                            if (TargetIndex != null && TargetOnFocus)
++                            if (TargetIndex != null && en.Value.IsATarget)
+                             {
+                                 bool canAttack = false;
+                                 foreach (int[] hitBx in hitbox)
+@@ -1103,7 +1101,7 @@ public bool TryAttack()
+ 
+                                 if (canAttack)
+                                 {
+-                                    PacketSender.SendAttack(en.Key, TargetOnFocus);
++                                    PacketSender.SendAttack(en.Key, en.Value.IsATarget);
+                                     AttackTimer = Globals.System.GetTimeMs() + CalculateAttackTime();
+ 
+                                     return true;
+@@ -1112,7 +1110,7 @@ public bool TryAttack()
+                             else if (en.Value.X == x && en.Value.Y == y)
+                             {
+                                 //ATTACKKKKK!!!
+-                                PacketSender.SendAttack(en.Key, TargetOnFocus);
++                                PacketSender.SendAttack(en.Key, en.Value.IsATarget);
+                                 AttackTimer = Globals.System.GetTimeMs() + CalculateAttackTime();
+ 
+                                 return true;
+@@ -1146,7 +1144,8 @@ public bool TryAttack()
+             }
+ 
+             //Projectile/empty swing for animations
+-            PacketSender.SendAttack(Guid.Empty, TargetOnFocus);
++            // Check if there is an issue with the value always at false
++            PacketSender.SendAttack(Guid.Empty, false);
+             AttackTimer = Globals.System.GetTimeMs() + CalculateAttackTime();
+ 
+             return true;
+@@ -1940,11 +1939,11 @@ public void DrawTargets()
+                 {
+                     if (en.Value.GetType() != typeof(Projectile) && en.Value.GetType() != typeof(Resource))
+                     {
+-                        TargetOnFocus = false;
++                        en.Value.IsATarget = false;
+                         if (TargetType == 0 && TargetIndex == en.Value.Id)
+                         {
+                             en.Value.DrawTarget((int)TargetTypes.Selected);
+-                            TargetOnFocus = true;
++                            en.Value.IsATarget = true;
+                         }
+                     }
+                 }
+-- 
+2.25.0.windows.1
+

@@ -66,6 +66,7 @@ namespace Intersect.Client.Entities
 
         public int TargetType;
 
+
         public long CombatTimer { get; set; } = 0;
 
         // Target data
@@ -909,31 +910,47 @@ namespace Intersect.Client.Entities
                 movex = 1;
             }
 
+            // Used this so I can do multiple switch case
+            var move = movex / 10 + movey;
 
             Globals.Me.MoveDir = -1;
             if (movex != 0f || movey != 0f)
             {
-                if (movey < 0)
+                switch (move)
                 {
-                    Globals.Me.MoveDir = 1;
-                }
+                    case 1.0f:
+                        Globals.Me.MoveDir = 0; // Up   
 
-                if (movey > 0)
-                {
-                    Globals.Me.MoveDir = 0;
-                }
+                        break;
+                    case -1.0f:
+                        Globals.Me.MoveDir = 1; // Down
+                        break;
+                    case -0.1f: // x = 0, y = -1
+                        Globals.Me.MoveDir = 2; // Left
+                        break;
+                    case 0.1f:
+                        Globals.Me.MoveDir = 3; // Right
 
-                if (movex < 0)
-                {
-                    Globals.Me.MoveDir = 2;
-                }
+                        break;
+                    case 0.9f:
+                        Globals.Me.MoveDir = 4; // NW
 
-                if (movex > 0)
-                {
-                    Globals.Me.MoveDir = 3;
+                        break;
+                    case 1.1f:
+                        Globals.Me.MoveDir = 5; // NE
+
+                        break;
+                    case -1.1f:
+                        Globals.Me.MoveDir = 6; // SW
+
+                        break;
+                    case -0.9f:
+                        Globals.Me.MoveDir = 7; // SE
+
+                        break;
                 }
             }
-
+        
             var castInput = -1;
             for (var barSlot = 0; barSlot < Options.MaxHotbar; barSlot++)
             {
@@ -1243,21 +1260,89 @@ namespace Intersect.Client.Entities
             int x = Globals.Me.X;
             int y = Globals.Me.Y;
             var map = Globals.Me.CurrentMap;
+            List<int[]> hitbox = new List<int[]>();
             switch (Globals.Me.Dir)
             {
                 case 0:
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
                     y--;
 
                     break;
                 case 1:
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
                     y++;
 
                     break;
                 case 2:
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
                     x--;
 
                     break;
                 case 3:
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
+                    x++;
+                    break;
+                case 4: // UpLeft
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
+                    y--;
+                    x--;
+
+                    break;
+                case 5: //UpRight
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
+                    y--;
+                    x++;
+
+                    break;
+                case 6: // DownLeft
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
+                    y++;
+                    x--;
+
+                    break;
+                case 7: // DownRight
+                    hitbox.AddRange(new List<int[]>
+                            {
+                                new int[] { x - 1, y - 1 }, new int[] { x, y - 1 }, new int[] { x + 1, y - 1 },
+                                new int[] { x - 1, y },                             new int[] { x + 1, y },
+                                new int[] { x - 1, y + 1 }, new int[] { x, y + 1 }, new int[] { x + 1, y + 1 },
+                            });
+                    y++;
                     x++;
 
                     break;
@@ -1275,15 +1360,35 @@ namespace Intersect.Client.Entities
                     if (en.Value != Globals.Me)
                     {
                         if (en.Value.CurrentMap == map &&
-                            en.Value.X == x &&
-                            en.Value.Y == y &&
                             en.Value.CanBeAttacked())
                         {
-                            //ATTACKKKKK!!!
-                            PacketSender.SendAttack(en.Key);
-                            AttackTimer = Timing.Global.Ticks / TimeSpan.TicksPerMillisecond + CalculateAttackTime();
+                            if (TargetIndex != null && en.Value.IsATarget)
+                            {
+                                bool canAttack = false;
+                                foreach (int[] hitBx in hitbox)
+                                {
+                                    if (hitBx[0] == en.Value.X && hitBx[1] == en.Value.Y)
+                                    {
+                                        canAttack = true;
+                                        break;
+                                    }
+                                }
+                                if (canAttack)
+                                {
+                                    PacketSender.SendAttack(en.Key, en.Value.IsATarget);
+                                    AttackTimer = Globals.System.GetTimeMs() + CalculateAttackTime();
 
-                            return true;
+                                    return true;
+                                }
+                            }
+                            else if (en.Value.X == x && en.Value.Y == y)
+                            {
+                                //ATTACKKKKK!!!
+                                PacketSender.SendAttack(en.Key, en.Value.IsATarget);
+                                AttackTimer = Globals.System.GetTimeMs() + CalculateAttackTime();
+
+                                return true;
+                            }
                         }
                     }
                 }
@@ -1313,7 +1418,7 @@ namespace Intersect.Client.Entities
             }
 
             //Projectile/empty swing for animations
-            PacketSender.SendAttack(Guid.Empty);
+            PacketSender.SendAttack(Guid.Empty, IsATarget);
             AttackTimer = Timing.Global.Ticks / TimeSpan.TicksPerMillisecond + CalculateAttackTime();
 
             return true;
@@ -1386,7 +1491,6 @@ namespace Intersect.Client.Entities
 
             Entity bestMatch = null;
             var bestAreaMatch = 0f;
-
 
             foreach (MapInstance map in MapInstance.Lookup.Values)
             {
@@ -1723,6 +1827,52 @@ namespace Intersect.Client.Entities
                             }
 
                             break;
+                        case 4: // NW
+                            if (IsTileBlocked(X - 1, Y - 1, Z, CurrentMap, ref blockedBy) == -1)
+                            {
+                                tmpY--;
+                                tmpX--;
+                                IsMoving = true;
+                                Dir = 4;
+                                OffsetY = Options.TileHeight;
+                                OffsetX = Options.TileWidth;
+                            }
+                            break;
+                        case 5: // NE
+                            if (IsTileBlocked(X + 1, Y - 1, Z, CurrentMap, ref blockedBy) == -1)
+                            {
+                                tmpY--;
+                                tmpX++;
+                                IsMoving = true;
+                                Dir = 5;
+                                OffsetY = Options.TileHeight;
+                                OffsetX = -Options.TileWidth;
+                            }
+                            break;
+                        case 6: // SW
+                            if (IsTileBlocked(X - 1, Y + 1, Z, CurrentMap, ref blockedBy) == -1)
+                            {
+                                tmpY++;
+                                tmpX--;
+                                IsMoving = true;
+                                Dir = 6;
+                                OffsetY = -Options.TileHeight;
+                                OffsetX = Options.TileWidth;
+                            }
+                            break;
+                        case 7: // SE
+
+                            if (IsTileBlocked(X + 1, Y + 1, Z, CurrentMap, ref blockedBy) == -1)
+                            {
+                                tmpY++;
+                                tmpX++;
+                                IsMoving = true;
+                                Dir = 7;
+                                OffsetY = -Options.TileHeight;
+                                OffsetX = -Options.TileWidth;
+                            }
+
+                            break;
                     }
 
                     if (blockedBy != mLastBumpedEvent)
@@ -1889,7 +2039,7 @@ namespace Intersect.Client.Entities
             base.DrawName(textColor, borderColor, backgroundColor);
             DrawLabels(HeaderLabel.Text, 0, HeaderLabel.Color, textColor, borderColor, backgroundColor);
             DrawLabels(FooterLabel.Text, 1, FooterLabel.Color, textColor, borderColor, backgroundColor);
-            DrawGuildName(textColor, borderColor, backgroundColor);
+            DrawGuildName(Color.Green, borderColor, backgroundColor);
         }
 
         public virtual void DrawGuildName(Color textColor, Color borderColor = null, Color backgroundColor = null)
@@ -1960,9 +2110,11 @@ namespace Intersect.Client.Entities
                 {
                     if (en.Value.GetType() != typeof(Projectile) && en.Value.GetType() != typeof(Resource))
                     {
+                        en.Value.IsATarget = false;
                         if (TargetType == 0 && TargetIndex == en.Value.Id)
                         {
                             en.Value.DrawTarget((int) TargetTypes.Selected);
+                            en.Value.IsATarget = true;
                         }
                     }
                 }
@@ -2019,6 +2171,7 @@ namespace Intersect.Client.Entities
                                     if (TargetType != 0 || TargetIndex != en.Value.Id)
                                     {
                                         en.Value.DrawTarget((int) TargetTypes.Hover);
+
                                     }
                                 }
                             }

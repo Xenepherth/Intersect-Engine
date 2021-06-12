@@ -128,6 +128,26 @@ namespace Intersect.Client.Entities.Events
                                     break;
                                 case 3:
                                     d = 2;
+                                    break;
+                                case 4: // UpLeft
+                                    d = 1;
+
+                                    break;
+                                case 5: // UpRight
+                                    d = 2;
+
+                                    break;
+                                case 6: // DownLeft
+                                    d = 1;
+
+                                    break;
+                                case 7: // DownRight
+                                    d = 2;
+
+                                    break;
+                                default:
+                                    Dir = 0;
+                                    d = 3;
 
                                     break;
                             }

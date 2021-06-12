@@ -1,0 +1,31 @@
+From 48842a8e0c013cc0fb4734594075770b8223ec0a Mon Sep 17 00:00:00 2001
+From: Bandana <aurelende@protonmail.com>
+Date: Thu, 25 Jun 2020 13:00:05 -0400
+Subject: [PATCH 15/15] client entity IsDisposed() fixed
+
+---
+ Intersect.Client/Entities/Entity.cs | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/Intersect.Client/Entities/Entity.cs b/Intersect.Client/Entities/Entity.cs
+index 5f200cd0..638f614f 100644
+--- a/Intersect.Client/Entities/Entity.cs
++++ b/Intersect.Client/Entities/Entity.cs
+@@ -432,13 +432,9 @@ public void ClearAnimations(List<Animation> anims)
+             }
+         }
+ 
+-        // After being set to true, mDisposed was always true so the if isDisposed condition in Entibox was always true.
+-        // So this little temp variable fix that.
+         public virtual bool IsDisposed()
+         {
+-            bool temp = mDisposed;
+-            mDisposed = false;
+-            return temp;
++            return mDisposed;
+         }
+ 
+         public virtual void Dispose()
+-- 
+2.25.0.windows.1
+

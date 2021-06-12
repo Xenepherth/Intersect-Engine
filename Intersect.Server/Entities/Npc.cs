@@ -158,10 +158,10 @@ namespace Intersect.Server.Entities
             return EntityTypes.GlobalEntity;
         }
 
-        public override void Die(int dropitems = 100, Entity killer = null)
+        public override void Die(bool generateLoot = true, Entity killer = null)
         {
             lock (EntityLock) {
-                base.Die(dropitems, killer);
+                base.Die(generateLoot, killer);
 
                 AggroCenterMap = null;
                 AggroCenterX = 0;
@@ -772,7 +772,7 @@ namespace Intersect.Server.Entities
                                 if (mResetCounter > mResetMax)
                                 {
                                     // Kill the Npc, and simply do not drop any loot or give any credit.
-                                    Die(0, null);
+                                    Die(false, null);
                                     mResetCounter = 0;
                                     mResetDistance = 0;
                                 }
@@ -897,6 +897,22 @@ namespace Intersect.Server.Entities
                                                         dir = 2;
 
                                                         break;
+                                                    case 4:
+                                                        dir = 5;
+
+                                                    break;
+                                                    case 5:
+                                                        dir = 4;
+
+                                                    break;
+                                                    case 6:
+                                                        dir = 7;
+
+                                                    break;
+                                                    case 7:
+                                                        dir = 6;
+
+                                                        break;
                                                 }
                                             }
 
@@ -988,6 +1004,22 @@ namespace Intersect.Server.Entities
                                             break;
                                         case 3:
                                             dir = 2;
+
+                                            break;
+                                        case 4:
+                                            dir = 5;
+
+                                            break;
+                                        case 5:
+                                            dir = 4;
+
+                                            break;
+                                        case 6:
+                                            dir = 7;
+
+                                            break;
+                                        case 7:
+                                            dir = 6;
 
                                             break;
                                     }

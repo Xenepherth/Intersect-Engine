@@ -54,6 +54,7 @@ namespace Intersect.Client.Entities.Projectiles
             Entity parent
         )
         {
+    
             X = x;
             Y = y;
             SpawnX = X;

@@ -97,6 +97,8 @@ namespace Intersect.Client.Entities
 
         public bool IsMoving;
 
+        public bool IsATarget = false;
+
         //Caching
         public MapInstance LatestMap;
 
@@ -222,7 +224,7 @@ namespace Intersect.Client.Entities
         public byte Dir
         {
             get => mDir;
-            set => mDir = (byte) ((value + 4) % 4);
+            set => mDir = (byte) ((value + 8) % 8);
         }
 
         public virtual string TransformedSprite
@@ -609,6 +611,46 @@ namespace Intersect.Client.Entities
                             OffsetX = 0;
                         }
 
+                     break;
+                    case 4: // NW     
+                        OffsetY -= (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+                        OffsetX -= (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+
+                        if (OffsetY < 0)
+                            OffsetY = 0;
+                        if (OffsetX < 0)
+                            OffsetX = 0;
+
+                        break;
+                    case 5: // NE
+                        OffsetY -= (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+                        OffsetX += (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+
+                        if (OffsetY < 0)
+                            OffsetY = 0;
+                        if (OffsetX > 0)
+                            OffsetX = 0;
+
+                        break;
+                    case 6: //SW
+                        OffsetY += (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+                        OffsetX -= (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+
+                        if (OffsetY > 0)
+                            OffsetY = 0;
+                        if (OffsetX < 0)
+                            OffsetX = 0;
+
+                        break;
+                    case 7: // SE
+                        OffsetY += (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+                        OffsetX += (float)ecTime * (float)Options.TileHeight / GetMovementTime();
+
+                        if (OffsetY > 0)
+                            OffsetY = 0;
+                        if (OffsetX > 0)
+                            OffsetX = 0;
+
                         break;
                 }
 
@@ -876,7 +918,8 @@ namespace Intersect.Client.Entities
             var d = 0;
 
             var sprite = "";
-            var alpha = 255;
+            // Copy the actual render color, because we'll be editing it later and don't want to overwrite it.
+            var renderColor = new Color(Color.A, Color.R, Color.G, Color. B); 
 
             //If the entity has transformed, apply that sprite instead.
             for (var n = 0; n < Status.Count; n++)
@@ -896,7 +939,7 @@ namespace Intersect.Client.Entities
                     }
                     else
                     {
-                        alpha = 125;
+                        renderColor.A /= 2;
                     }
                 }
             }
@@ -941,12 +984,25 @@ namespace Intersect.Client.Entities
                         break;
                     case 3:
                         d = 2;
+                        break;
+                    case 4: // UpLeft
+                        d = 1;
 
+                        break;
+                    case 5: // UpRight
+                        d = 2;
+
+                        break;
+                    case 6: // DownLeft
+                        d = 1;
+
+                        break;
+                    case 7: // DownRight
+                        d = 2;
                         break;
                     default:
                         Dir = 0;
                         d = 3;
-
                         break;
                 }
 
@@ -994,17 +1050,27 @@ namespace Intersect.Client.Entities
 
                 WorldPos = destRectangle;
 
-                //Order the layers of paperdolls and sprites
-                for (var z = 0; z < Options.PaperdollOrder[Dir].Count; z++)
+                int pDollIndex = Dir; // Actually it's because the index would've been outside of the bounds
+                if (Dir == 4 || Dir == 6)
                 {
-                    var paperdoll = Options.PaperdollOrder[Dir][z];
+                    pDollIndex = 2;
+                }
+                else if (Dir == 5 || Dir == 7)
+                {
+                    pDollIndex = 3;
+                }
+
+                //Order the layers of paperdolls and sprites
+                for(var z = 0; z < Options.PaperdollOrder[pDollIndex].Count; z++)
+                {
+                    var paperdoll = Options.PaperdollOrder[pDollIndex][z];
                     var equipSlot = Options.EquipmentSlots.IndexOf(paperdoll);
 
                     //Check for player
                     if (paperdoll == "Player")
                     {
                         Graphics.DrawGameTexture(
-                            texture, srcRectangle, destRectangle, Color ?? new Color(alpha, 255, 255, 255)
+                            texture, srcRectangle, destRectangle, renderColor
                         );
                     }
                     else if (equipSlot > -1)
@@ -1034,11 +1100,11 @@ namespace Intersect.Client.Entities
                                 {
                                     if (Gender == 0)
                                     {
-                                        DrawEquipment(item.MalePaperdoll, alpha);
+                                        DrawEquipment(item.MalePaperdoll, renderColor.A);
                                     }
                                     else
                                     {
-                                        DrawEquipment(item.FemalePaperdoll, alpha);
+                                        DrawEquipment(item.FemalePaperdoll, renderColor.A);
                                     }
                                 }
                             }
@@ -1059,6 +1125,24 @@ namespace Intersect.Client.Entities
 
         public void DrawChatBubbles()
         {
+            //Don't draw if the entity is hidden
+            if (HideEntity)
+            {
+                return; 
+            }
+
+            //If unit is stealthed, don't render unless the entity is the player or party member.
+            if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+            {
+                for (var n = 0; n < Status.Count; n++)
+                {
+                    if (Status[n].Type == StatusTypes.Stealth)
+                    {
+                        return;
+                    }
+                }
+            }
+
             var chatbubbles = mChatBubbles.ToArray();
             var bubbleoffset = 0f;
             for (var i = chatbubbles.Length - 1; i > -1; i--)
@@ -1126,6 +1210,21 @@ namespace Intersect.Client.Entities
 
                         break;
                     case 3:
+                        d = 2;
+                        break;
+                    case 4: // UpLeft
+                        d = 1;
+
+                        break;
+                    case 5: // UpRight
+                        d = 2;
+
+                        break;
+                    case 6: // DownLeft
+                        d = 1;
+
+                        break;
+                    case 7: // DownRight
                         d = 2;
 
                         break;

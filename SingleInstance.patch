@@ -1,0 +1,40 @@
+From b27188268cbf08209046e720182d6fbbf6d73ca4 Mon Sep 17 00:00:00 2001
+From: lunarsourcellc <lunarsourcellc@gmail.com>
+Date: Sun, 19 Apr 2020 15:54:41 -0400
+Subject: [PATCH] Single Instance Patch
+
+---
+ Intersect.Client/Program.cs | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/Intersect.Client/Program.cs b/Intersect.Client/Program.cs
+index 68b682a7..8b527b5d 100644
+--- a/Intersect.Client/Program.cs
++++ b/Intersect.Client/Program.cs
+@@ -5,6 +5,7 @@
+ using System.Linq;
+ using System.Reflection;
+ using System.Resources;
++using System.Threading; // PATCH: Single Instance
+ 
+ namespace Intersect.Client
+ {
+@@ -25,6 +26,15 @@ public static class Program
+         [STAThread]
+         public static void Main()
+         {
++
++            // PATCH: Single Instance
++            var created = false;
++            var mutex = new Mutex(true, "YourGameName", out created);
++
++            if (!created)
++                return;
++            // PATCH: Single Instance
++
+             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+             CosturaUtility.Initialize();
+ 
+-- 
+2.17.1.windows.2
+
