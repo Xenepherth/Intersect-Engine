@@ -2123,6 +2123,7 @@ namespace Intersect.Server.Entities
 
                             break;
                         case SpellTargetTypes.Single:
+                            ChangeDir(DirToEnemy(CastTarget));
                             if (CastTarget == null)
                             {
                                 return;

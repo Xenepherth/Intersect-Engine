@@ -1076,6 +1076,8 @@ namespace Intersect.Server.Localization
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]            public readonly LocalizedString warpedtoyou = @"{00} warped to you.";
 
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]            public readonly LocalizedString pmerror = @"You can't send a pm to you.";
+
         }
 
         public sealed class PortcheckingNamespace : LocaleNamespace

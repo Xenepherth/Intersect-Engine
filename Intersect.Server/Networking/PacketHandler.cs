@@ -934,23 +934,31 @@ namespace Intersect.Server.Networking
                     return;
                 }
 
-                var target = Player.FindOnline(msgSplit[0].ToLower());
-                if (target != null)
-                {
-                    PacketSender.SendChatMsg(
+                    var target = Player.FindOnline(msgSplit[0].ToLower());
+                    if (target != null)
+                    {
+                    if (player != target)
+                    {
+                        PacketSender.SendChatMsg(
                         player, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM, CustomColors.Chat.PrivateChat,
                         player.Name
                     );
 
-                    PacketSender.SendChatMsg(
+                        PacketSender.SendChatMsg(
                         target, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM,
                         CustomColors.Chat.PrivateChat, player.Name
                     );
 
-                    target.ChatTarget = player;
-                    player.ChatTarget = target;
-                    ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.PM, target?.Id ?? Guid.Empty);
-                }
+                        target.ChatTarget = player;
+                        player.ChatTarget = target;
+                        ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.PM, target?.Id ?? Guid.Empty);
+                    }
+                    else
+                    {
+                        PacketSender.SendChatMsg(player, Strings.Player.pmerror, ChatMessageType.PM, CustomColors.Alerts.Error);
+                    }
+                    
+                    }
                 else
                 {
                     PacketSender.SendChatMsg(player, Strings.Player.offline, ChatMessageType.PM, CustomColors.Alerts.Error);
