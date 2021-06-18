@@ -121,6 +121,8 @@ namespace Intersect
 
             public Color GuildChat = new Color(255, 255, 165, 0);
 
+            public Color NationChat = Color.Cyan;
+
         }
 
         public sealed class QuestsNamespace

@@ -438,13 +438,14 @@ namespace Intersect.Client.Localization
 
             public static Dictionary<int, LocalizedString> channels = new Dictionary<int, LocalizedString>
             {
-                {0, @"local"},
-                {1, @"global"},
-                {2, @"party"},
-                {3, @"guild"}
+                {0, @"Local"},
+                {1, @"Global"},
+                {2, @"Party"},
+                {3, @"Guild"},
+                {4, @"Nation"}
             };
 
-            public static LocalizedString channeladmin = @"admin";
+            public static LocalizedString channeladmin = @"Admin";
 
             public static LocalizedString enterchat = @"Click here to chat.";
 
@@ -464,6 +465,7 @@ namespace Intersect.Client.Localization
                 { ChatboxTab.Party, @"Party" },
                 { ChatboxTab.Global, @"Global" },
                 { ChatboxTab.Guild, @"Guild" },
+                { ChatboxTab.Nation, @"Nation" },
                 { ChatboxTab.System, @"System" },
             };
 

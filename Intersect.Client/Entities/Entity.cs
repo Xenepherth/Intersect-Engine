@@ -38,7 +38,9 @@ namespace Intersect.Client.Entities
 
             ChatBubble,
 
-            Guild
+            Guild,
+
+            Nation
 
         }
 
@@ -932,7 +934,7 @@ namespace Intersect.Client.Entities
                 //If unit is stealthed, don't render unless the entity is the player.
                 if (Status[n].Type == StatusTypes.Stealth)
                 {
-                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)) && !(this is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
                     {
                         return;
                     }
@@ -1131,7 +1133,7 @@ namespace Intersect.Client.Entities
             }
 
             //If unit is stealthed, don't render unless the entity is the player or party member.
-            if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+            if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)) && !(this is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
             {
                 for (var n = 0; n < Status.Count; n++)
                 {
@@ -1368,7 +1370,7 @@ namespace Intersect.Client.Entities
                 //If unit is stealthed, don't render unless the entity is the player.
                 if (Status[n].Type == StatusTypes.Stealth)
                 {
-                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)) && !(this is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
                     {
                         return;
                     }
@@ -1460,7 +1462,7 @@ namespace Intersect.Client.Entities
                 //If unit is stealthed, don't render unless the entity is the player.
                 if (Status[n].Type == StatusTypes.Stealth)
                 {
-                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)) && !(this is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
                     {
                         return;
                     }
@@ -1561,7 +1563,30 @@ namespace Intersect.Client.Entities
                         }
 
                         var guildSize = Graphics.Renderer.MeasureText(player.Guild, Graphics.EntityNameFont, 1);
-                        y -= guildSize.Y;
+                        y -= guildSize.Y + 14;
+                    }
+                    break;
+                case LabelType.Nation:
+                    // ???? This should never NOT run on a player ????
+                    if (this is Player nationplayer)
+                    {
+                        if (string.IsNullOrWhiteSpace(nationplayer.Nation))
+                        {
+                            return GetLabelLocation(LabelType.Name);
+                        }
+
+                        // Do we have a header? If so, slightly change the position!
+                        if (string.IsNullOrWhiteSpace(HeaderLabel.Text))
+                        {
+                            y = GetLabelLocation(LabelType.Name);
+                        }
+                        else
+                        {
+                            y = GetLabelLocation(LabelType.Header);
+                        }
+
+                        var nationSize = Graphics.Renderer.MeasureText(nationplayer.Nation, Graphics.EntityNameFont, 1);
+                        y -= nationSize.Y - 4;
                     }
                     break;
             }
@@ -1622,7 +1647,7 @@ namespace Intersect.Client.Entities
                 //If unit is stealthed, don't render unless the entity is the player.
                 if (Status[n].Type == StatusTypes.Stealth)
                 {
-                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)) && !(this is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
                     {
                         return;
                     }

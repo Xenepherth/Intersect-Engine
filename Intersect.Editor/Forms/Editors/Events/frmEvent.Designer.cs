@@ -154,6 +154,11 @@ namespace Intersect.Editor.Forms.Editors.Events
             treeNode62,
             treeNode63,
             treeNode64});
+            System.Windows.Forms.TreeNode treeNode66 = new System.Windows.Forms.TreeNode("Create Nation");
+            System.Windows.Forms.TreeNode treeNode67 = new System.Windows.Forms.TreeNode("Join Nation");
+            System.Windows.Forms.TreeNode treeNode68 = new System.Windows.Forms.TreeNode("Nations", new System.Windows.Forms.TreeNode[] {
+            treeNode66,
+            treeNode67});
             this.lblName = new System.Windows.Forms.Label();
             this.txtEventname = new DarkUI.Controls.DarkTextBox();
             this.grpEntityOptions = new DarkUI.Controls.DarkGroupBox();
@@ -1027,6 +1032,14 @@ namespace Intersect.Editor.Forms.Editors.Events
             treeNode64.Text = "Set Guild Bank Slots Count";
             treeNode65.Name = "guilds";
             treeNode65.Text = "Guilds";
+            treeNode66.Name = "createnation";
+            treeNode66.Tag = "58";
+            treeNode66.Text = "Create Nation";
+            treeNode67.Name = "joinnation";
+            treeNode67.Tag = "59";
+            treeNode67.Text = "Join Nation";
+            treeNode68.Name = "nations";
+            treeNode68.Text = "Nations";
             this.lstCommands.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode5,
             treeNode13,
@@ -1036,9 +1049,11 @@ namespace Intersect.Editor.Forms.Editors.Events
             treeNode54,
             treeNode56,
             treeNode60,
-            treeNode65});
+            treeNode65,
+            treeNode68});
             this.lstCommands.Size = new System.Drawing.Size(445, 440);
             this.lstCommands.TabIndex = 2;
+            this.lstCommands.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.lstCommands_AfterSelect);
             this.lstCommands.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.lstCommands_NodeMouseDoubleClick);
             // 
             // grpEventCommands

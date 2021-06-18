@@ -1865,6 +1865,30 @@ Tick timer saved in server config.json.";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public static LocalizedString resetstatpointallocations = @"Reset Player Stat Point Allocations";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString createnation = @"Create Nation [Player Variable {00} as name]";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString nationcreated = @"Nation created successfully.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString nationfailed = @"Nation failed to create.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString endcreatenation = @"End Create Nation";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString joinnation = @"Join Nation [Player Variable {00} as name]";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString nationjoined = @"Nation created successfully.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString nationjoinfailed = @"Nation failed to create.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString endjoinnation = @"End Create Nation";
         }
 
         public struct EventChangePlayerColor
@@ -1963,6 +1987,9 @@ Tick timer saved in server config.json.";
                 {"openguildbank", @"Open Guild Bank"},
                 {"setguildbankslots", @"Set Guild Bank Slots Count"},
                 {"resetstatallocations", @"Reset Stat Point Allocations"},
+                {"nations", @"Nations"},
+                {"createnation", @"Create Nation"},
+                {"joinnation", @"Join Nation"},
             };
 
         }
@@ -2342,6 +2369,40 @@ Tick timer saved in server config.json.";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public static LocalizedString title = @"Set Guild Bank Slots Count";
+        }
+
+        public struct EventCreateNation
+        {
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString Cancel = @"Cancel";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString SelectVariable = @"Player Variable containing Nation Name:";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString Okay = @"Ok";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString Title = @"Create Nation";
+
+        }
+
+        public struct EventJoinNation
+        {
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString Cancel = @"Cancel";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString SelectVariable = @"Player Variable containing nation Name:";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString Okay = @"Ok";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString Title = @"Join Nation";
+
         }
 
         public struct EventEditor

@@ -37,9 +37,10 @@ namespace Intersect.Network.Packets.Server
         [Key(29)]
         public string Guild { get; set; }
 
-
         [Key(30)]
         public int GuildRank { get; set; }
-    }
 
+        [Key(31)]
+        public string Nation { get; set; }
+    }
 }

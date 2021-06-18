@@ -19,6 +19,8 @@
 
         Guild,
 
+        Nation,
+
         // Player Messages
         Experience = 20,
 

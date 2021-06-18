@@ -288,6 +288,20 @@ namespace Intersect.Server.Entities
         }
         #endregion
 
+        #region "Nations"
+        public void LoadNation()
+        {
+            using (var context = DbInterface.CreatePlayerContext())
+            {
+                var nationId = context.Players.Where(p => p.Id == Id && p.DbNation.Id != null && p.DbNation.Id != Guid.Empty).Select(p => p.DbNation.Id).FirstOrDefault();
+                if (nationId != default)
+                {
+                    Nation = Nation.LoadNation(nationId);
+                }
+            }
+        }
+        #endregion
+
         #region Listing
 
         public static int Count()

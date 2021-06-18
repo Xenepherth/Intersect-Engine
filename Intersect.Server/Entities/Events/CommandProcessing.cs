@@ -31,7 +31,7 @@ namespace Intersect.Server.Entities.Events
             stackInfo.WaitingOnCommand = null;
             stackInfo.BranchIds = null;
 
-            ProcessCommand((dynamic) command, player, instance, instance.CallStack.Peek(), instance.CallStack);
+            ProcessCommand((dynamic)command, player, instance, instance.CallStack.Peek(), instance.CallStack);
 
             stackInfo.CommandIndex++;
         }
@@ -144,7 +144,7 @@ namespace Intersect.Server.Entities.Events
             Stack<CommandInstance> callStack
         )
         {
-            ProcessVariableModification(command, (dynamic) command.Modification, player, instance);
+            ProcessVariableModification(command, (dynamic)command.Modification, player, instance);
         }
 
         //Set Self Switch Command
@@ -201,7 +201,8 @@ namespace Intersect.Server.Entities.Events
 
             if (newCommandList != null)
             {
-                var tmpStack = new CommandInstance(stackInfo.Page) {
+                var tmpStack = new CommandInstance(stackInfo.Page)
+                {
                     CommandList = newCommandList,
                     CommandIndex = 0,
                 };
@@ -670,7 +671,7 @@ namespace Intersect.Server.Entities.Events
             }
 
             PacketSender.SendEntityDataToProximity(player);
-            PacketSender.SendChatMsg(player, Strings.Player.powerchanged, ChatMessageType.Notice ,Color.Red);
+            PacketSender.SendChatMsg(player, Strings.Player.powerchanged, ChatMessageType.Notice, Color.Red);
         }
 
         //Warp Player Command
@@ -684,7 +685,7 @@ namespace Intersect.Server.Entities.Events
         {
             player.Warp(
                 command.MapId, command.X, command.Y,
-                command.Direction == WarpDirection.Retain ? (byte) player.Dir : (byte) (command.Direction - 1)
+                command.Direction == WarpDirection.Retain ? (byte)player.Dir : (byte)(command.Direction - 1)
             );
         }
 
@@ -766,8 +767,8 @@ namespace Intersect.Server.Entities.Events
             var mapId = command.MapId;
             var tileX = 0;
             var tileY = 0;
-            var direction = (byte) Directions.Up;
-            var targetEntity = (Entity) player;
+            var direction = (byte)Directions.Up;
+            var targetEntity = (Entity)player;
             if (mapId != Guid.Empty)
             {
                 tileX = command.X;
@@ -803,18 +804,18 @@ namespace Intersect.Server.Entities.Events
                         var tmp = 0;
                         switch (targetEntity.Dir)
                         {
-                            case (int) Directions.Down:
+                            case (int)Directions.Down:
                                 yDiff *= -1;
                                 xDiff *= -1;
 
                                 break;
-                            case (int) Directions.Left:
+                            case (int)Directions.Left:
                                 tmp = yDiff;
                                 yDiff = xDiff;
                                 xDiff = tmp;
 
                                 break;
-                            case (int) Directions.Right:
+                            case (int)Directions.Right:
                                 tmp = yDiff;
                                 yDiff = xDiff;
                                 xDiff = -tmp;
@@ -822,12 +823,12 @@ namespace Intersect.Server.Entities.Events
                                 break;
                         }
 
-                        direction = (byte) targetEntity.Dir;
+                        direction = (byte)targetEntity.Dir;
                     }
 
                     mapId = targetEntity.MapId;
-                    tileX = (byte) (targetEntity.X + xDiff);
-                    tileY = (byte) (targetEntity.Y + yDiff);
+                    tileX = (byte)(targetEntity.X + xDiff);
+                    tileY = (byte)(targetEntity.Y + yDiff);
                 }
                 else
                 {
@@ -838,8 +839,8 @@ namespace Intersect.Server.Entities.Events
             var tile = new TileHelper(mapId, tileX, tileY);
             if (tile.TryFix())
             {
-                var npc = MapInstance.Get(mapId).SpawnNpc((byte) tileX, (byte) tileY, direction, npcId, true);
-                player.SpawnedNpcs.Add((Npc) npc);
+                var npc = MapInstance.Get(mapId).SpawnNpc((byte)tileX, (byte)tileY, direction, npcId, true);
+                player.SpawnedNpcs.Add((Npc)npc);
             }
         }
 
@@ -857,7 +858,7 @@ namespace Intersect.Server.Entities.Events
             {
                 if (entities[i] != null && entities[i].GetType() == typeof(Npc))
                 {
-                    if (((Npc) entities[i]).Despawnable == true)
+                    if (((Npc)entities[i]).Despawnable == true)
                     {
                         lock (player.EntityLock)
                         {
@@ -885,8 +886,8 @@ namespace Intersect.Server.Entities.Events
             var mapId = command.MapId;
             var tileX = 0;
             var tileY = 0;
-            var direction = (byte) Directions.Up;
-            var targetEntity = (Entity) player;
+            var direction = (byte)Directions.Up;
+            var targetEntity = (Entity)player;
             if (mapId != Guid.Empty)
             {
                 tileX = command.X;
@@ -933,18 +934,18 @@ namespace Intersect.Server.Entities.Events
                         var tmp = 0;
                         switch (targetEntity.Dir)
                         {
-                            case (int) Directions.Down:
+                            case (int)Directions.Down:
                                 yDiff *= -1;
                                 xDiff *= -1;
 
                                 break;
-                            case (int) Directions.Left:
+                            case (int)Directions.Left:
                                 tmp = yDiff;
                                 yDiff = xDiff;
                                 xDiff = tmp;
 
                                 break;
-                            case (int) Directions.Right:
+                            case (int)Directions.Right:
                                 tmp = yDiff;
                                 yDiff = xDiff;
                                 xDiff = -tmp;
@@ -952,7 +953,7 @@ namespace Intersect.Server.Entities.Events
                                 break;
                         }
 
-                        direction = (byte) targetEntity.Dir;
+                        direction = (byte)targetEntity.Dir;
                     }
 
                     mapId = targetEntity.MapId;
@@ -969,7 +970,7 @@ namespace Intersect.Server.Entities.Events
             if (tile.TryFix())
             {
                 PacketSender.SendAnimationToProximity(
-                    animId, -1, Guid.Empty, tile.GetMapId(), tile.GetX(), tile.GetY(), (sbyte) direction
+                    animId, -1, Guid.Empty, tile.GetMapId(), tile.GetX(), tile.GetY(), (sbyte)direction
                 );
             }
         }
@@ -1092,7 +1093,7 @@ namespace Intersect.Server.Entities.Events
                 id = instance.PageInstance.Id;
                 stackInfo.WaitingForResponse = CommandInstance.EventResponse.Picture;
             }
-            
+
             PacketSender.SendShowPicture(player, command.File, command.Size, command.Clickable, command.HideTime, id);
         }
 
@@ -1485,6 +1486,175 @@ namespace Intersect.Server.Entities.Events
             }
         }
 
+        //Create Nation Command
+        private static void ProcessCommand(
+            CreateNationCommand command,
+            Player player,
+            Event instance,
+            CommandInstance stackInfo,
+            Stack<CommandInstance> callStack
+        )
+        {
+            var success = false;
+            var playerVariable = PlayerVariableBase.Get(command.VariableId);
+
+            // We only accept Strings as our Nation Names!
+            if (playerVariable.Type == VariableDataTypes.String)
+            {
+                // Get our intended nation name
+                var nname = player.GetVariable(playerVariable.Id)?.Value.String?.Trim();
+
+                // Can we use this name according to our configuration?
+                if (nname != null && FieldChecking.IsValidNationName(nname, Strings.Regex.nationname))
+                {
+                    // Is the name already in use?
+                    if (Nation.GetNation(nname) == null)
+                    {
+                        // Is the player already in a nation?
+                        if (player.Nation == null)
+                        {
+                            // Finally, we can actually MAKE this nation happen!
+                            var nation = Nation.CreateNation(player, nname);
+                            if (nation != null)
+                            {
+                                // Send them a welcome message!
+                                PacketSender.SendChatMsg(player, Strings.Nations.Welcome.ToString(nname), ChatMessageType.Nation, CustomColors.Alerts.Success);
+
+                                // Denote that we were successful.
+                                success = true;
+                            }
+                        }
+                        else
+                        {
+                            // This cheeky bugger is already in a nation, tell him so!
+                            PacketSender.SendChatMsg(player, Strings.Nations.AlreadyInNation, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                        }
+                    }
+                    else
+                    {
+                        // This name already exists, oh dear!
+                        PacketSender.SendChatMsg(player, Strings.Nations.NationNameInUse, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                    }
+                }
+                else
+                {
+                    // Let our player know they need to adjust their name.
+                    PacketSender.SendChatMsg(player, Strings.Nations.VariableInvalid, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                }
+            }
+            else
+            {
+                // Notify the user that something went wrong, the user really shouldn't see this.. Assuming the creator set up his events properly.
+                PacketSender.SendChatMsg(player, Strings.Nations.VariableNotString, ChatMessageType.Nation, CustomColors.Alerts.Error);
+            }
+
+            List<EventCommand> newCommandList = null;
+            if (success && stackInfo.Page.CommandLists.ContainsKey(command.BranchIds[0]))
+            {
+                newCommandList = stackInfo.Page.CommandLists[command.BranchIds[0]];
+            }
+
+            if (!success && stackInfo.Page.CommandLists.ContainsKey(command.BranchIds[1]))
+            {
+                newCommandList = stackInfo.Page.CommandLists[command.BranchIds[1]];
+            }
+
+            var tmpStack = new CommandInstance(stackInfo.Page)
+            {
+                CommandList = newCommandList,
+                CommandIndex = 0,
+            };
+
+            callStack.Push(tmpStack);
+        }
+
+        //Join Nation Command
+        private static void ProcessCommand(
+            JoinNationCommand command,
+            Player player,
+            Event instance,
+            CommandInstance stackInfo,
+            Stack<CommandInstance> callStack
+        )
+        {
+            var success = false;
+            var playerVariable = PlayerVariableBase.Get(command.VariableId);
+
+            // We only accept Strings as our Nation Names!
+            if (playerVariable.Type == VariableDataTypes.String)
+            {
+                // Get our intended nation name
+                var nname = player.GetVariable(playerVariable.Id)?.Value.String?.Trim();
+
+                // Can we use this name according to our configuration?
+                if (nname != null && FieldChecking.IsValidNationName(nname, Strings.Regex.nationname))
+                {
+                    // Is the name already in use?
+                    if (Nation.GetNation(nname) != null)
+                    {
+                        // Is the player already in a nation?
+                        if (player.Nation == null)
+                        {
+                            // Finally, we can actually MAKE this nation happen!
+                            var nation = Nation.GetNation(nname);
+                            if (nation != null)
+                            {
+                                nation.JoinNation(player);
+                                // Send them a welcome message!
+                                PacketSender.SendChatMsg(player, Strings.Nations.Welcome.ToString(nname), ChatMessageType.Nation, CustomColors.Alerts.Success);
+
+                                // Denote that we were successful.
+                                success = true;
+                            }
+
+                        }
+                        else
+                        {
+                            // This name already exists, oh dear!
+                            PacketSender.SendChatMsg(player, Strings.Nations.VariableInvalid, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                        }
+                    }
+                    else
+
+                    {
+                        // This cheeky bugger is already in a nation, tell him so!
+                        PacketSender.SendChatMsg(player, Strings.Nations.AlreadyInNation, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                    }
+                }
+                else
+                {
+                    // Let our player know they need to adjust their name.
+                    PacketSender.SendChatMsg(player, Strings.Nations.VariableInvalid, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                }
+            }
+            else
+            {
+                // Notify the user that something went wrong, the user really shouldn't see this.. Assuming the creator set up his events properly.
+                PacketSender.SendChatMsg(player, Strings.Nations.VariableNotString, ChatMessageType.Nation, CustomColors.Alerts.Error);
+            }
+
+            List<EventCommand> newCommandList = null;
+            if (success && stackInfo.Page.CommandLists.ContainsKey(command.BranchIds[0]))
+            {
+                newCommandList = stackInfo.Page.CommandLists[command.BranchIds[0]];
+            }
+
+            if (!success && stackInfo.Page.CommandLists.ContainsKey(command.BranchIds[1]))
+            {
+                newCommandList = stackInfo.Page.CommandLists[command.BranchIds[1]];
+            }
+
+            var tmpStack = new CommandInstance(stackInfo.Page)
+            {
+                CommandList = newCommandList,
+                CommandIndex = 0,
+            };
+
+            callStack.Push(tmpStack);
+        }
+
+
+
         //Reset Stat Point Allocations Command
         private static void ProcessCommand(
             ResetStatPointAllocationsCommand command,
@@ -1501,6 +1671,8 @@ namespace Intersect.Server.Entities.Events
             player.RecalculateStatsAndPoints();
             PacketSender.SendEntityDataToProximity(player);
         }
+
+
 
         private static Stack<CommandInstance> LoadLabelCallstack(string label, EventPage currentPage)
         {
@@ -1530,32 +1702,32 @@ namespace Intersect.Server.Entities.Events
                     switch (command.Type)
                     {
                         case EventCommandType.ShowOptions:
-                            branchIds.AddRange(((ShowOptionsCommand) command).BranchIds);
+                            branchIds.AddRange(((ShowOptionsCommand)command).BranchIds);
 
                             break;
                         case EventCommandType.InputVariable:
-                            branchIds.AddRange(((InputVariableCommand) command).BranchIds);
+                            branchIds.AddRange(((InputVariableCommand)command).BranchIds);
 
                             break;
                         case EventCommandType.ConditionalBranch:
-                            branchIds.AddRange(((ConditionalBranchCommand) command).BranchIds);
+                            branchIds.AddRange(((ConditionalBranchCommand)command).BranchIds);
 
                             break;
                         case EventCommandType.ChangeSpells:
-                            branchIds.AddRange(((ChangeSpellsCommand) command).BranchIds);
+                            branchIds.AddRange(((ChangeSpellsCommand)command).BranchIds);
 
                             break;
                         case EventCommandType.ChangeItems:
-                            branchIds.AddRange(((ChangeItemsCommand) command).BranchIds);
+                            branchIds.AddRange(((ChangeItemsCommand)command).BranchIds);
 
                             break;
                         case EventCommandType.StartQuest:
-                            branchIds.AddRange(((StartQuestCommand) command).BranchIds);
+                            branchIds.AddRange(((StartQuestCommand)command).BranchIds);
 
                             break;
                         case EventCommandType.Label:
                             //See if we found the label!
-                            if (((LabelCommand) command).Label == label)
+                            if (((LabelCommand)command).Label == label)
                             {
                                 return true;
                             }
@@ -1609,6 +1781,7 @@ namespace Intersect.Server.Entities.Events
                 {
                     { Strings.Events.playernamecommand, player.Name },
                     { Strings.Events.playerguildcommand, player.Guild?.Name ?? "" },
+                    { Strings.Events.playernationcommand, player.Nation?.Name ?? "" },
                     { Strings.Events.timehour, Time.Hour },
                     { Strings.Events.militaryhour, Time.MilitaryHour },
                     { Strings.Events.timeminute, Time.Minute },
@@ -1844,11 +2017,11 @@ namespace Intersect.Server.Entities.Events
                     break;
                 case Enums.VariableMods.Random:
                     //TODO: Fix - Random doesnt work with longs lolz
-                    value.Integer = Randomization.Next((int) mod.Value, (int) mod.HighValue + 1);
+                    value.Integer = Randomization.Next((int)mod.Value, (int)mod.HighValue + 1);
 
                     break;
                 case Enums.VariableMods.SystemTime:
-                    var ms = (long) (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                    var ms = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
                         .TotalMilliseconds;
 
                     value.Integer = ms;
@@ -2073,5 +2246,4 @@ namespace Intersect.Server.Entities.Events
         }
 
     }
-
 }

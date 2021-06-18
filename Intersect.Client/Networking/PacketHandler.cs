@@ -2064,6 +2064,17 @@ namespace Intersect.Client.Networking
             );
         }
 
+        //NationPacket
+        public void HandlePacket(IPacketSender packetSender, NationPacket packet)
+        {
+            if (Globals.Me == null || Globals.Me.Nation == null)
+            {
+                return;
+            }
+
+            Globals.Me.NationMembers = packet.Members.OrderByDescending(m => m.Online).ThenBy(m => m.Name).ToArray();
+        }
+
     }
 
 }

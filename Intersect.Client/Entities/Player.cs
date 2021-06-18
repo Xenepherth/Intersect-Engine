@@ -23,6 +23,7 @@ using Intersect.Utilities;
 using Intersect.Client.Items;
 using Intersect.Client.Interface.Game.Chat;
 using Intersect.Config.Guilds;
+using Intersect.Config.Nations;
 
 namespace Intersect.Client.Entities
 {
@@ -107,6 +108,21 @@ namespace Intersect.Client.Entities
         /// Contains a record of all members of this player's guild.
         /// </summary>
         public GuildMember[] GuildMembers = new GuildMember[0];
+
+        /// <summary>
+        /// Name of our nation if we are in one.
+        /// </summary>
+        public string Nation;
+
+        /// <summary>
+        /// Returns whether or not we are in a nation by checking to see if we are assigned a nation name
+        /// </summary>
+        public bool InNation => !string.IsNullOrWhiteSpace(Nation);
+
+        /// <summary>
+        /// Contains a record of all members of this player's nation.
+        /// </summary>
+        public NationMember[] NationMembers = new NationMember[0];
 
         public Player(Guid id, PlayerEntityPacket packet) : base(id, packet)
         {
@@ -240,6 +256,7 @@ namespace Intersect.Client.Entities
             CombatTimer = pkt.CombatTimeRemaining + Globals.System.GetTimeMs();
             Guild = pkt.Guild;
             Rank = pkt.GuildRank;
+            Nation = pkt.Nation;
 
             var playerPacket = (PlayerEntityPacket) packet;
 
@@ -1041,7 +1058,7 @@ namespace Intersect.Client.Entities
                     }
 
                     // Check if the entity has stealth status
-                    if (en.Value.IsStealthed() && !Globals.Me.IsInMyParty(en.Value.Id))
+                    if (en.Value.IsStealthed())
                     {
                         continue;
                     }
@@ -1050,22 +1067,22 @@ namespace Intersect.Client.Entities
                     // If we are, check to see if they're our party or nation member, then exclude them. We're friendly happy people here.
                     if (!canTargetPlayers && en.Value.GetEntityType() == EntityTypes.Player)
                     {
-                        continue;
+                            continue;
                     }
                     else if (canTargetPlayers && en.Value.GetEntityType() == EntityTypes.Player)
                     {
                         var player = en.Value as Player;
-                        if (IsInMyParty(player))
-                        {
+                        if (Globals.Me.IsInMyParty(player) || Globals.Me.Nation == player.Nation || player.IsStealthed())
+                        { 
                             continue;
                         }
                     }
 
                     if (en.Value.GetEntityType() == EntityTypes.GlobalEntity || en.Value.GetEntityType() == EntityTypes.Player)
-                    {
+                    {            
                         // Already in our list?
                         if (mlastTargetList.ContainsKey(en.Value))
-                        {
+                        {   
                             mlastTargetList[en.Value].DistanceTo = GetDistanceTo(en.Value);
                         }
                         else
@@ -1073,6 +1090,7 @@ namespace Intersect.Client.Entities
                             // Add entity with blank time. Never been selected.
                             mlastTargetList.Add(en.Value, new TargetInfo() { DistanceTo = GetDistanceTo(en.Value), LastTimeSelected = 0 });
                         }
+
                     }
                 }
 
@@ -1135,6 +1153,7 @@ namespace Intersect.Client.Entities
             Entity currentEntity = mLastEntitySelected;
             foreach(var entity in validEntities)
             {
+
                 if (currentEntity == entity.Key)
                 {
                     continue;
@@ -1511,7 +1530,7 @@ namespace Intersect.Client.Entities
                         {
                             foreach (var en in Globals.Entities)
                             {
-                                if (en.Value == null || en.Value.CurrentMap != mapId || en.Value is Projectile || en.Value is Resource || (en.Value.IsStealthed() && !Globals.Me.IsInMyParty(en.Value.Id)))
+                                if (en.Value == null || en.Value.CurrentMap != mapId || en.Value is Projectile || en.Value is Resource || en.Value.IsStealthed() && !Globals.Me.IsInMyParty(en.Value.Id) && !(en.Value is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
                                 {
                                     continue;
                                 }
@@ -2040,6 +2059,7 @@ namespace Intersect.Client.Entities
             DrawLabels(HeaderLabel.Text, 0, HeaderLabel.Color, textColor, borderColor, backgroundColor);
             DrawLabels(FooterLabel.Text, 1, FooterLabel.Color, textColor, borderColor, backgroundColor);
             DrawGuildName(Color.Green, borderColor, backgroundColor);
+            DrawNationName(Color.Cyan, borderColor, backgroundColor);
         }
 
         public virtual void DrawGuildName(Color textColor, Color borderColor = null, Color backgroundColor = null)
@@ -2065,7 +2085,7 @@ namespace Intersect.Client.Entities
                 //If unit is stealthed, don't render unless the entity is the player.
                 if (Status[n].Type == StatusTypes.Stealth)
                 {
-                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)) && !(this is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
                     {
                         return;
                     }
@@ -2097,6 +2117,61 @@ namespace Intersect.Client.Entities
             );
         }
 
+        public virtual void DrawNationName(Color textColor, Color borderColor = null, Color backgroundColor = null)
+        {
+            if (HideName || Nation == null || Nation.Trim().Length == 0 || !Options.Instance.Nation.ShowNationNameTagsOverMembers)
+            {
+                return;
+            }
+
+            if (borderColor == null)
+            {
+                borderColor = Color.Transparent;
+            }
+
+            if (backgroundColor == null)
+            {
+                backgroundColor = Color.Transparent;
+            }
+
+            //Check for stealth amoungst status effects.
+            for (var n = 0; n < Status.Count; n++)
+            {
+                //If unit is stealthed, don't render unless the entity is the player.
+                if (Status[n].Type == StatusTypes.Stealth)
+                {
+                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)) && !(this is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
+                    {
+                        return;
+                    }
+                }
+            }
+
+            var map = MapInstance;
+            if (map == null)
+            {
+                return;
+            }
+
+            var textSize = Graphics.Renderer.MeasureText(Nation, Graphics.EntityNameFont, 1);
+
+            var x = (int)Math.Ceiling(GetCenterPos().X);
+            var y = GetLabelLocation(LabelType.Nation);
+
+            if (backgroundColor != Color.Transparent)
+            {
+                Graphics.DrawGameTexture(
+                    Graphics.Renderer.GetWhiteTexture(), new Framework.GenericClasses.FloatRect(0, 0, 1, 1),
+                    new Framework.GenericClasses.FloatRect(x - textSize.X / 2f - 4, y, textSize.X + 8, textSize.Y), backgroundColor
+                );
+            }
+
+            Graphics.Renderer.DrawString(
+                Nation, Graphics.EntityNameFont, (int)(x - (int)Math.Ceiling(textSize.X / 2f)), (int)y, 1,
+                Color.FromArgb(textColor.ToArgb()), true, null, Color.FromArgb(borderColor.ToArgb())
+            );
+        }
+
         public void DrawTargets()
         {
             foreach (var en in Globals.Entities)
@@ -2106,15 +2181,15 @@ namespace Intersect.Client.Entities
                     continue;
                 }
 
-                if (!en.Value.IsStealthed() || en.Value is Player player && Globals.Me.IsInMyParty(player))
+                if (!en.Value.IsStealthed() || !(en.Value is Player player && Globals.Me.IsInMyParty(player)) || !(en.Value is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
                 {
                     if (en.Value.GetType() != typeof(Projectile) && en.Value.GetType() != typeof(Resource))
                     {
                         en.Value.IsATarget = false;
                         if (TargetType == 0 && TargetIndex == en.Value.Id)
-                        {
-                            en.Value.DrawTarget((int) TargetTypes.Selected);
-                            en.Value.IsATarget = true;
+                        {       
+                                en.Value.DrawTarget((int)TargetTypes.Selected);
+                                en.Value.IsATarget = true;
                         }
                     }
                 }
@@ -2136,7 +2211,7 @@ namespace Intersect.Client.Entities
 
                     if (en.Value.CurrentMap == eventMap.Id &&
                         !((Event) en.Value).DisablePreview &&
-                        (!en.Value.IsStealthed() || en.Value is Player player && Globals.Me.IsInMyParty(player)))
+                        (!en.Value.IsStealthed() || !(en.Value is Player player && Globals.Me.IsInMyParty(player)) || !(en.Value is Player nationplayer && Globals.Me.Nation == nationplayer.Nation)))
                     {
                         if (TargetType == 1 && TargetIndex == en.Value.Id)
                         {

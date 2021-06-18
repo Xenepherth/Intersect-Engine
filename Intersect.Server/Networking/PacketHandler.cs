@@ -777,14 +777,19 @@ namespace Intersect.Server.Networking
 
                     case 3:
                         cmd = Strings.Guilds.guildcmd;
+
                         break;
 
-                    case 4: //admin
+                    case 4:
+                        cmd = Strings.Nations.nationcmd;
+
+                        break;
+                    case 5: //admin
                         cmd = Strings.Chat.admincmd;
 
                         break;
 
-                    case 5: //private
+                    case 6: //private
                         PacketSender.SendChatMsg(player, msg, ChatMessageType.Local);
 
                         return;
@@ -896,6 +901,22 @@ namespace Intersect.Server.Networking
                 ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.Guild, player.Guild.Id);
 
             }
+            else if (cmd == Strings.Nations.nationcmd)
+            {
+                if (player.Nation == null)
+                {
+                    PacketSender.SendChatMsg(player, Strings.Nations.NotInNation, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                    return;
+                }
+
+                if (msg.Trim().Length == 0)
+                {
+                    return;
+                }
+                PacketSender.SendNationMsg(player, Strings.Nations.nationchat.ToString(player.Nation.Name, player.Name, msg), CustomColors.Chat.NationChat);
+                ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.Nation, player.Nation.Id);
+
+            }
             else if (cmd == Strings.Chat.announcementcmd)
             {
                 if (msg.Trim().Length == 0)
@@ -939,26 +960,34 @@ namespace Intersect.Server.Networking
                     {
                     if (player != target)
                     {
-                        PacketSender.SendChatMsg(
+                        if(player.Nation != null && player.Nation.IsMember(target))
+                        {
+                            PacketSender.SendChatMsg(
                         player, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM, CustomColors.Chat.PrivateChat,
                         player.Name
-                    );
+                        );
 
-                        PacketSender.SendChatMsg(
-                        target, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM,
-                        CustomColors.Chat.PrivateChat, player.Name
-                    );
+                            PacketSender.SendChatMsg(
+                            target, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM,
+                            CustomColors.Chat.PrivateChat, player.Name
+                        );
 
-                        target.ChatTarget = player;
-                        player.ChatTarget = target;
-                        ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.PM, target?.Id ?? Guid.Empty);
+                            target.ChatTarget = player;
+                            player.ChatTarget = target;
+                            ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.PM, target?.Id ?? Guid.Empty);
+                        }
+                        else
+                        {
+                            PacketSender.SendChatMsg(player, Strings.Nations.NotInSameNation, ChatMessageType.PM, CustomColors.Alerts.Error);
+                        }
+                       
                     }
                     else
                     {
                         PacketSender.SendChatMsg(player, Strings.Player.pmerror, ChatMessageType.PM, CustomColors.Alerts.Error);
                     }
-                    
-                    }
+
+                }
                 else
                 {
                     PacketSender.SendChatMsg(player, Strings.Player.offline, ChatMessageType.PM, CustomColors.Alerts.Error);
@@ -1965,12 +1994,21 @@ namespace Intersect.Server.Networking
 
             if (target != null && target.Id != player.Id && player.InRangeOf(target, Options.Party.InviteRange))
             {
-                target.InviteToParty(player);
+                if (player.Nation != null && player.Nation.IsMember(target))
+                {
+                    target.InviteToParty(player);
 
-                return;
+                    return;
+                }
+                else
+                {
+                    PacketSender.SendChatMsg(player, Strings.Nations.NotInSameNation, ChatMessageType.PM, CustomColors.Alerts.Error);
+                }
             }
-
-            PacketSender.SendChatMsg(player, Strings.Parties.outofrange, ChatMessageType.Combat, CustomColors.Combat.NoTarget);
+            else
+            {
+                PacketSender.SendChatMsg(player, Strings.Parties.outofrange, ChatMessageType.Combat, CustomColors.Combat.NoTarget);
+            }
         }
 
         //PartyInviteResponsePacket
@@ -1989,7 +2027,7 @@ namespace Intersect.Server.Networking
                 {
                     if (player.PartyRequester.IsValidPlayer)
                     {
-                        player.PartyRequester.AddParty(player);
+                        player.PartyRequester.AddParty(player);                    
                     }
                 }
                 else
@@ -2087,14 +2125,23 @@ namespace Intersect.Server.Networking
             {
                 if (player.InRangeOf(target, Options.TradeRange))
                 {
-                    target.InviteToTrade(player);
+                    if (player.Nation != null && player.Nation.IsMember(target))
+                    {
+                        target.InviteToTrade(player);
 
-                    return;
+                        return;
+                    }
+                    else
+                    {
+                        PacketSender.SendChatMsg(player, Strings.Nations.NotInSameNation, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                    }
                 }
             }
-
-            //Player Out of Range Or Offline
-            PacketSender.SendChatMsg(player, Strings.Trading.outofrange.ToString(), ChatMessageType.Trading, CustomColors.Combat.NoTarget);
+            else
+            {
+                //Player Out of Range Or Offline
+                PacketSender.SendChatMsg(player, Strings.Trading.outofrange.ToString(), ChatMessageType.Trading, CustomColors.Combat.NoTarget);
+            }
         }
 
         //TradeRequestResponsePacket
@@ -2298,13 +2345,12 @@ namespace Intersect.Server.Networking
         //RequestFriendsPacket
         public void HandlePacket(Client client, RequestFriendsPacket packet)
         {
-            var player = client?.Entity;
+            var player = client.Entity;
             if (player == null)
             {
                 return;
             }
-
-            PacketSender.SendFriends(player);
+            PacketSender.SendGuild(player);
         }
 
         //UpdateFriendsPacket
@@ -2331,7 +2377,14 @@ namespace Intersect.Server.Networking
                     {
                         if (target.CombatTimer < Globals.Timing.Milliseconds)
                         {
-                            target.FriendRequest(client.Entity);
+                            if (player.Nation != null && player.Nation.IsMember(target))
+                            {
+                                target.FriendRequest(client.Entity);
+                            }
+                            else
+                            {
+                                PacketSender.SendChatMsg(player, Strings.Nations.NotInSameNation, ChatMessageType.PM, CustomColors.Alerts.Error);
+                            }
                         }
                         else
                         {
@@ -2483,7 +2536,6 @@ namespace Intersect.Server.Networking
                     PacketSender.SendError(client, Strings.Guilds.deleteguildleader, Strings.Account.deleted);
                     return;
                 }
-
                 foreach (var chr in client.Characters.ToArray())
                 {
                     if (chr.Id == packet.CharacterId)
@@ -2585,6 +2637,7 @@ namespace Intersect.Server.Networking
             {
                 return;
             }
+
             PacketSender.SendGuild(player);
         }
 
@@ -2637,13 +2690,20 @@ namespace Intersect.Server.Networking
                         // Are we already in a guild? or have a pending invite?
                         if (target.Guild == null && target.GuildInvite == null)
                         {
-                            // Thank god, we can FINALLY get started!
-                            // Set our invite and send our players the relevant messages.
-                            target.GuildInvite = new Tuple<Player, Guild>(player, player.Guild);
+                            if(player.Nation != null && player.Nation.IsMember(target))
+                            { 
+                                // Thank god, we can FINALLY get started!
+                                // Set our invite and send our players the relevant messages.
+                                target.GuildInvite = new Tuple<Player, Guild>(player, player.Guild);
 
-                            PacketSender.SendChatMsg(player, Strings.Guilds.InviteSent.ToString(target.Name, player.Guild.Name), ChatMessageType.Guild, CustomColors.Alerts.Info);
+                                PacketSender.SendChatMsg(player, Strings.Guilds.InviteSent.ToString(target.Name, player.Guild.Name), ChatMessageType.Guild, CustomColors.Alerts.Info);
 
-                            PacketSender.SendGuildInvite(target, player);
+                                PacketSender.SendGuildInvite(target, player);
+                            }
+                            else
+                            {
+                                PacketSender.SendChatMsg(player, Strings.Nations.NotInSameNation, ChatMessageType.PM, CustomColors.Alerts.Error);
+                            }
                         }
                         else
                         {
@@ -2750,12 +2810,12 @@ namespace Intersect.Server.Networking
                 default:
                     /// ???
                     break;
-            }
-        }
+                    }
+            }  
 
-        //GuildInviteAcceptPacket
-        public void HandlePacket(Client client, GuildInviteAcceptPacket packet)
-        {
+            //GuildInviteAcceptPacket
+            public void HandlePacket(Client client, GuildInviteAcceptPacket packet)
+            {
             var player = client.Entity;
             if (player == null)
             {
@@ -2876,8 +2936,8 @@ namespace Intersect.Server.Networking
             PacketSender.SendEntityDataToProximity(player);
  
         }
-      
-      
+
+
         //PictureClosedPacket
         public void HandlePacket(Client client, PictureClosedPacket packet)
         {

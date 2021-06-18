@@ -567,6 +567,9 @@ namespace Intersect.Server.Localization
             public readonly LocalizedString playerguildcommand = @"\pg";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString playernationcommand = @"\pg";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public readonly LocalizedString playerswitch = @"\ps";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -716,7 +719,7 @@ namespace Intersect.Server.Localization
             public readonly LocalizedString DisbandGuild = @"{00} has been disbanded!";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            public readonly LocalizedString deleteguildleader = @"You can not delete a character that is a guild {00}, please disband the guild or transfer ownership before trying again.";
+            public readonly LocalizedString deleteguildleader = @"You can not delete a character that is a guild, please disband the guild or transfer ownership before trying again.";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public readonly LocalizedString guildcmd = @"/guild";
@@ -741,6 +744,42 @@ namespace Intersect.Server.Localization
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public readonly LocalizedString RankLimitResponse = @"This guild has already hit it's member limit for the rank of {00}. Promote or demote other members in order to make room for {01}.";
+        }
+
+        public sealed class NationsNamespace : LocaleNamespace
+        {
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString VariableNotString = @"The given nation name does not contain any text.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString VariableInvalid = @"Invalid nation name!";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString VariableNoText = @"A nation name can not be empty!";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString NationNameInUse = @"Your chosen nation name is already in use!";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString AlreadyInNation = @"You are already in a nation!";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString Welcome = @"Welcome to {00}!";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString NotInNation = @"You are not in a nation.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString NoSuchPlayer = @"There is no such player in this nation.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString NotInSameNation = @"You are not in same nation with your target or you have not chosen a nation.";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString nationcmd = @"/nation";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString nationchat = @"[{00}] {01}: {02}";
         }
 
         public sealed class IntroNamespace : LocaleNamespace
@@ -1076,7 +1115,7 @@ namespace Intersect.Server.Localization
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]            public readonly LocalizedString warpedtoyou = @"{00} warped to you.";
 
-            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]            public readonly LocalizedString pmerror = @"You can't send a pm to you.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]            public readonly LocalizedString pmerror = @"You can't send a pm to yourself.";
 
         }
 
@@ -1173,6 +1212,9 @@ namespace Intersect.Server.Localization
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public readonly LocalizedString guildname = @"^[a-zA-Z0-9 ]{3,20}$";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString nationname = @"^[a-zA-Z0-9 ]{3,20}$";
 
         }
 
@@ -1392,6 +1434,8 @@ namespace Intersect.Server.Localization
 
             public readonly GuildsNamespace Guilds = new GuildsNamespace();
 
+            public readonly NationsNamespace Nations = new NationsNamespace();
+
         }
 
         // ReSharper restore MemberHidesStaticFromOuterClass
@@ -1433,6 +1477,8 @@ namespace Intersect.Server.Localization
         public static GeneralNamespace General => Root.General;
 
         public static GuildsNamespace Guilds => Root.Guilds;
+
+        public static NationsNamespace Nations => Root.Nations;
 
         public static IntroNamespace Intro => Root.Intro;
 

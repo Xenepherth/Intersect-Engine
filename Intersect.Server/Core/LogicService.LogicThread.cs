@@ -247,6 +247,17 @@ namespace Intersect.Server.Core
                             }
 
                             swCpsTimer = Globals.Timing.Milliseconds + 1000;
+
+                            //Should we send out nation updates?
+                            foreach (var nation in Nation.Nations)
+                            {
+                                if (nation.Value.LastUpdateTime + Options.Instance.Nation.NationUpdateInterval < Globals.Timing.Milliseconds)
+                                {
+                                    LogicPool.QueueWorkItem(guild.Value.Update);
+                                }
+                            }
+
+                            swCpsTimer = Globals.Timing.Milliseconds + 1000;
                         }
 
                         if (Options.Instance.Metrics.Enable)

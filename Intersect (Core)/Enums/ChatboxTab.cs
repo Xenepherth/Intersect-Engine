@@ -13,6 +13,8 @@
 
         Guild,
 
+        Nation,
+
         Global,
 
         System,

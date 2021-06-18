@@ -69,6 +69,8 @@ namespace Intersect.Server.Database.PlayerData
 
         public DbSet<GuildVariable> Guild_Variables { get; set; }
 
+        public DbSet<Nation> Nations { get; set; }
+
         internal async ValueTask Commit(
             bool commit = false,
             CancellationToken cancellationToken = default(CancellationToken)

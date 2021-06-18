@@ -237,6 +237,11 @@
 
         //Reset Stats
         ResetStatPointAllocations,
+
+        //Nations
+        CreateNation,
+        JoinNation,
+        //End Nations
     }
 
 }

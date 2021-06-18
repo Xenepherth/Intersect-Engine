@@ -184,6 +184,18 @@ namespace Intersect.Server.Entities
         /// </summary>
         [NotMapped] public bool GuildBank;
 
+        /// <summary>
+        /// References the in-memory copy of the Nation for this player, reference this instead of the nation property below.
+        /// </summary>
+        [NotMapped] [JsonIgnore] public Nation Nation { get; set; }
+
+        /// <summary>
+        /// This field is used for EF database fields only and should never be assigned to or used, instead the nation instance will be assigned to CachedNation above
+        /// </summary>
+        [JsonIgnore] public Nation DbNation { get; set; }
+
+        public DateTime NationJoinDate { get; set; }
+
         public static Player FindOnline(Guid id)
         {
             return OnlinePlayers.ContainsKey(id) ? OnlinePlayers[id] : null;
@@ -252,6 +264,7 @@ namespace Intersect.Server.Entities
 
             LoadFriends();
             LoadGuild();
+            LoadNation();
 
             //Upon Sign In Remove Any Items/Spells that have been deleted
             foreach (var itm in Items)
@@ -745,7 +758,7 @@ namespace Intersect.Server.Entities
 
             pkt.Guild = Guild?.Name;
             pkt.GuildRank = GuildRank;
-
+            pkt.Nation = Nation?.Name;
             return pkt;
         }
 
@@ -1331,7 +1344,7 @@ namespace Intersect.Server.Entities
             var friendly = spell?.Combat != null && spell.Combat.Friendly;
             if (entity is Player player)
             {
-                if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild == this.Guild)))
+                if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild.IsMember(this))) || (!Options.Instance.Nation.AllowNationMemberPvp && friendly != (player.Nation != null && player.Nation.IsMember(this))))
                 {
                     return friendly;
                 }

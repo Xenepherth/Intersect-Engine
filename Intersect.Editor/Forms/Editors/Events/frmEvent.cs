@@ -740,16 +740,29 @@ namespace Intersect.Editor.Forms.Editors.Events
                     tmpCommand = new DisbandGuildCommand(CurrentPage.CommandLists);
 
                     break;
+
                 case EventCommandType.OpenGuildBank:
                     tmpCommand = new OpenGuildBankCommand();
 
                     break;
+
                 case EventCommandType.SetGuildBankSlots:
                     tmpCommand = new SetGuildBankSlotsCommand();
 
                     break;
+
                 case EventCommandType.ResetStatPointAllocations:
                     tmpCommand = new ResetStatPointAllocationsCommand();
+
+                    break;
+
+                case EventCommandType.CreateNation:
+                    tmpCommand = new CreateNationCommand(CurrentPage.CommandLists);
+
+                    break;
+
+                case EventCommandType.JoinNation:
+                    tmpCommand = new JoinNationCommand(CurrentPage.CommandLists);
 
                     break;
                 default:
@@ -1329,12 +1342,13 @@ namespace Intersect.Editor.Forms.Editors.Events
                     cmdWindow = new EventCommandChangeName((ChangeNameCommand)command, CurrentPage, this);
 
                     break;
+                case EventCommandType.ResetStatPointAllocations:
 
+                    break;
                 case EventCommandType.CreateGuild:
                     cmdWindow = new EventCommandCreateGuild((CreateGuildCommand)command, CurrentPage, this);
 
                     break;
-
                 case EventCommandType.DisbandGuild:
 
                     break;
@@ -1345,7 +1359,12 @@ namespace Intersect.Editor.Forms.Editors.Events
                     cmdWindow = new EventCommandSetGuildBankSlots((SetGuildBankSlotsCommand)command, CurrentPage, this);
 
                     break;
-                case EventCommandType.ResetStatPointAllocations:
+                case EventCommandType.CreateNation:
+                    cmdWindow = new EventCommandCreateNation((CreateNationCommand)command, CurrentPage, this);
+
+                    break;
+                case EventCommandType.JoinNation:
+                    cmdWindow = new EventCommandJoinNation((JoinNationCommand)command, CurrentPage, this);
 
                     break;
                 default:
@@ -1883,6 +1902,11 @@ namespace Intersect.Editor.Forms.Editors.Events
         }
 
         #endregion
+
+        private void lstCommands_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+
+        }
     }
 
     public class CommandListProperties

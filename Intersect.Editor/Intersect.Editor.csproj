@@ -100,6 +100,18 @@
     <Compile Include="Forms\Controls\GameObjectList.Designer.cs">
       <DependentUpon>GameObjectList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Editors\Events\Event Commands\EventCommand_CreateNation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Events\Event Commands\EventCommand_CreateNation.Designer.cs">
+      <DependentUpon>EventCommand_CreateNation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Editors\Events\Event Commands\EventCommand_JoinNation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Editors\Events\Event Commands\EventCommand_JoinNation.Designer.cs">
+      <DependentUpon>EventCommand_JoinNation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Editors\Events\Event Commands\EventCommand_SetGuildBankSlots.cs">
       <SubType>UserControl</SubType>
     </Compile>

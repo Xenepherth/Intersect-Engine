@@ -221,6 +221,7 @@
     <Compile Include="Config\LoggingOptions.cs" />
     <Compile Include="Config\LootOptions.cs" />
     <Compile Include="Config\MetricsOptions.cs" />
+    <Compile Include="Config\Nations\NationOptions.cs" />
     <Compile Include="Config\NpcOptions.cs" />
     <Compile Include="Config\PacketOptions.cs" />
     <Compile Include="Config\PacketSecurityOptions.cs" />
@@ -405,6 +406,7 @@
     <Compile Include="Network\Packets\Client\LogoutPacket.cs" />
     <Compile Include="Network\Packets\Server\AnnouncementPacket.cs" />
     <Compile Include="Network\Packets\Server\CancelCastPacket.cs" />
+    <Compile Include="Network\Packets\Server\NationPacket.cs" />
     <Compile Include="Network\Packets\Server\PlayAnimationPackets.cs" />
     <Compile Include="Network\Packets\SlotQuantityPacket.cs" />
     <Compile Include="Network\Packets\Client\SwapBankItemsPacket.cs" />
