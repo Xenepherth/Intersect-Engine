@@ -253,7 +253,7 @@ namespace Intersect.Server.Core
                             {
                                 if (nation.Value.LastUpdateTime + Options.Instance.Nation.NationUpdateInterval < Globals.Timing.Milliseconds)
                                 {
-                                    LogicPool.QueueWorkItem(guild.Value.Update);
+                                    LogicPool.QueueWorkItem(nation.Value.Update);
                                 }
                             }
 
