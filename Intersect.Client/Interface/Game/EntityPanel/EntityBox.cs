@@ -972,7 +972,7 @@ namespace Intersect.Client.Interface.Game.EntityPanel
                 }
                 else
                 {
-                    PacketSender.SendChatMsg(Strings.Parties.infight.ToString(), 4);
+                    PacketSender.SendChatMsg(Strings.Parties.infight.ToString(), 5);
                 }
             }
         }
@@ -988,7 +988,7 @@ namespace Intersect.Client.Interface.Game.EntityPanel
                 }
                 else
                 {
-                    PacketSender.SendChatMsg(Strings.Trading.infight.ToString(), 4);
+                    PacketSender.SendChatMsg(Strings.Trading.infight.ToString(), 5);
                 }
             }
         }
@@ -1004,7 +1004,7 @@ namespace Intersect.Client.Interface.Game.EntityPanel
                 }
                 else
                 {
-                    PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 4);
+                    PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 5);
                 }
             }
         }
@@ -1024,7 +1024,7 @@ namespace Intersect.Client.Interface.Game.EntityPanel
                         }
                         else
                         {
-                            PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 4);
+                            PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 5);
                         }
                     }
                 }

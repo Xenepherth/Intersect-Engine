@@ -119,7 +119,7 @@ namespace Intersect.Client.Interface.Game
                 }
                 else
                 {
-                    PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 4);
+                    PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 5);
                 }
             }
         }
@@ -176,7 +176,7 @@ namespace Intersect.Client.Interface.Game
                 }
                 else
                 {
-                    PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 4);
+                    PacketSender.SendChatMsg(Strings.Friends.infight.ToString(), 5);
                 }
             }
         }
