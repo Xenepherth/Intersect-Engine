@@ -650,7 +650,7 @@ namespace Intersect.Client.Localization
 
             public static LocalizedString expval = @"{00} / {01}";
 
-            public static LocalizedString friend = "Befriend";
+            public static LocalizedString friend = "Friend";
 
             public static LocalizedString friendtip = "Send {00} a friend request.";
 

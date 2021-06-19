@@ -784,6 +784,7 @@ namespace Intersect.Server.Networking
                         cmd = Strings.Nations.nationcmd;
 
                         break;
+
                     case 5: //admin
                         cmd = Strings.Chat.admincmd;
 

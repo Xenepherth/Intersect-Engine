@@ -1344,7 +1344,7 @@ namespace Intersect.Server.Entities
             var friendly = spell?.Combat != null && spell.Combat.Friendly;
             if (entity is Player player)
             {
-                if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild.IsMember(this))) || (!Options.Instance.Nation.AllowNationMemberPvp && friendly != (player.Nation != null && player.Nation.IsMember(this))))
+                if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild == this.Guild)) || (!Options.Instance.Nation.AllowNationMemberPvp && friendly != (player.Nation != null && player.Nation.Name == this.Nation.Name)))
                 {
                     return friendly;
                 }

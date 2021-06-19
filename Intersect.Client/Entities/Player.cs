@@ -1067,30 +1067,36 @@ namespace Intersect.Client.Entities
                     // If we are, check to see if they're our party or nation member, then exclude them. We're friendly happy people here.
                     if (!canTargetPlayers && en.Value.GetEntityType() == EntityTypes.Player)
                     {
-                            continue;
+                        continue;
                     }
                     else if (canTargetPlayers && en.Value.GetEntityType() == EntityTypes.Player)
                     {
                         var player = en.Value as Player;
-                        if (Globals.Me.IsInMyParty(player) || Globals.Me.Nation == player.Nation || player.IsStealthed())
-                        { 
+                        if (Globals.Me.Nation == player.Nation || !player.IsStealthed())
+                        {
                             continue;
                         }
                     }
 
                     if (en.Value.GetEntityType() == EntityTypes.GlobalEntity || en.Value.GetEntityType() == EntityTypes.Player)
-                    {            
-                        // Already in our list?
-                        if (mlastTargetList.ContainsKey(en.Value))
-                        {   
-                            mlastTargetList[en.Value].DistanceTo = GetDistanceTo(en.Value);
+                    {
+                        if (!en.Value.IsStealthed())
+                        {
+                            // Already in our list?
+                            if (mlastTargetList.ContainsKey(en.Value))
+                            {
+                                mlastTargetList[en.Value].DistanceTo = GetDistanceTo(en.Value);
+                            }
+                            else
+                            {
+                                // Add entity with blank time. Never been selected.
+                                mlastTargetList.Add(en.Value, new TargetInfo() { DistanceTo = GetDistanceTo(en.Value), LastTimeSelected = 0 });
+                            }
                         }
                         else
                         {
-                            // Add entity with blank time. Never been selected.
-                            mlastTargetList.Add(en.Value, new TargetInfo() { DistanceTo = GetDistanceTo(en.Value), LastTimeSelected = 0 });
+                            continue;
                         }
-
                     }
                 }
 
@@ -1437,7 +1443,7 @@ namespace Intersect.Client.Entities
             }
 
             //Projectile/empty swing for animations
-            PacketSender.SendAttack(Guid.Empty, IsATarget);
+            PacketSender.SendAttack(Guid.Empty, false);
             AttackTimer = Timing.Global.Ticks / TimeSpan.TicksPerMillisecond + CalculateAttackTime();
 
             return true;
@@ -1530,7 +1536,7 @@ namespace Intersect.Client.Entities
                         {
                             foreach (var en in Globals.Entities)
                             {
-                                if (en.Value == null || en.Value.CurrentMap != mapId || en.Value is Projectile || en.Value is Resource || en.Value.IsStealthed() && !Globals.Me.IsInMyParty(en.Value.Id) && !(en.Value is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
+                                if (en.Value == null || en.Value.CurrentMap != mapId || en.Value is Projectile || en.Value is Resource || en.Value.IsStealthed() && en.Value is Player player && Globals.Me.Nation == player.Nation)
                                 {
                                     continue;
                                 }
@@ -2059,7 +2065,7 @@ namespace Intersect.Client.Entities
             DrawLabels(HeaderLabel.Text, 0, HeaderLabel.Color, textColor, borderColor, backgroundColor);
             DrawLabels(FooterLabel.Text, 1, FooterLabel.Color, textColor, borderColor, backgroundColor);
             DrawGuildName(Color.Green, borderColor, backgroundColor);
-            DrawNationName(Color.Cyan, borderColor, backgroundColor);
+            DrawNationName(Color.Orange, borderColor, backgroundColor);
         }
 
         public virtual void DrawGuildName(Color textColor, Color borderColor = null, Color backgroundColor = null)
@@ -2181,7 +2187,7 @@ namespace Intersect.Client.Entities
                     continue;
                 }
 
-                if (!en.Value.IsStealthed() || !(en.Value is Player player && Globals.Me.IsInMyParty(player)) || !(en.Value is Player nationplayer && Globals.Me.Nation == nationplayer.Nation))
+                if (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation))
                 {
                     if (en.Value.GetType() != typeof(Projectile) && en.Value.GetType() != typeof(Resource))
                     {
@@ -2195,8 +2201,7 @@ namespace Intersect.Client.Entities
                 }
                 else
                 {
-                    //TODO: Completely wipe the stealthed player from memory and have server re-send once stealth ends.
-                    ClearTarget();
+                    continue;
                 }
             }
 
@@ -2210,13 +2215,17 @@ namespace Intersect.Client.Entities
                     }
 
                     if (en.Value.CurrentMap == eventMap.Id &&
-                        !((Event) en.Value).DisablePreview &&
-                        (!en.Value.IsStealthed() || !(en.Value is Player player && Globals.Me.IsInMyParty(player)) || !(en.Value is Player nationplayer && Globals.Me.Nation == nationplayer.Nation)))
+                        !((Event)en.Value).DisablePreview &&
+                        (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation)))
                     {
                         if (TargetType == 1 && TargetIndex == en.Value.Id)
                         {
-                            en.Value.DrawTarget((int) TargetTypes.Selected);
+                            en.Value.DrawTarget((int)TargetTypes.Selected);
                         }
+                    }
+                    else
+                    {
+                        continue;
                     }
                 }
             }

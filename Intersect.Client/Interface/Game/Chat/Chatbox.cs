@@ -127,7 +127,7 @@ namespace Intersect.Client.Interface.Game.Chat
             if (Globals.Me.Type > 0)
             {
                 var menuItem = mChannelCombobox.AddItem(Strings.Chatbox.channeladmin);
-                menuItem.UserData = 4;
+                menuItem.UserData = 5;
                 menuItem.Selected += MenuItem_Selected;
             }
 

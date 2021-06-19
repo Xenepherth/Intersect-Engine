@@ -187,20 +187,23 @@ namespace Intersect.Server.Database.PlayerData.Players
             {
                 using (var context = DbInterface.CreatePlayerContext(readOnly: false))
                 {
-                    var dbPlayer = context.Players.FirstOrDefault(p => p.Id == player.Id);
+                    var dbPlayer = context.Players.FirstOrDefault(p => p.Name == player.Name);
                     if (dbPlayer != null)
                     {
+
                         dbPlayer.DbNation = this;
                         dbPlayer.NationJoinDate = DateTime.UtcNow;
                         context.ChangeTracker.DetectChanges();
                         DetachNationFromDbContext(context, this);
                         context.SaveChanges();
 
+
                         player.Nation = this;
                         player.NationJoinDate = DateTime.UtcNow;
 
                         var member = new NationMember(player.Id, player.Name, player.Level, player.ClassName, player.MapName);
                         Members.AddOrUpdate(player.Id, member, (key, oldValue) => member);
+                        
 
                         // Send our new nation list to everyone that's online.
                         UpdateMemberList();

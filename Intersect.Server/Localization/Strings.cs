@@ -567,7 +567,7 @@ namespace Intersect.Server.Localization
             public readonly LocalizedString playerguildcommand = @"\pg";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            public readonly LocalizedString playernationcommand = @"\pg";
+            public readonly LocalizedString playernationcommand = @"\pnation";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public readonly LocalizedString playerswitch = @"\ps";
