@@ -602,6 +602,7 @@
     <Compile Include="Migrations\Game\20210611154131_AddingGuildVariables.cs" />
     <Compile Include="Migrations\Game\20210611154131_AddingGuildVariables.designer.cs">
       <DependentUpon>20210611154131_AddingGuildVariables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Game\20210622051409_AddingRequirementNotMetMessages.cs" />
     <Compile Include="Migrations\Game\20210622051409_AddingRequirementNotMetMessages.designer.cs">
       <DependentUpon>20210622051409_AddingRequirementNotMetMessages.cs</DependentUpon>
