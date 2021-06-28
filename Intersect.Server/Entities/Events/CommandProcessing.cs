@@ -83,17 +83,30 @@ namespace Intersect.Server.Entities.Events
         {
             var title = ParseEventText(command.Title, player, instance);
             var txt = ParseEventText(command.Text, player, instance);
-            var type = VariableDataTypes.Integer;
+            var type = -1;
 
             if (command.VariableType == VariableTypes.PlayerVariable)
             {
                 var variable = PlayerVariableBase.Get(command.VariableId);
-                type = variable.Type;
+                if (variable != null)
+                {
+                    type = (int)variable.Type;
+                }
             }
             else if (command.VariableType == VariableTypes.ServerVariable)
             {
                 var variable = ServerVariableBase.Get(command.VariableId);
-                type = variable.Type;
+                if (variable != null)
+                {
+                    type = (int)variable.Type;
+                }
+            }
+
+            if (type == -1)
+            {
+                var tmpStack = new CommandInstance(stackInfo.Page, command.BranchIds[1]);
+                callStack.Push(tmpStack);
+                return;
             }
             else if (command.VariableType == VariableTypes.GuildVariable)
             {
@@ -101,7 +114,7 @@ namespace Intersect.Server.Entities.Events
                 type = variable.Type;
             }
 
-            PacketSender.SendInputVariableDialog(player, title, txt, type, instance.PageInstance.Id);
+            PacketSender.SendInputVariableDialog(player, title, txt, (VariableDataTypes)type, instance.PageInstance.Id);
             stackInfo.WaitingForResponse = CommandInstance.EventResponse.Dialogue;
             stackInfo.WaitingOnCommand = command;
             stackInfo.BranchIds = command.BranchIds;
