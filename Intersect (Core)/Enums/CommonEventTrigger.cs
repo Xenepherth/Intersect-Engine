@@ -20,7 +20,19 @@
 
         PVPDeath,
 
-        PlayerInteract
+        PlayerInteract,
+
+        EquipChange,
+
+        PlayerVariableChange,
+
+        ServerVariableChange,
+
+        GuildMemberJoined,
+
+        GuildMemberLeft,
+
+        GuildMemberKicked
 
     }
 

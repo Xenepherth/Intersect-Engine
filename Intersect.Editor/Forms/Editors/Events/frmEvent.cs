@@ -720,6 +720,38 @@ namespace Intersect.Editor.Forms.Editors.Events
                     tmpCommand = new ShowPlayerCommand();
 
                     break;
+
+                case EventCommandType.ChangePlayerColor:
+                    tmpCommand = new ChangePlayerColorCommand();
+
+                    break;
+
+                case EventCommandType.ChangeName:
+                    tmpCommand = new ChangeNameCommand(CurrentPage.CommandLists);
+
+                    break;
+
+                case EventCommandType.CreateGuild:
+                    tmpCommand = new CreateGuildCommand(CurrentPage.CommandLists);
+
+                    break;
+
+                case EventCommandType.DisbandGuild:
+                    tmpCommand = new DisbandGuildCommand(CurrentPage.CommandLists);
+
+                    break;
+                case EventCommandType.OpenGuildBank:
+                    tmpCommand = new OpenGuildBankCommand();
+
+                    break;
+                case EventCommandType.SetGuildBankSlots:
+                    tmpCommand = new SetGuildBankSlotsCommand();
+
+                    break;
+                case EventCommandType.ResetStatPointAllocations:
+                    tmpCommand = new ResetStatPointAllocationsCommand();
+
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -758,6 +790,8 @@ namespace Intersect.Editor.Forms.Editors.Events
         {
             InitializeComponent();
             mCurrentMap = currentMap;
+			
+			this.Icon = Properties.Resources.Icon;
         }
 
         private void frmEvent_Load(object sender, EventArgs e)
@@ -1004,18 +1038,7 @@ namespace Intersect.Editor.Forms.Editors.Events
                 cmbTrigger.SelectedIndex = (int) CurrentPage.Trigger;
             }
 
-            cmbTriggerVal.Hide();
-            lblTriggerVal.Hide();
-            if (MyEvent.CommonEvent)
-            {
-                if (cmbTrigger.SelectedIndex == (int) CommonEventTrigger.SlashCommand)
-                {
-                    txtCommand.Show();
-                    txtCommand.Text = CurrentPage.TriggerCommand;
-                    lblCommand.Show();
-                    lblCommand.Text = Strings.EventEditor.command;
-                }
-            }
+            SetupTrigger();
 
             cmbPreviewFace.SelectedIndex = cmbPreviewFace.Items.IndexOf(TextUtils.NullToNone(CurrentPage.FaceGraphic));
             if (cmbPreviewFace.SelectedIndex == -1)
@@ -1296,6 +1319,33 @@ namespace Intersect.Editor.Forms.Editors.Events
                     break;
                 case EventCommandType.EndQuest:
                     cmdWindow = new EventCommandEndQuest((EndQuestCommand) command, this);
+
+                    break;
+                case EventCommandType.ChangePlayerColor:
+                    cmdWindow = new EventCommandChangePlayerColor((ChangePlayerColorCommand)command, this);
+
+                    break;
+                case EventCommandType.ChangeName:
+                    cmdWindow = new EventCommandChangeName((ChangeNameCommand)command, CurrentPage, this);
+
+                    break;
+
+                case EventCommandType.CreateGuild:
+                    cmdWindow = new EventCommandCreateGuild((CreateGuildCommand)command, CurrentPage, this);
+
+                    break;
+
+                case EventCommandType.DisbandGuild:
+
+                    break;
+                case EventCommandType.OpenGuildBank:
+
+                    break;
+                case EventCommandType.SetGuildBankSlots:
+                    cmdWindow = new EventCommandSetGuildBankSlots((SetGuildBankSlotsCommand)command, CurrentPage, this);
+
+                    break;
+                case EventCommandType.ResetStatPointAllocations:
 
                     break;
                 default:
@@ -1698,19 +1748,58 @@ namespace Intersect.Editor.Forms.Editors.Events
                 CurrentPage.Trigger = (EventTrigger) cmbTrigger.SelectedIndex;
             }
 
+            SetupTrigger();
+        }
+
+        private void SetupTrigger()
+        {
             cmbTriggerVal.Hide();
             lblTriggerVal.Hide();
             txtCommand.Hide();
             lblCommand.Hide();
+            lblVariableTrigger.Hide();
+            cmbVariable.Hide();
 
             if (MyEvent.CommonEvent)
             {
-                if (cmbTrigger.SelectedIndex == (int) CommonEventTrigger.SlashCommand)
+                cmbVariable.Items.Clear();
+
+
+                if (cmbTrigger.SelectedIndex == (int)CommonEventTrigger.SlashCommand)
                 {
                     txtCommand.Show();
                     txtCommand.Text = CurrentPage.TriggerCommand;
                     lblCommand.Show();
                     lblCommand.Text = Strings.EventEditor.command;
+                }
+                else if (cmbTrigger.SelectedIndex == (int)CommonEventTrigger.PlayerVariableChange)
+                {
+                    cmbVariable.Show();
+                    cmbVariable.Items.Add(Strings.General.none);
+                    cmbVariable.Items.AddRange(PlayerVariableBase.Names);
+                    cmbVariable.SelectedIndex = PlayerVariableBase.ListIndex(CurrentPage.TriggerId) + 1;
+                }
+                else if (cmbTrigger.SelectedIndex == (int)CommonEventTrigger.ServerVariableChange)
+                {
+                    cmbVariable.Show();
+                    cmbVariable.Items.Add(Strings.General.none);
+                    cmbVariable.Items.AddRange(ServerVariableBase.Names);
+                    cmbVariable.SelectedIndex = ServerVariableBase.ListIndex(CurrentPage.TriggerId) + 1;
+                }
+            }
+        }
+
+        private void cmbVariable_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (MyEvent.CommonEvent)
+            {
+                if (cmbTrigger.SelectedIndex == (int)CommonEventTrigger.PlayerVariableChange)
+                {
+                    CurrentPage.TriggerId = PlayerVariableBase.IdFromList(cmbVariable.SelectedIndex - 1);
+                }
+                else if (cmbTrigger.SelectedIndex == (int)CommonEventTrigger.ServerVariableChange)
+                {
+                    CurrentPage.TriggerId = ServerVariableBase.IdFromList(cmbVariable.SelectedIndex - 1);
                 }
             }
         }
@@ -1783,7 +1872,6 @@ namespace Intersect.Editor.Forms.Editors.Events
         }
 
         #endregion
-
     }
 
     public class CommandListProperties

@@ -37,8 +37,7 @@ namespace Intersect.Editor.Forms.Editors
             this.grpTables = new DarkUI.Controls.DarkGroupBox();
             this.btnClearSearch = new DarkUI.Controls.DarkButton();
             this.txtSearch = new DarkUI.Controls.DarkTextBox();
-            this.lstTables = new System.Windows.Forms.TreeView();
-            this.imageList = new System.Windows.Forms.ImageList(this.components);
+            this.lstGameObjects = new Intersect.Editor.Forms.Controls.GameObjectList();
             this.pnlContainer = new System.Windows.Forms.Panel();
             this.grpGeneral = new DarkUI.Controls.DarkGroupBox();
             this.btnAddFolder = new DarkUI.Controls.DarkButton();
@@ -93,7 +92,7 @@ namespace Intersect.Editor.Forms.Editors
             this.grpTables.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(90)))), ((int)(((byte)(90)))));
             this.grpTables.Controls.Add(this.btnClearSearch);
             this.grpTables.Controls.Add(this.txtSearch);
-            this.grpTables.Controls.Add(this.lstTables);
+            this.grpTables.Controls.Add(this.lstGameObjects);
             this.grpTables.ForeColor = System.Drawing.Color.Gainsboro;
             this.grpTables.Location = new System.Drawing.Point(12, 36);
             this.grpTables.Name = "grpTables";
@@ -127,30 +126,20 @@ namespace Intersect.Editor.Forms.Editors
             this.txtSearch.Enter += new System.EventHandler(this.txtSearch_Enter);
             this.txtSearch.Leave += new System.EventHandler(this.txtSearch_Leave);
             // 
-            // lstTables
+            // lstGameObjects
             // 
-            this.lstTables.AllowDrop = true;
-            this.lstTables.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
-            this.lstTables.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lstTables.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lstTables.HideSelection = false;
-            this.lstTables.ImageIndex = 0;
-            this.lstTables.ImageList = this.imageList;
-            this.lstTables.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(150)))), ((int)(((byte)(150)))));
-            this.lstTables.Location = new System.Drawing.Point(6, 42);
-            this.lstTables.Name = "lstTables";
-            this.lstTables.SelectedImageIndex = 0;
-            this.lstTables.Size = new System.Drawing.Size(191, 351);
-            this.lstTables.TabIndex = 23;
-            this.lstTables.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.lstTables_AfterSelect);
-            this.lstTables.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.lstTables_NodeMouseClick);
-            // 
-            // imageList
-            // 
-            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
-            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "folder_Open_16xLG.png");
-            this.imageList.Images.SetKeyName(1, "LegacyPackage_16x.png");
+            this.lstGameObjects.AllowDrop = true;
+            this.lstGameObjects.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(63)))), ((int)(((byte)(65)))));
+            this.lstGameObjects.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lstGameObjects.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lstGameObjects.HideSelection = false;
+            this.lstGameObjects.ImageIndex = 0;
+            this.lstGameObjects.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(150)))), ((int)(((byte)(150)))));
+            this.lstGameObjects.Location = new System.Drawing.Point(6, 42);
+            this.lstGameObjects.Name = "lstGameObjects";
+            this.lstGameObjects.SelectedImageIndex = 0;
+            this.lstGameObjects.Size = new System.Drawing.Size(191, 351);
+            this.lstGameObjects.TabIndex = 23;
             // 
             // pnlContainer
             // 
@@ -204,7 +193,6 @@ namespace Intersect.Editor.Forms.Editors
             this.cmbFolder.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(90)))), ((int)(((byte)(90)))), ((int)(((byte)(90)))));
             this.cmbFolder.BorderStyle = System.Windows.Forms.ButtonBorderStyle.Solid;
             this.cmbFolder.ButtonColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(43)))), ((int)(((byte)(43)))));
-            this.cmbFolder.ButtonIcon = ((System.Drawing.Bitmap)(resources.GetObject("cmbFolder.ButtonIcon")));
             this.cmbFolder.DrawDropdownHoverOutline = false;
             this.cmbFolder.DrawFocusRectangle = false;
             this.cmbFolder.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
@@ -401,7 +389,6 @@ namespace Intersect.Editor.Forms.Editors
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.grpTables);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -444,12 +431,11 @@ namespace Intersect.Editor.Forms.Editors
         private DarkTextBox txtName;
         private DarkButton btnClearSearch;
         private DarkTextBox txtSearch;
-        public System.Windows.Forms.TreeView lstTables;
         private DarkButton btnAddFolder;
         private System.Windows.Forms.Label lblFolder;
         private DarkComboBox cmbFolder;
         private System.Windows.Forms.ToolStripButton btnChronological;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ImageList imageList;
+        private Controls.GameObjectList lstGameObjects;
     }
 }

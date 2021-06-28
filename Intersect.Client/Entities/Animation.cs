@@ -11,7 +11,7 @@ using Intersect.GameObjects;
 namespace Intersect.Client.Entities
 {
 
-    public class Animation
+    public partial class Animation
     {
 
         public bool AutoRotate;
@@ -75,7 +75,7 @@ namespace Intersect.Client.Entities
                 InfiniteLoop = loopForever;
                 AutoRotate = autoRotate;
                 mZDimension = zDimension;
-                mSound = Audio.AddMapSound(MyBase.Sound, 0, 0, Guid.Empty, loopForever, 12, parent);
+                mSound = Audio.AddMapSound(MyBase.Sound, 0, 0, Guid.Empty, loopForever, 0, 12, parent);
                 lock (Graphics.AnimationLock)
                 {
                     Graphics.LiveAnimations.Add(this);
@@ -326,6 +326,11 @@ namespace Intersect.Client.Entities
 
         public void Update()
         {
+            if (disposed)
+            {
+                return;
+            }
+
             if (MyBase != null)
             {
                 if (mSound != null)
@@ -339,30 +344,32 @@ namespace Intersect.Client.Entities
                 //Lower
                 if (MyBase.Lower.FrameCount > 0 && MyBase.Lower.FrameSpeed > 0)
                 {
+                    var realFrameCount = Math.Min(MyBase.Lower.FrameCount, MyBase.Lower.XFrames * MyBase.Lower.YFrames);
                     var lowerFrame = (int) Math.Floor(elapsedTime / (float) MyBase.Lower.FrameSpeed);
-                    var lowerLoops = (int) Math.Floor(lowerFrame / (float) MyBase.Lower.FrameCount);
+                    var lowerLoops = (int) Math.Floor(lowerFrame / (float) realFrameCount);
                     if (lowerLoops > mLowerLoop && !InfiniteLoop)
                     {
                         mShowLower = false;
                     }
                     else
                     {
-                        mLowerFrame = lowerFrame - lowerLoops * MyBase.Lower.FrameCount;
+                        mLowerFrame = lowerFrame - lowerLoops * realFrameCount;
                     }
                 }
 
                 //Upper
                 if (MyBase.Upper.FrameCount > 0 && MyBase.Upper.FrameSpeed > 0)
                 {
+                    var realFrameCount = Math.Min(MyBase.Upper.FrameCount, MyBase.Upper.XFrames * MyBase.Upper.YFrames);
                     var upperFrame = (int) Math.Floor(elapsedTime / (float) MyBase.Upper.FrameSpeed);
-                    var upperLoops = (int) Math.Floor(upperFrame / (float) MyBase.Upper.FrameCount);
+                    var upperLoops = (int) Math.Floor(upperFrame / (float) realFrameCount);
                     if (upperLoops > mUpperLoop && !InfiniteLoop)
                     {
                         mShowUpper = false;
                     }
                     else
                     {
-                        mUpperFrame = upperFrame - upperLoops * MyBase.Upper.FrameCount;
+                        mUpperFrame = upperFrame - upperLoops * realFrameCount;
                     }
                 }
 

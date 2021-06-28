@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-
+using System.Linq.Expressions;
+using System.Reflection;
 using Intersect.Enums;
 using Intersect.GameObjects;
 using Intersect.GameObjects.Conditions;
@@ -11,10 +13,8 @@ using Intersect.Server.Maps;
 
 namespace Intersect.Server.Entities.Events
 {
-
-    public static class Conditions
+    public static partial class Conditions
     {
-
         public static bool CanSpawnPage(EventPage page, Player player, Event activeInstance)
         {
             return MeetsConditionLists(page.ConditionLists, player, activeInstance);
@@ -43,7 +43,7 @@ namespace Intersect.Server.Entities.Events
             {
                 if (MeetsConditionList(lists.Lists[i], player, eventInstance, questBase))
 
-                    //Checks to see if all conditions in this list are met
+                //Checks to see if all conditions in this list are met
                 {
                     //If all conditions are met.. and we only need a single list to pass then return true
                     if (singleList)
@@ -75,7 +75,7 @@ namespace Intersect.Server.Entities.Events
         {
             for (var i = 0; i < list.Conditions.Count; i++)
             {
-                var meetsCondition = MeetsCondition((dynamic) list.Conditions[i], player, eventInstance, questBase);
+                var meetsCondition = MeetsCondition(list.Conditions[i], player, eventInstance, questBase);
                 if (list.Conditions[i].Negated)
                 {
                     meetsCondition = !meetsCondition;
@@ -88,6 +88,18 @@ namespace Intersect.Server.Entities.Events
             }
 
             return true;
+        }
+
+        
+
+        public static bool MeetsCondition(
+            Condition condition,
+            Player player,
+            Event eventInstance,
+            QuestBase questBase
+        )
+        {
+            return ConditionHandlerRegistry.CheckCondition(condition, player, eventInstance, questBase);
         }
 
         public static bool MeetsCondition(
@@ -112,7 +124,7 @@ namespace Intersect.Server.Entities.Events
                 value = new VariableValue();
             }
 
-            return CheckVariableComparison(value, (dynamic) condition.Comparison, player, eventInstance);
+            return CheckVariableComparison(value, condition.Comparison, player, eventInstance);
         }
 
         public static bool MeetsCondition(
@@ -122,7 +134,22 @@ namespace Intersect.Server.Entities.Events
             QuestBase questBase
         )
         {
-            if (player.CountItems(condition.ItemId) >= condition.Quantity)
+            var quantity = condition.Quantity;
+            if (condition.UseVariable)
+            {
+                switch (condition.VariableType)
+                {
+                    case VariableTypes.PlayerVariable:
+                        quantity = (int)player.GetVariableValue(condition.VariableId).Integer;
+
+                        break;
+                    case VariableTypes.ServerVariable:
+                        quantity = (int)ServerVariableBase.Get(condition.VariableId)?.Value.Integer;
+                        break;
+                }
+            }
+
+            if ((!condition.Negated && player.CountItems(condition.ItemId) >= quantity) || (condition.Negated && player.CountItems(condition.ItemId) < quantity))
             {
                 return true;
             }
@@ -174,11 +201,11 @@ namespace Intersect.Server.Entities.Events
             }
             else
             {
-                lvlStat = player.Stat[(int) condition.Stat].Value();
+                lvlStat = player.Stat[(int)condition.Stat].Value();
                 if (condition.IgnoreBuffs)
                 {
-                    lvlStat = player.Stat[(int) condition.Stat].BaseStat +
-                              player.StatPointAllocations[(int) condition.Stat];
+                    lvlStat = player.Stat[(int)condition.Stat].BaseStat +
+                              player.StatPointAllocations[(int)condition.Stat];
                 }
             }
 
@@ -242,12 +269,11 @@ namespace Intersect.Server.Entities.Events
             {
                 if (eventInstance.Global)
                 {
-                    var evts = MapInstance.Get(eventInstance.MapId).GlobalEventInstances.Values.ToList();
-                    for (var i = 0; i < evts.Count; i++)
+                    if (MapInstance.Get(eventInstance.MapId).GlobalEventInstances.TryGetValue(eventInstance.BaseEvent, out Event evt))
                     {
-                        if (evts[i] != null && evts[i].BaseEvent == eventInstance.BaseEvent)
+                        if (evt != null)
                         {
-                            return evts[i].SelfSwitch[condition.SwitchIndex] == condition.Value;
+                            return evt.SelfSwitch[condition.SwitchIndex] == condition.Value;
                         }
                     }
                 }
@@ -327,13 +353,7 @@ namespace Intersect.Server.Entities.Events
             QuestBase questBase
         )
         {
-            var questInProgress = QuestBase.Get(condition.QuestId);
-            if (questInProgress != null)
-            {
-                return player.QuestInProgress(questInProgress, condition.Progress, condition.TaskId);
-            }
-
-            return false;
+            return player.QuestInProgress(condition.QuestId, condition.Progress, condition.TaskId);
         }
 
         public static bool MeetsCondition(
@@ -343,13 +363,7 @@ namespace Intersect.Server.Entities.Events
             QuestBase questBase
         )
         {
-            var questCompleted = QuestBase.Get(condition.QuestId);
-            if (questCompleted != null)
-            {
-                return player.QuestCompleted(questCompleted);
-            }
-
-            return false;
+            return player.QuestCompleted(condition.QuestId);
         }
 
         public static bool MeetsCondition(
@@ -431,9 +445,24 @@ namespace Intersect.Server.Entities.Events
         )
         {
 
+            var quantity = condition.Quantity;
+            if (condition.UseVariable)
+            {
+                switch (condition.VariableType)
+                {
+                    case VariableTypes.PlayerVariable:
+                        quantity = (int)player.GetVariableValue(condition.VariableId).Integer;
+
+                        break;
+                    case VariableTypes.ServerVariable:
+                        quantity = (int)ServerVariableBase.Get(condition.VariableId)?.Value.Integer;
+                        break;
+                }
+            }
+
             // Check if the user has (or does not have when negated) the desired amount of inventory slots.
             var slots = player.FindOpenInventorySlots().Count;
-            if ((!condition.Negated && slots >= condition.Quantity) || (condition.Negated && slots < condition.Quantity))
+            if ((!condition.Negated && slots >= quantity) || (condition.Negated && slots < quantity))
             {
                 return true;
             }
@@ -441,7 +470,28 @@ namespace Intersect.Server.Entities.Events
             return false;
         }
 
+        public static bool MeetsCondition(
+            InGuildWithRank condition,
+            Player player,
+            Event eventInstance,
+            QuestBase questBase
+        )
+        {
+            var value = player.Guild != null && player.GuildRank <= condition.Rank;
+            return condition.Negated ? !value : value;
+        }
+
+        public static bool MeetsCondition(
+            MapZoneTypeIs condition,
+            Player player,
+            Event eventInstance,
+            QuestBase questBase)
+        {
+            return player.Map?.ZoneType == condition.ZoneType;
+        }
+
         //Variable Comparison Processing
+
         public static bool CheckVariableComparison(
             VariableValue currentValue,
             VariableCompaison comparison,
@@ -449,7 +499,7 @@ namespace Intersect.Server.Entities.Events
             Event instance
         )
         {
-            return false;
+            return VariableCheckHandlerRegistry.CheckVariableComparison(currentValue, comparison, player, instance);
         }
 
         public static bool CheckVariableComparison(

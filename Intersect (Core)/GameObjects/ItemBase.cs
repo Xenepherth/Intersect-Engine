@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 using Intersect.Enums;
 using Intersect.GameObjects.Conditions;
@@ -18,6 +19,8 @@ namespace Intersect.GameObjects
     {
 
         [NotMapped] public ConditionLists UsageRequirements = new ConditionLists();
+
+        public string CannotUseMessage { get; set; } = "";
 
         public ItemBase()
         {
@@ -64,13 +67,62 @@ namespace Intersect.GameObjects
             set => EquipmentAnimationId = value?.Id ?? Guid.Empty;
         }
 
-        public bool Bound { get; set; }
+        /// <summary>
+        /// Defines whether or not this item can be dropped by a player.
+        /// </summary>
+        [Column("Bound")]   // Not exactly the cleanest solution, since CanDrop and Bound set to true will do the opposite.. But don't want to leave a bogus field!
+        public bool CanDrop { get; set; } = true;
+
+        /// <summary>
+        /// Defines the percentage chance an item will drop upon player Death.
+        /// </summary>
+        public int DropChanceOnDeath { get; set; }
+
+        /// <summary>
+        /// Defines whether or not this item can be traded by a player to another player.
+        /// </summary>
+        public bool CanTrade { get; set; } = true;
+
+        /// <summary>
+        /// Defines whether or not this item can be sold by a player to a shop.
+        /// </summary>
+        public bool CanSell { get; set; } = true;
+
+        /// <summary>
+        /// Defines whether or not this item can be banked by a player.
+        /// </summary>
+        public bool CanBank { get; set; } = true;
+
+        /// <summary>
+        /// Defines whether or not this item can be guild banked by a player.
+        /// </summary>
+        public bool CanGuildBank { get; set; } = true;
+
+        /// <summary>
+        /// Defines whether or not this item can be placed in a bag by a player.
+        /// </summary>
+        public bool CanBag { get; set; } = true;
 
         public int CritChance { get; set; }
 
         public double CritMultiplier { get; set; } = 1.5;
 
         public int Cooldown { get; set; }
+
+        /// <summary>
+        /// Defines which cooldown group this item belongs to.
+        /// </summary>
+        public string CooldownGroup { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Configures whether this should not trigger and be triggered by the global cooldown.
+        /// </summary>
+        public bool IgnoreGlobalCooldown { get; set; } = false;
+
+        /// <summary>
+        /// Configured whether the cooldown of this item should be reduced by the players cooldown reduction
+        /// </summary>
+        public bool IgnoreCooldownReduction { get; set; } = false;
 
         public int Damage { get; set; }
 
@@ -129,6 +181,23 @@ namespace Intersect.GameObjects
 
         public string Icon { get; set; } = "";
 
+        /// <summary>
+        /// The database compatible version of <see cref="Color"/>
+        /// </summary>
+        [Column("Color")]
+        [JsonIgnore]
+        public string JsonColor
+        {
+            get => JsonConvert.SerializeObject(Color);
+            set => Color = !string.IsNullOrWhiteSpace(value) ? JsonConvert.DeserializeObject<Color>(value) : Color.White;
+        }
+
+        /// <summary>
+        /// Defines the ARGB color settings for this Item.
+        /// </summary>
+        [NotMapped]
+        public Color Color { get; set; }
+
         public int Price { get; set; }
 
         public int Rarity { get; set; }
@@ -152,6 +221,16 @@ namespace Intersect.GameObjects
         public int Speed { get; set; }
 
         public bool Stackable { get; set; }
+
+        /// <summary>
+        /// Defines how high the item can stack in a player's inventory before starting a new stack.
+        /// </summary>
+        public int MaxInventoryStack { get; set; } = 1000000;
+
+        /// <summary>
+        /// Defines how high the item can stack in a player/guild's bank before starting a new stack.
+        /// </summary>
+        public int MaxBankStack { get; set; } = 1000000;
 
         public int StatGrowth { get; set; }
 
@@ -228,6 +307,24 @@ namespace Intersect.GameObjects
         /// <inheritdoc />
         public string Folder { get; set; } = "";
 
+        /// <summary>
+        /// Gets an array of all items sharing the provided cooldown group.
+        /// </summary>
+        /// <param name="cooldownGroup">The cooldown group to search for.</param>
+        /// <returns>Returns an array of <see cref="ItemBase"/> containing all items with the supplied cooldown group.</returns>
+        public static ItemBase[] GetCooldownGroup(string cooldownGroup)
+        {
+            cooldownGroup = cooldownGroup.Trim();
+
+            // No point looking for nothing.
+            if (string.IsNullOrWhiteSpace(cooldownGroup))
+            {
+                return Array.Empty<ItemBase>();
+            }
+
+            return Lookup.Where(i => ((ItemBase)i.Value).CooldownGroup.Trim() == cooldownGroup).Select(i => (ItemBase)i.Value).ToArray();
+        }
+
         private void Initialize()
         {
             Name = "New Item";
@@ -239,6 +336,7 @@ namespace Intersect.GameObjects
             PercentageVitalsGiven = new int[(int) Vitals.VitalCount];
             Consumable = new ConsumableData();
             Effect = new EffectData();
+            Color = new Color(255, 255, 255, 255);
         }
 
     }

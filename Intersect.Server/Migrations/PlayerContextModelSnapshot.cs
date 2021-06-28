@@ -180,6 +180,49 @@ namespace Intersect.Server.Migrations
                     b.ToTable("Player_Friends");
                 });
 
+            modelBuilder.Entity("Intersect.Server.Database.PlayerData.Players.Guild", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("BankSlotsCount");
+
+                    b.Property<DateTime>("FoundingDate");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Guilds");
+                });
+
+            modelBuilder.Entity("Intersect.Server.Database.PlayerData.Players.GuildBankSlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid?>("BagId");
+
+                    b.Property<Guid>("GuildId");
+
+                    b.Property<Guid>("ItemId");
+
+                    b.Property<int>("Quantity");
+
+                    b.Property<int>("Slot");
+
+                    b.Property<string>("StatBuffsJson")
+                        .HasColumnName("StatBuffs");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BagId");
+
+                    b.HasIndex("GuildId");
+
+                    b.ToTable("Guild_Bank");
+                });
+
             modelBuilder.Entity("Intersect.Server.Database.PlayerData.Players.HotbarSlot", b =>
                 {
                     b.Property<Guid>("Id")
@@ -304,6 +347,8 @@ namespace Intersect.Server.Migrations
 
                     b.Property<string>("Email");
 
+                    b.Property<string>("LastIp");
+
                     b.Property<string>("Name");
 
                     b.Property<string>("Password");
@@ -312,8 +357,12 @@ namespace Intersect.Server.Migrations
 
                     b.Property<DateTime?>("PasswordResetTime");
 
+                    b.Property<ulong>("PlayTimeSeconds");
+
                     b.Property<string>("PowerJson")
                         .HasColumnName("Power");
+
+                    b.Property<DateTime?>("RegistrationDate");
 
                     b.Property<string>("Salt");
 
@@ -329,6 +378,10 @@ namespace Intersect.Server.Migrations
 
                     b.Property<Guid>("ClassId");
 
+                    b.Property<DateTime?>("CreationDate");
+
+                    b.Property<Guid?>("DbGuildId");
+
                     b.Property<int>("Dir");
 
                     b.Property<string>("EquipmentJson")
@@ -343,11 +396,18 @@ namespace Intersect.Server.Migrations
 
                     b.Property<int>("Gender");
 
+                    b.Property<DateTime>("GuildJoinDate");
+
+                    b.Property<int>("GuildRank");
+
                     b.Property<string>("HeaderLabelJson")
                         .HasColumnName("HeaderLabel");
 
                     b.Property<string>("ItemCooldownsJson")
                         .HasColumnName("ItemCooldowns");
+
+                    b.Property<string>("JsonColor")
+                        .HasColumnName("Color");
 
                     b.Property<DateTime?>("LastOnline");
 
@@ -359,6 +419,8 @@ namespace Intersect.Server.Migrations
 
                     b.Property<string>("NameColorJson")
                         .HasColumnName("NameColor");
+
+                    b.Property<ulong>("PlayTimeSeconds");
 
                     b.Property<string>("SpellCooldownsJson")
                         .HasColumnName("SpellCooldowns");
@@ -385,6 +447,8 @@ namespace Intersect.Server.Migrations
                     b.Property<int>("Z");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DbGuildId");
 
                     b.HasIndex("UserId");
 
@@ -452,6 +516,18 @@ namespace Intersect.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Intersect.Server.Database.PlayerData.Players.GuildBankSlot", b =>
+                {
+                    b.HasOne("Intersect.Server.Database.PlayerData.Players.Bag", "Bag")
+                        .WithMany()
+                        .HasForeignKey("BagId");
+
+                    b.HasOne("Intersect.Server.Database.PlayerData.Players.Guild", "Guild")
+                        .WithMany("Bank")
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Intersect.Server.Database.PlayerData.Players.HotbarSlot", b =>
                 {
                     b.HasOne("Intersect.Server.Entities.Player", "Player")
@@ -498,6 +574,10 @@ namespace Intersect.Server.Migrations
 
             modelBuilder.Entity("Intersect.Server.Entities.Player", b =>
                 {
+                    b.HasOne("Intersect.Server.Database.PlayerData.Players.Guild", "DbGuild")
+                        .WithMany()
+                        .HasForeignKey("DbGuildId");
+
                     b.HasOne("Intersect.Server.Database.PlayerData.User", "User")
                         .WithMany("Players")
                         .HasForeignKey("UserId")

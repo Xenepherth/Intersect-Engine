@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-
+using Intersect.Compression;
 using Intersect.Enums;
 using Intersect.GameObjects;
 using Intersect.GameObjects.Events;
 using Intersect.GameObjects.Maps;
 using Intersect.Logging;
+using Intersect.Network.Packets.Server;
 using Intersect.Server.Classes.Maps;
 using Intersect.Server.Database;
 using Intersect.Server.Entities;
@@ -20,29 +20,30 @@ using Intersect.Server.General;
 using Intersect.Server.Networking;
 using Intersect.Utilities;
 
-using JetBrains.Annotations;
-
 using Newtonsoft.Json;
 
 namespace Intersect.Server.Maps
 {
 
-    public class MapInstance : MapBase
+    public partial class MapInstance : MapBase
     {
 
         private static MapInstances sLookup;
 
-        [NotNull, NotMapped] private readonly ConcurrentDictionary<Guid,Entity> mEntities = new ConcurrentDictionary<Guid, Entity>();
+        [NotMapped] private readonly ConcurrentDictionary<Guid,Entity> mEntities = new ConcurrentDictionary<Guid, Entity>();
 
-        //Does the map have a player on or nearby it?
-        [JsonIgnore] [NotMapped] public bool Active;
+        private Entity[] mCachedEntities = new Entity[0];
 
         [JsonIgnore] [NotMapped]
         public ConcurrentDictionary<EventBase, Event> GlobalEventInstances = new ConcurrentDictionary<EventBase, Event>();
 
-        [JsonIgnore] [NotMapped] public List<MapItemSpawn> ItemRespawns = new List<MapItemSpawn>();
+        [JsonIgnore] [NotMapped] public ConcurrentDictionary<Guid, MapItemSpawn> ItemRespawns = new ConcurrentDictionary<Guid, MapItemSpawn>();
 
         [JsonIgnore] [NotMapped] public long LastUpdateTime = -1;
+
+        [JsonIgnore] [NotMapped] public long UpdateQueueStart = -1;
+
+        [JsonIgnore] [NotMapped] public long LastProjectileUpdateTime = -1;
 
         //Location of Map in the current grid
         [JsonIgnore] [NotMapped] public int MapGrid;
@@ -52,27 +53,68 @@ namespace Intersect.Server.Maps
         [JsonIgnore] [NotMapped] public int MapGridY = -1;
 
         //Traps
-        [JsonIgnore] [NotMapped] public List<MapTrapInstance> MapTraps = new List<MapTrapInstance>();
+        [JsonIgnore] [NotMapped] public ConcurrentDictionary<Guid, MapTrapInstance> MapTraps = new ConcurrentDictionary<Guid, MapTrapInstance>();
 
-        [NotMapped] private BytePoint[] mMapBlocks = new BytePoint[0];
+        [JsonIgnore]
+        [NotMapped]
+        public MapTrapInstance[] MapTrapsCached = new MapTrapInstance[0];
 
-        private BytePoint[] mNpcMapBlocks = new BytePoint[0];
+        [NotMapped] private BytePoint[] mMapBlocks = Array.Empty<BytePoint>();
+
+        private BytePoint[] mNpcMapBlocks = Array.Empty<BytePoint>();
 
         private ConcurrentDictionary<Guid, Player> mPlayers = new ConcurrentDictionary<Guid, Player>();
 
         [JsonIgnore] [NotMapped]
-        public Dictionary<NpcSpawn, MapNpcSpawn> NpcSpawnInstances = new Dictionary<NpcSpawn, MapNpcSpawn>();
+        public ConcurrentDictionary<NpcSpawn, MapNpcSpawn> NpcSpawnInstances = new ConcurrentDictionary<NpcSpawn, MapNpcSpawn>();
 
         [JsonIgnore] [NotMapped]
-        public Dictionary<ResourceSpawn, MapResourceSpawn> ResourceSpawnInstances =
-            new Dictionary<ResourceSpawn, MapResourceSpawn>();
+        public ConcurrentDictionary<ResourceSpawn, MapResourceSpawn> ResourceSpawnInstances = new ConcurrentDictionary<ResourceSpawn, MapResourceSpawn>();
 
         //Temporary Values
-        [JsonIgnore] [NotMapped] public List<Guid> SurroundingMaps = new List<Guid>();
+        private Guid[] mSurroundingMapIds = new Guid[0];
+        private Guid[] mSurroundingMapsIdsWithSelf = new Guid[0];
+        private MapInstance[] mSurroundingMaps = new MapInstance[0];
+        private MapInstance[] mSurroundingMapsWithSelf = new MapInstance[0];
+        private MapEntityMovements mEntityMovements = new MapEntityMovements();
+        private MapActionMessages mActionMessages = new MapActionMessages();
+        private MapAnimations mMapAnimations = new MapAnimations();
 
-        [JsonIgnore] [NotMapped] public long TileAccessTime;
+        [JsonIgnore]
+        [NotMapped]
+        public Guid[] SurroundingMapIds
+        {
+            get => mSurroundingMapIds;
 
-        [JsonIgnore] [NotMapped] public long UpdateDelay = 75;
+            set
+            {
+                lock (GetMapLock())
+                {
+                    mSurroundingMapIds = value;
+                    var surroundingMapsIdsWithSelf = new List<Guid>(value);
+                    surroundingMapsIdsWithSelf.Add(Id);
+                    mSurroundingMapsIdsWithSelf = surroundingMapsIdsWithSelf.ToArray();
+                }
+            }
+        }
+
+        [JsonIgnore]
+        [NotMapped]
+        public MapInstance[] SurroundingMaps
+        {
+            get => mSurroundingMaps;
+
+            set
+            {
+                lock (GetMapLock())
+                {
+                    mSurroundingMaps = value;
+                    var surroundingMapsWithSelf = new List<MapInstance>(value);
+                    surroundingMapsWithSelf.Add(this);
+                    mSurroundingMapsWithSelf = surroundingMapsWithSelf.ToArray();
+                }
+            }
+        }
 
         //EF
         public MapInstance() : base()
@@ -99,22 +141,27 @@ namespace Intersect.Server.Maps
             Layers = null;
         }
 
-        [NotNull]
         [JsonIgnore]
         [NotMapped]
-        public List<MapItem> MapItems { get; } = new List<MapItem>();
+        public ConcurrentDictionary<Guid, MapItem>[] TileItems { get; } = new ConcurrentDictionary<Guid, MapItem>[Options.Instance.MapOpts.Width * Options.Instance.MapOpts.Height];
+
+        [JsonIgnore]
+        [NotMapped]
+        public ConcurrentDictionary<Guid, MapItem> AllMapItems { get; } = new ConcurrentDictionary<Guid, MapItem>();
 
         //Projectiles
         [JsonIgnore]
         [NotMapped]
-        [NotNull]
-        public List<Projectile> MapProjectiles { get; } = new List<Projectile>();
+        public ConcurrentDictionary<Guid, Projectile> MapProjectiles { get; } = new ConcurrentDictionary<Guid, Projectile>();
+
+        [JsonIgnore]
+        [NotMapped]
+        public Projectile[] MapProjectilesCached = new Projectile[0];
 
         [NotMapped]
         [JsonIgnore]
-        public List<ResourceSpawn> ResourceSpawns { get; set; } = new List<ResourceSpawn>();
+        public ConcurrentDictionary<Guid, ResourceSpawn> ResourceSpawns { get; set; } = new ConcurrentDictionary<Guid, ResourceSpawn>();
 
-        [NotNull]
         public new static MapInstances Lookup => sLookup = sLookup ?? new MapInstances(MapBase.Lookup);
 
         //GameObject Functions
@@ -136,6 +183,17 @@ namespace Intersect.Server.Maps
                 CacheMapBlocks();
                 DespawnEverything();
                 RespawnEverything();
+
+                var events = new List<EventBase>();
+                foreach (var evt in EventIds)
+                {
+                    var itm = EventBase.Get(evt);
+                    if (itm != null)
+                    {
+                        events.Add(itm);
+                    }
+                }
+                EventsCache = events;
             }
         }
 
@@ -163,7 +221,8 @@ namespace Intersect.Server.Maps
                     if (Attributes[x, y] != null)
                     {
                         if (Attributes[x, y].Type == MapAttributes.Blocked ||
-                            Attributes[x, y].Type == MapAttributes.GrappleStone)
+                            Attributes[x, y].Type == MapAttributes.GrappleStone ||
+                            Attributes[x,y].Type == MapAttributes.Animation && ((MapAnimationAttribute)Attributes[x,y]).IsBlock) 
                         {
                             blocks.Add(new BytePoint(x, y));
                             npcBlocks.Add(new BytePoint(x, y));
@@ -214,6 +273,23 @@ namespace Intersect.Server.Maps
         }
 
         /// <summary>
+        /// Add a map item to this map.
+        /// </summary>
+        /// <param name="x">The X location of this item.</param>
+        /// <param name="y">The Y location of this item.</param>
+        /// <param name="item">The <see cref="MapItem"/> to add to the map.</param>
+        private void AddItem(MapItem item)
+        {
+            AllMapItems.TryAdd(item.UniqueId, item);
+
+            if (TileItems[item.TileIndex] == null)
+            {
+                TileItems[item.TileIndex] = new ConcurrentDictionary<Guid, MapItem>();
+            }
+            TileItems[item.TileIndex]?.TryAdd(item.UniqueId, item);
+        }
+
+        /// <summary>
         /// Spawn an item to this map instance.
         /// </summary>
         /// <param name="x">The horizontal location of this item</param>
@@ -230,7 +306,7 @@ namespace Intersect.Server.Maps
         /// <param name="item">The <see cref="Item"/> to spawn on the map.</param>
         /// <param name="amount">The amount of times to spawn this item to the map. Set to the <see cref="Item"/> quantity, overwrites quantity if stackable!</param>
         /// <param name="owner">The player Id that will be the temporary owner of this item.</param>
-        public void SpawnItem(int x, int y, Item item, int amount, Guid owner)
+        public void SpawnItem(int x, int y, Item item, int amount, Guid owner, bool sendUpdate = true)
         {
             if (item == null)
             {
@@ -248,38 +324,59 @@ namespace Intersect.Server.Maps
             }
 
             // if we can stack this item or the user configured to drop items consolidated, simply spawn a single stack of it.
-            if (itemDescriptor.Stackable || Options.Loot.ConsolidateMapDrops)
+            // Does not count for Equipment and bags, these are ALWAYS their own separate item spawn. We don't want to lose data on that!
+            if ((itemDescriptor.ItemType != ItemTypes.Equipment && itemDescriptor.ItemType != ItemTypes.Bag) &&
+                (itemDescriptor.Stackable || Options.Loot.ConsolidateMapDrops))
             {
-                var mapItem = new MapItem(item.ItemId, amount, item.BagId, item.Bag) {
-                    X = x,
-                    Y = y,
-                    DespawnTime = Globals.Timing.Milliseconds + Options.Loot.ItemDespawnTime,
-                    Owner = owner,
-                    OwnershipTime = Globals.Timing.Milliseconds + Options.Loot.ItemOwnershipTime,
-                    VisibleToAll = Options.Loot.ShowUnownedItems
-                };
-
-                // If this is a piece of equipment, set up the stat buffs for it.
-                if (itemDescriptor.ItemType == ItemTypes.Equipment)
+                // Does this item already exist on this tile? If so, get its value so we can simply consolidate the stack.
+                var existingCount = 0;
+                var existingItems = FindItemsAt(y * Options.MapWidth + x);
+                var toRemove = new List<MapItem>();
+                foreach (var exItem in existingItems)
                 {
-                    mapItem.SetupStatBuffs(item);
+                    // If the Id and Owner matches, get its quantity and remove the item so we don't get multiple stacks.
+                    if (exItem.ItemId == item.ItemId && exItem.Owner == owner)
+                    {
+                        existingCount += exItem.Quantity;
+                        toRemove.Add(exItem);
+                    }
                 }
 
-                MapItems.Add(mapItem);
-                PacketSender.SendMapItemUpdate(Id, MapItems.Count - 1);
+                var mapItem = new MapItem(item.ItemId, amount + existingCount, x, y, item.BagId, item.Bag)
+                {
+                    DespawnTime = Timing.Global.Milliseconds + Options.Loot.ItemDespawnTime,
+                    Owner = owner,
+                    OwnershipTime = Timing.Global.Milliseconds + Options.Loot.ItemOwnershipTime,
+                    VisibleToAll = Options.Loot.ShowUnownedItems || owner == Guid.Empty
+                };
+
+                // Remove existing items if we need to.
+                foreach (var reItem in toRemove)
+                {
+                    RemoveItem(reItem);
+                    if (sendUpdate)
+                    {
+                        PacketSender.SendMapItemUpdate(Id, reItem, true);
+                    }
+                }
+
+                // Drop the new item.
+                AddItem(mapItem);
+                if (sendUpdate)
+                {
+                    PacketSender.SendMapItemUpdate(Id, mapItem, false);
+                }
             }
             else
             {
                 // Oh boy here we go! Set quantity to 1 and drop multiple!
                 for (var i = 0; i < amount; i++)
                 {
-                    var mapItem = new MapItem(item.ItemId, amount, item.BagId, item.Bag) {
-                        X = x,
-                        Y = y,
+                    var mapItem = new MapItem(item.ItemId, amount, x, y, item.BagId, item.Bag) {
                         DespawnTime = Globals.Timing.Milliseconds + Options.Loot.ItemDespawnTime,
                         Owner = owner,
                         OwnershipTime = Globals.Timing.Milliseconds + Options.Loot.ItemOwnershipTime,
-                        VisibleToAll = Options.Loot.ShowUnownedItems
+                        VisibleToAll = Options.Loot.ShowUnownedItems || owner == Guid.Empty
                     };
 
                     // If this is a piece of equipment, set up the stat buffs for it.
@@ -288,7 +385,7 @@ namespace Intersect.Server.Maps
                         mapItem.SetupStatBuffs(item);
                     }
 
-                    MapItems.Add(mapItem);
+                    AddItem(mapItem);
                 }
                 PacketSender.SendMapItemsToProximity(Id);
             }
@@ -300,53 +397,74 @@ namespace Intersect.Server.Maps
             var item = ItemBase.Get(((MapItemAttribute) Attributes[x, y]).ItemId);
             if (item != null)
             {
-                MapItems.Add(
-                    new MapItem(
-                        ((MapItemAttribute) Attributes[x, y]).ItemId, ((MapItemAttribute) Attributes[x, y]).Quantity
-                    )
-                );
-
-                MapItems[MapItems.Count - 1].X = x;
-                MapItems[MapItems.Count - 1].Y = y;
-                MapItems[MapItems.Count - 1].DespawnTime = -1;
-                MapItems[MapItems.Count - 1].AttributeSpawnX = x;
-                MapItems[MapItems.Count - 1].AttributeSpawnY = y;
+                var mapItem = new MapItem(item.Id, ((MapItemAttribute)Attributes[x, y]).Quantity, x, y);
+                mapItem.DespawnTime = -1;
+                mapItem.AttributeSpawnX = x;
+                mapItem.AttributeSpawnY = y;
                 if (item.ItemType == ItemTypes.Equipment)
                 {
-                    MapItems[MapItems.Count - 1].Quantity = 1;
-                    var r = new Random();
-                    for (var i = 0; i < (int) Stats.StatCount; i++)
-                    {
-                        MapItems[MapItems.Count - 1].StatBuffs[i] = r.Next(-1 * item.StatGrowth, item.StatGrowth + 1);
-                    }
+                    mapItem.Quantity = 1;
                 }
-
-                PacketSender.SendMapItemUpdate(Id, MapItems.Count - 1);
+                AddItem(mapItem);
+                PacketSender.SendMapItemUpdate(Id, mapItem, false);
             }
         }
 
-        public void RemoveItem(int index, bool respawn = true)
+        /// <summary>
+        /// Find a Map Item on this map based on its Unique Id;
+        /// </summary>
+        /// <param name="uniqueId">The Unique Id of the Map Item to look for.</param>
+        /// <returns>Returns a <see cref="MapItem"/> if one is found with the desired Unique Id.</returns>
+        public MapItem FindItem(Guid uniqueId)
         {
-            lock (MapItems)
+            if (AllMapItems.TryGetValue(uniqueId, out MapItem item))
             {
-                if (index < MapItems.Count && MapItems[index] != null)
+                return item;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// /// Find all map items at a specificed location.
+        /// </summary>
+        /// <param name="tileIndex">The integer value representation of the tile.</param>
+        /// <returns>Returns a <see cref="ICollection"/> of <see cref="MapItem"/></returns>
+        public ICollection<MapItem> FindItemsAt(int tileIndex)
+        {
+            if (tileIndex < 0 || tileIndex >= Options.MapWidth * Options.MapHeight || TileItems[tileIndex] == null)
+            {
+                return Array.Empty<MapItem>();
+            }
+            return TileItems[tileIndex].Values;
+        }
+
+        public void RemoveItem(MapItem item, bool respawn = true)
+        {
+            if (item != null)
+            {
+                // Only try to handle respawns for items that have attribute spawn locations.
+                if (item.AttributeSpawnX > -1)
                 {
-                    MapItems[index].ItemId = Guid.Empty;
-                    PacketSender.SendMapItemUpdate(Id, index);
                     if (respawn)
                     {
-                        if (MapItems[index].AttributeSpawnX > -1)
+                        var spawn = new MapItemSpawn()
                         {
-                            ItemRespawns.Add(new MapItemSpawn());
-                            ItemRespawns[ItemRespawns.Count - 1].AttributeSpawnX = MapItems[index].AttributeSpawnX;
-                            ItemRespawns[ItemRespawns.Count - 1].AttributeSpawnY = MapItems[index].AttributeSpawnY;
-                            ItemRespawns[ItemRespawns.Count - 1].RespawnTime =
-                                Globals.Timing.Milliseconds + Options.Map.ItemAttributeRespawnTime;
-                        }
+                            AttributeSpawnX = item.X,
+                            AttributeSpawnY = item.Y,
+                            RespawnTime = Globals.Timing.Milliseconds + Options.Map.ItemAttributeRespawnTime
+                        };
+                        ItemRespawns.TryAdd(spawn.Id, spawn);
                     }
-
-                    MapItems[index] = null;
                 }
+
+                var oldOwner = item.Owner;
+                AllMapItems.TryRemove(item.UniqueId, out MapItem removed);
+                TileItems[item.TileIndex]?.TryRemove(item.UniqueId, out MapItem tileRemoved);
+                if (TileItems[item.TileIndex]?.IsEmpty ?? false)
+                {
+                    TileItems[item.TileIndex] = null;
+                }
+                PacketSender.SendMapItemUpdate(Id, item, true, item.VisibleToAll, oldOwner);
             }
         }
 
@@ -354,12 +472,12 @@ namespace Intersect.Server.Maps
         {
             //Kill all items resting on map
             ItemRespawns.Clear();
-            for (var i = 0; i < MapItems.Count; i++)
+            foreach (var item in AllMapItems.Values)
             {
-                RemoveItem(i, false);
+                RemoveItem(item);
             }
 
-            MapItems.Clear();
+            AllMapItems.Clear();
         }
 
         public void DespawnNpcsOf(NpcBase npcBase)
@@ -368,7 +486,10 @@ namespace Intersect.Server.Maps
             {
                 if (entity.Value is Npc npc && npc.Base == npcBase)
                 {
-                    npc.Die(0);
+                    lock (npc.EntityLock)
+                    {
+                        npc.Die(false);
+                    }
                 }
             }
         }
@@ -379,32 +500,38 @@ namespace Intersect.Server.Maps
             {
                 if (entity.Value is Resource res && res.Base == resourceBase)
                 {
-                    res.Die(0);
+                    lock (res.EntityLock)
+                    {
+                        res.Die(false);
+                    }
                 }
             }
         }
 
         public void DespawnProjectilesOf(ProjectileBase projectileBase)
         {
+            var guids = new List<Guid>();
             foreach (var entity in mEntities)
             {
                 if (entity.Value is Projectile proj && proj.Base == projectileBase)
                 {
-                    proj.Die(0);
+                    lock (proj.EntityLock)
+                    {
+                        guids.Add(proj.Id);
+                        proj.Die(false);
+                    }
                 }
             }
+            PacketSender.SendRemoveProjectileSpawns(Id, guids.ToArray(), null);
         }
 
         public void DespawnItemsOf(ItemBase itemBase)
         {
-            for (var i = 0; i < MapItems.Count; i++)
+            foreach (var item in AllMapItems.Values)
             {
-                if (MapItems[i] != null)
+                if (ItemBase.Get(item.ItemId) == itemBase)
                 {
-                    if (ItemBase.Get(MapItems[i].ItemId) == itemBase)
-                    {
-                        RemoveItem(i, true);
-                    }
+                    RemoveItem(item);
                 }
             }
         }
@@ -420,59 +547,56 @@ namespace Intersect.Server.Maps
                 Z = ((MapResourceAttribute) Attributes[x, y]).SpawnLevel
             };
 
-            ResourceSpawns.Add(tempResource);
+            ResourceSpawns.TryAdd(tempResource.Id, tempResource);
         }
 
         private void SpawnMapResources()
         {
-            for (var i = 0; i < ResourceSpawns.Count; i++)
+            foreach (var spawn in ResourceSpawns)
             {
-                SpawnMapResource(i);
+                SpawnMapResource(spawn.Value);
             }
         }
 
-        private void SpawnMapResource(int i)
+        private void SpawnMapResource(ResourceSpawn spawn)
         {
-            lock (GetMapLock())
+            int x = spawn.X;
+            int y = spawn.Y;
+            var id = Guid.Empty;
+            MapResourceSpawn resourceSpawnInstance;
+            if (ResourceSpawnInstances.ContainsKey(spawn))
             {
-                int x = ResourceSpawns[i].X;
-                int y = ResourceSpawns[i].Y;
-                var id = Guid.Empty;
-                MapResourceSpawn resourceSpawnInstance;
-                if (ResourceSpawnInstances.ContainsKey(ResourceSpawns[i]))
-                {
-                    resourceSpawnInstance = ResourceSpawnInstances[ResourceSpawns[i]];
-                }
-                else
-                {
-                    resourceSpawnInstance = new MapResourceSpawn();
-                    ResourceSpawnInstances.Add(ResourceSpawns[i], resourceSpawnInstance);
-                }
+                resourceSpawnInstance = ResourceSpawnInstances[spawn];
+            }
+            else
+            {
+                resourceSpawnInstance = new MapResourceSpawn();
+                ResourceSpawnInstances.TryAdd(spawn, resourceSpawnInstance);
+            }
 
-                if (resourceSpawnInstance.Entity == null)
+            if (resourceSpawnInstance.Entity == null)
+            {
+                var resourceBase = ResourceBase.Get(spawn.ResourceId);
+                if (resourceBase != null)
                 {
-                    var resourceBase = ResourceBase.Get(ResourceSpawns[i].ResourceId);
-                    if (resourceBase != null)
-                    {
-                        var res = new Resource(resourceBase);
-                        resourceSpawnInstance.Entity = res;
-                        res.X = ResourceSpawns[i].X;
-                        res.Y = ResourceSpawns[i].Y;
-                        res.Z = ResourceSpawns[i].Z;
-                        res.MapId = Id;
-                        id = res.Id;
-                        mEntities.TryAdd(res.Id, res);
-                    }
+                    var res = new Resource(resourceBase);
+                    resourceSpawnInstance.Entity = res;
+                    res.X = spawn.X;
+                    res.Y = spawn.Y;
+                    res.Z = spawn.Z;
+                    res.MapId = Id;
+                    id = res.Id;
+                    AddEntity(res);
                 }
-                else
-                {
-                    id = resourceSpawnInstance.Entity.Id;
-                }
+            }
+            else
+            {
+                id = resourceSpawnInstance.Entity.Id;
+            }
 
-                if (id != Guid.Empty)
-                {
-                    resourceSpawnInstance.Entity.Spawn();
-                }
+            if (id != Guid.Empty)
+            {
+                resourceSpawnInstance.Entity.Spawn();
             }
         }
 
@@ -485,8 +609,8 @@ namespace Intersect.Server.Maps
                 {
                     if (resourceSpawn.Value != null && resourceSpawn.Value.Entity != null)
                     {
-                        resourceSpawn.Value.Entity.Destroy(0);
-                        mEntities.TryRemove(resourceSpawn.Value.Entity.Id, out var result);
+                        resourceSpawn.Value.Entity.Destroy();
+                        RemoveEntity(resourceSpawn.Value.Entity);
                     }
                 }
 
@@ -519,7 +643,7 @@ namespace Intersect.Server.Maps
                 else
                 {
                     npcSpawnInstance = new MapNpcSpawn();
-                    NpcSpawnInstances.Add(Spawns[i], npcSpawnInstance);
+                    NpcSpawnInstances.TryAdd(Spawns[i], npcSpawnInstance);
                 }
 
                 if (Spawns[i].Direction != NpcSpawnDirection.Random)
@@ -562,7 +686,10 @@ namespace Intersect.Server.Maps
             {
                 foreach (var npcSpawn in NpcSpawnInstances)
                 {
-                    npcSpawn.Value.Entity.Die(0);
+                    lock (npcSpawn.Value.Entity.EntityLock)
+                    {
+                        npcSpawn.Value.Entity.Die(false);
+                    }
                 }
 
                 NpcSpawnInstances.Clear();
@@ -572,7 +699,10 @@ namespace Intersect.Server.Maps
                 {
                     if (entity.Value is Npc npc)
                     {
-                        npc.Die(0);
+                        lock (npc.EntityLock)
+                        {
+                            npc.Die(false);
+                        }
                     }
                 }
             }
@@ -609,7 +739,7 @@ namespace Intersect.Server.Maps
                 var evt = EventBase.Get(id);
                 if (evt != null && evt.Global)
                 {
-                    GlobalEventInstances.TryAdd(evt, new Event(evt.Id, evt, Id));
+                    GlobalEventInstances.TryAdd(evt, new Event(evt.Id, evt, this));
                 }
             }
         }
@@ -675,53 +805,45 @@ namespace Intersect.Server.Maps
             Entity target
         )
         {
-            lock (GetMapLock())
-            {
-                var proj = new Projectile(owner, parentSpell, parentItem, projectile, Id, x, y, z, direction, target);
-                MapProjectiles.Add(proj);
-                PacketSender.SendEntityDataToProximity(proj);
-            }
+            var proj = new Projectile(owner, parentSpell, parentItem, projectile, Id, x, y, z, direction, target);
+            MapProjectiles.TryAdd(proj.Id, proj);
+            MapProjectilesCached = MapProjectiles.Values.ToArray();
+            PacketSender.SendEntityDataToProximity(proj);
         }
 
         public void DespawnProjectiles()
         {
-            lock (GetMapLock())
+            var guids = new List<Guid>();
+            foreach (var proj in MapProjectiles)
             {
-                //Clear Map Projectiles
-                for (var i = 0; i < MapProjectiles.Count; i++)
+                if (proj.Value != null)
                 {
-                    if (MapProjectiles[i] != null)
-                    {
-                        mEntities.TryRemove(MapProjectiles[i].Id, out var result);
-                        MapProjectiles[i].Die();
-                    }
+                    guids.Add(proj.Value.Id);
+                    proj.Value.Die();
                 }
-
-                MapProjectiles.Clear();
             }
+            PacketSender.SendRemoveProjectileSpawns(Id, guids.ToArray(), null);
+            MapProjectiles.Clear();
+            MapProjectilesCached = new Projectile[0];
         }
 
         public void SpawnTrap(Entity owner, SpellBase parentSpell, byte x, byte y, byte z)
         {
-            lock (GetMapLock())
-            {
-                var trap = new MapTrapInstance(owner, parentSpell, Id, x, y, z);
-                MapTraps.Add(trap);
-            }
+            var trap = new MapTrapInstance(owner, parentSpell, Id, x, y, z);
+            MapTraps.TryAdd(trap.Id,trap);
+            MapTrapsCached = MapTraps.Values.ToArray();
         }
 
         public void DespawnTraps()
         {
-            lock (GetMapLock())
-            {
-                MapTraps.Clear();
-            }
+            MapTraps.Clear();
+            MapTrapsCached = new MapTrapInstance[0];
         }
 
         //Entity Processing
         public void AddEntity(Entity en)
         {
-            if (en != null)
+            if (en != null && !en.IsDead())
             {
                 if (!mEntities.ContainsKey(en.Id))
                 {
@@ -730,6 +852,7 @@ namespace Intersect.Server.Maps
                     {
                         mPlayers.TryAdd(plyr.Id, plyr);
                     }
+                    mCachedEntities = mEntities.Values.ToArray();
                 }
             }
         }
@@ -741,22 +864,19 @@ namespace Intersect.Server.Maps
             {
                 mPlayers.TryRemove(en.Id, out var pResult);
             }
+            mCachedEntities = mEntities.Values.ToArray();
         }
 
         public void RemoveProjectile(Projectile en)
         {
-            lock (GetMapLock())
-            {
-                MapProjectiles.Remove(en);
-            }
+            MapProjectiles.TryRemove(en.Id, out Projectile removed);
+            MapProjectilesCached = MapProjectiles.Values.ToArray();
         }
 
         public void RemoveTrap(MapTrapInstance trap)
         {
-            lock (GetMapLock())
-            {
-                MapTraps.Remove(trap);
-            }
+            MapTraps.TryRemove(trap.Id, out MapTrapInstance removed);
+            MapTrapsCached = MapTraps.Values.ToArray();
         }
 
         public void ClearEntityTargetsOf(Entity en)
@@ -775,260 +895,256 @@ namespace Intersect.Server.Maps
         {
             lock (GetMapLock())
             {
-                //See if we should dispose of tile data
-                if (TileAccessTime + 30000 < timeMs && TileData != null)
-                {
-                    //TileData = null;
-                }
+                var surrMaps = GetSurroundingMaps(true);
 
-                //Process all of the projectiles
-                for (var i = 0; i < MapProjectiles.Count; i++)
+                if (Options.Instance.Processing.MapUpdateInterval == Options.Instance.Processing.ProjectileUpdateInterval)
                 {
-                    MapProjectiles[i].Update();
-                }
-
-                //Process all of the traps
-                for (var i = 0; i < MapTraps.Count; i++)
-                {
-                    MapTraps[i].Update();
-                }
-
-                if (!Active || CheckActive() == false || LastUpdateTime + UpdateDelay > timeMs)
-                {
-                    return;
+                    UpdateProjectiles(timeMs);
                 }
 
                 //Process Items
-                lock (MapItems)
+                foreach (var mapItem in AllMapItems.Values)
                 {
-
-                    for (var i = 0; i < MapItems.Count; i++)
+                    // Should this item be visible to everyone now?
+                    if (!mapItem.VisibleToAll && mapItem.OwnershipTime < timeMs)
                     {
-                        var mapItem = MapItems[i];
-                        if (mapItem != null)
-                        {
-                            // Should this item be visible to everyone now?
-                            if (!mapItem.VisibleToAll && mapItem.OwnershipTime < timeMs)
-                            {
-                                mapItem.VisibleToAll = true;
-                                PacketSender.SendMapItemUpdate(Id, i);
-                            }
-
-                            // Do we need to delete this item?
-                            if (mapItem.DespawnTime != -1 && mapItem.DespawnTime < timeMs)
-                            {
-                                RemoveItem(i);
-                            }
-                        }
-
+                        mapItem.VisibleToAll = true;
+                        PacketSender.SendMapItemUpdate(Id, mapItem, false);
                     }
 
-                    for (var i = 0; i < ItemRespawns.Count; i++)
+                    // Do we need to delete this item?
+                    if (mapItem.DespawnTime != -1 && mapItem.DespawnTime < timeMs)
                     {
-                        var itemRespawn = ItemRespawns[i];
-                        if (itemRespawn.RespawnTime < timeMs)
-                        {
-                            SpawnAttributeItem(itemRespawn.AttributeSpawnX, itemRespawn.AttributeSpawnY);
-                            ItemRespawns.RemoveAt(i);
-                        }
+                        RemoveItem(mapItem);
                     }
+                }
 
-                    //Process All Entites
-                    foreach (var en in mEntities)
+                foreach (var itemRespawn in ItemRespawns.Values)
+                {
+                    if (itemRespawn.RespawnTime < timeMs)
                     {
-                        //Let's see if and how long this map has been inactive, if longer than 30 seconds, regenerate everything on the map
-                        //TODO, take this 30 second value and throw it into the server config after I switch everything to json
-                        if (timeMs > LastUpdateTime + 30000)
+                        SpawnAttributeItem(itemRespawn.AttributeSpawnX, itemRespawn.AttributeSpawnY);
+                        ItemRespawns.TryRemove(itemRespawn.Id, out MapItemSpawn spawn);
+                    }
+                }
+
+                // Keep a list of all entities with changed vitals and statusses.
+                var vitalUpdates = new List<Entity>();
+                var statusUpdates = new List<Entity>();
+
+                //Process All Entites
+                foreach (var en in mEntities)
+                {
+                    //Let's see if and how long this map has been inactive, if longer than 30 seconds, regenerate everything on the map
+                    //TODO, take this 30 second value and throw it into the server config after I switch everything to json
+                    if (timeMs > LastUpdateTime + 30000)
+                    {
+                        //Regen Everything & Forget Targets
+                        if (en.Value is Resource || en.Value is Npc)
                         {
-                            //Regen Everything & Forget Targets
-                            if (en.Value is Resource || en.Value is Npc)
+                            en.Value.RestoreVital(Vitals.Health);
+                            en.Value.RestoreVital(Vitals.Mana);
+
+                            if (en.Value is Npc npc)
                             {
-                                en.Value.RestoreVital(Vitals.Health);
-                                en.Value.RestoreVital(Vitals.Mana);
+                                npc.AssignTarget(null);
+                            }
+                            else
+                            {
                                 en.Value.Target = null;
                             }
                         }
-
-                        en.Value.Update(timeMs);
                     }
 
-                    //Process NPC Respawns
-                    for (var i = 0; i < Spawns.Count; i++)
-                    {
-                        if (NpcSpawnInstances.ContainsKey(Spawns[i]))
+                    en.Value.Update(timeMs);
+
+                    // Check to see if we need to send any entity vital and status updates for this entity.
+                    if (en.Value.VitalsUpdated)
+                    { 
+                        vitalUpdates.Add(en.Value);
+
+                        // Send a party update if we're a player with a party.
+                        if (en.Value is Player player)
                         {
-                            var npcSpawnInstance = NpcSpawnInstances[Spawns[i]];
-                            if (npcSpawnInstance != null && npcSpawnInstance.Entity.Dead)
+                            for (var i = 0; i < player.Party.Count; i++)
                             {
-                                if (npcSpawnInstance.RespawnTime == -1)
-                                {
-                                    npcSpawnInstance.RespawnTime = Globals.Timing.Milliseconds +
-                                                                   ((Npc) npcSpawnInstance.Entity).Base.SpawnDuration -
-                                                                   (Globals.Timing.Milliseconds - LastUpdateTime);
-                                }
-                                else if (npcSpawnInstance.RespawnTime < Globals.Timing.Milliseconds)
-                                {
-                                    SpawnMapNpc(i);
-                                    npcSpawnInstance.RespawnTime = -1;
-                                }
+                                PacketSender.SendPartyUpdateTo(player.Party[i], player);
                             }
                         }
+
+                        en.Value.VitalsUpdated = false;
                     }
 
-                    //Process Resource Respawns
-                    for (var i = 0; i < ResourceSpawns.Count; i++)
+                    if (en.Value.StatusesUpdated)
                     {
-                        if (ResourceSpawnInstances.ContainsKey(ResourceSpawns[i]))
-                        {
-                            var resourceSpawnInstance = ResourceSpawnInstances[ResourceSpawns[i]];
-                            if (resourceSpawnInstance.Entity != null && resourceSpawnInstance.Entity.IsDead)
-                            {
-                                if (resourceSpawnInstance.RespawnTime == -1)
-                                {
-                                    resourceSpawnInstance.RespawnTime = Globals.Timing.Milliseconds +
-                                                                        resourceSpawnInstance.Entity.Base.SpawnDuration;
-                                }
-                                else if (resourceSpawnInstance.RespawnTime < Globals.Timing.Milliseconds)
-                                {
-                                    // Check to see if this resource can be respawned, if there's an Npc or Player on it we shouldn't let it respawn yet..
-                                    // Unless of course the resource is walkable regardless.
-                                    var canSpawn = false;
-                                    if (resourceSpawnInstance.Entity.Base.WalkableBefore)
-                                    {
-                                        canSpawn = true;
-                                    }
-                                    else
-                                    {
-                                        // Check if this resource is currently stepped on
-                                        var spawnBlockers = GetEntities().Where(x => x is Player || x is Npc).ToArray();
-                                        if (!spawnBlockers.Any(e => e.X == resourceSpawnInstance.Entity.X && e.Y == resourceSpawnInstance.Entity.Y))
-                                        {
-                                            canSpawn = true;
-                                        }
-                                    }
-                                        
-                                    if (canSpawn) 
-                                    {
-                                        SpawnMapResource(i);
-                                        resourceSpawnInstance.RespawnTime = -1;
-                                    }
-                                }
-                            }
-                        }
+                        statusUpdates.Add(en.Value);
+
+                        en.Value.StatusesUpdated = false;
                     }
+                }
 
-                    //Process all global events
-                    var evts = GlobalEventInstances.Values.ToList();
-                    for (var i = 0; i < evts.Count; i++)
+                if (vitalUpdates.Count > 0)
+                {
+                    PacketSender.SendMapEntityVitalUpdate(this, vitalUpdates.ToArray());
+                }
+
+                if (statusUpdates.Count > 0)
+                {
+                    PacketSender.SendMapEntityStatusUpdate(this, statusUpdates.ToArray());
+                }
+
+                //Process NPC Respawns
+                for (var i = 0; i < Spawns.Count; i++)
+                {
+                    if (NpcSpawnInstances.ContainsKey(Spawns[i]))
                     {
-                        //Only do movement processing on the first page.
-                        //This is because global events need to keep all of their pages at the same tile
-                        //Think about a global event moving randomly that needed to turn into a warewolf and back (separate pages)
-                        //If they were in different tiles the transition would make the event jump
-                        //Something like described here: https://www.ascensiongamedev.com/community/bug_tracker/intersect/events-randomly-appearing-and-disappearing-r983/
-                        for (var x = 0; x < evts[i].GlobalPageInstance.Length; x++)
+                        var npcSpawnInstance = NpcSpawnInstances[Spawns[i]];
+                        if (npcSpawnInstance != null && npcSpawnInstance.Entity.Dead)
                         {
-                            //Gotta figure out if any players are interacting with this event.
-                            var active = false;
-                            foreach (var map in GetSurroundingMaps(true))
+                            if (npcSpawnInstance.RespawnTime == -1)
                             {
-                                foreach (var player in map.GetPlayersOnMap())
-                                {
-                                    var eventInstance = player.FindEvent(evts[i].GlobalPageInstance[x]);
-                                    if (eventInstance != null && eventInstance.CallStack.Count > 0)
-                                    {
-                                        active = true;
-                                    }
-                                }
+                                npcSpawnInstance.RespawnTime = Globals.Timing.Milliseconds +
+                                                               ((Npc) npcSpawnInstance.Entity).Base.SpawnDuration -
+                                                               (Globals.Timing.Milliseconds - LastUpdateTime);
                             }
-
-                            evts[i].GlobalPageInstance[x].Update(active, timeMs);
+                            else if (npcSpawnInstance.RespawnTime < Globals.Timing.Milliseconds)
+                            {
+                                SpawnMapNpc(i);
+                                npcSpawnInstance.RespawnTime = -1;
+                            }
                         }
                     }
                 }
+
+                //Process Resource Respawns
+                foreach (var spawn in ResourceSpawns)
+                {
+                    if (ResourceSpawnInstances.ContainsKey(spawn.Value))
+                    {
+                        var resourceSpawnInstance = ResourceSpawnInstances[spawn.Value];
+                        if (resourceSpawnInstance.Entity != null && resourceSpawnInstance.Entity.IsDead())
+                        {
+                            if (resourceSpawnInstance.RespawnTime == -1)
+                            {
+                                resourceSpawnInstance.RespawnTime = Globals.Timing.Milliseconds +
+                                                                    resourceSpawnInstance.Entity.Base.SpawnDuration;
+                            }
+                            else if (resourceSpawnInstance.RespawnTime < Globals.Timing.Milliseconds)
+                            {
+                                // Check to see if this resource can be respawned, if there's an Npc or Player on it we shouldn't let it respawn yet..
+                                // Unless of course the resource is walkable regardless.
+                                var canSpawn = false;
+                                if (resourceSpawnInstance.Entity.Base.WalkableBefore)
+                                {
+                                    canSpawn = true;
+                                }
+                                else
+                                {
+                                    // Check if this resource is currently stepped on
+                                    var spawnBlockers = GetEntities().Where(x => x is Player || x is Npc).ToArray();
+                                    if (!spawnBlockers.Any(e => e.X == resourceSpawnInstance.Entity.X && e.Y == resourceSpawnInstance.Entity.Y))
+                                    {
+                                        canSpawn = true;
+                                    }
+                                }
+
+                                if (canSpawn)
+                                {
+                                    SpawnMapResource(spawn.Value);
+                                    resourceSpawnInstance.RespawnTime = -1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //Process all global events
+                var evts = GlobalEventInstances.Values.ToList();
+                for (var i = 0; i < evts.Count; i++)
+                {
+                        //Only do movement processing on the first page.
+                    //This is because global events need to keep all of their pages at the same tile
+                    //Think about a global event moving randomly that needed to turn into a warewolf and back (separate pages)
+                    //If they were in different tiles the transition would make the event jump
+                    //Something like described here: https://www.ascensiongamedev.com/community/bug_tracker/intersect/events-randomly-appearing-and-disappearing-r983/
+                    for (var x = 0; x < evts[i].GlobalPageInstance.Length; x++)
+                    {
+                        //Gotta figure out if any players are interacting with this event.
+                        var active = false;
+                        foreach (var map in GetSurroundingMaps(true))
+                        {
+                            foreach (var player in map.GetPlayersOnMap())
+                            {
+                                var eventInstance = player.FindGlobalEventInstance(evts[i].GlobalPageInstance[x]);
+                                if (eventInstance != null && eventInstance.CallStack.Count > 0)
+                                {
+                                    active = true;
+                                }
+                            }
+                        }
+
+                        evts[i].GlobalPageInstance[x].Update(active, timeMs);
+                    }
+                }
+
+                //Send Batched Movement Packet
+                var nearbyPlayers = new HashSet<Player>();
+                foreach (var map in surrMaps)
+                {
+                    foreach (var plyr in map.GetPlayersOnMap())
+                    {
+                        nearbyPlayers.Add(plyr);
+                    }
+                }
+
+                mEntityMovements.SendPackets(nearbyPlayers);
+                mActionMessages.SendPackets(nearbyPlayers);
+                mMapAnimations.SendPackets(nearbyPlayers);
 
                 LastUpdateTime = timeMs;
             }
         }
 
-        [NotNull]
-        public List<MapInstance> GetSurroundingMaps(bool includingSelf = false)
+        public void UpdateProjectiles(long timeMs)
         {
-            Debug.Assert(Lookup != null, "Lookup != null");
-            lock (GetMapLock())
+            var spawnDeaths = new List<KeyValuePair<Guid, int>>();
+            var projDeaths = new List<Guid>();
+
+            //Process all of the projectiles
+            foreach (var proj in MapProjectilesCached)
             {
-                var maps = SurroundingMaps?.Select(mapNum => Lookup.Get<MapInstance>(mapNum))
-                               .Where(map => map != null)
-                               .ToList() ??
-                           new List<MapInstance>();
-
-                if (includingSelf)
-                {
-                    maps.Add(this);
-                }
-
-                return maps;
+                proj.Update(projDeaths, spawnDeaths);
             }
+
+            if (projDeaths.Count > 0 || spawnDeaths.Count > 0)
+            {
+                PacketSender.SendRemoveProjectileSpawns(Id, projDeaths.ToArray(), spawnDeaths.ToArray());
+            }
+
+            //Process all of the traps
+            foreach (var trap in MapTrapsCached)
+            {
+                trap.Update();
+            }
+
+            LastProjectileUpdateTime = timeMs;
         }
 
-        public List<Guid> GetSurroundingMapIds(bool includingSelf = false)
+        public MapInstance[] GetSurroundingMaps(bool includingSelf = false)
         {
-            var maps = new List<Guid>();
-            if (includingSelf)
-            {
-                maps.Add(Id);
-            }
-
-            maps.AddRange(SurroundingMaps.ToArray());
-
-            return maps;
+            return includingSelf ? mSurroundingMapsWithSelf : mSurroundingMaps;
         }
 
-        private bool CheckActive()
+        public Guid[] GetSurroundingMapIds(bool includingSelf = false)
         {
-            if (GetPlayersOnMap()?.Count > 0)
-            {
-                return true;
-            }
-
-            var surroundingMaps = GetSurroundingMaps(true);
-            if (surroundingMaps?.Count > 0)
-            {
-                foreach (var t in surroundingMaps)
-                {
-                    var map = t;
-                    if (map == null)
-                    {
-                        continue;
-                    }
-
-                    if (Monitor.TryEnter(map.GetMapLock(), new TimeSpan(0, 0, 0, 0, 1)))
-                    {
-                        try
-                        {
-                            if (map.GetPlayersOnMap()?.Count > 0)
-                            {
-                                return true;
-                            }
-                        }
-                        finally
-                        {
-                            Monitor.Exit(map.GetMapLock());
-                        }
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            Active = false;
-
-            return false;
+            return includingSelf ? mSurroundingMapsIdsWithSelf : mSurroundingMapIds;
         }
 
-        [NotNull]
+        public ConcurrentDictionary<Guid, Entity> GetLocalEntities()
+        {
+            return mEntities;
+        }
+
         public List<Entity> GetEntities(bool includeSurroundingMaps = false)
         {
 
@@ -1049,9 +1165,9 @@ namespace Intersect.Server.Maps
             return entities;
         }
 
-        public ConcurrentDictionary<Guid,Entity> GetEntitiesDictionary()
+        public Entity[] GetCachedEntities()
         {
-            return mEntities;
+            return mCachedEntities;
         }
 
         public ICollection<Player> GetPlayersOnMap()
@@ -1059,32 +1175,33 @@ namespace Intersect.Server.Maps
             return mPlayers.Values;
         }
 
+        public bool HasPlayersOnMap()
+        {
+            return !mPlayers.IsEmpty;
+        }
+
         public void PlayerEnteredMap(Player player)
         {
-            lock (GetMapLock())
+            //Send Entity Info to Everyone and Everyone to the Entity
+            SendMapEntitiesTo(player);
+            player.Client?.SentMaps?.Clear();
+            PacketSender.SendMapItems(player, Id);
+
+            AddEntity(player);
+
+            player.LastMapEntered = Id;
+            if (SurroundingMaps.Length <= 0)
             {
-                Active = true;
-
-                //Send Entity Info to Everyone and Everyone to the Entity
-                SendMapEntitiesTo(player);
-                player.Client?.SentMaps?.Clear();
-                PacketSender.SendMapItems(player, Id);
-                AddEntity(player);
-                player.LastMapEntered = Id;
-                if (SurroundingMaps.Count <= 0)
-                {
-                    return;
-                }
-
-                foreach (var t in SurroundingMaps)
-                {
-                    Lookup.Get<MapInstance>(t).Active = true;
-                    Lookup.Get<MapInstance>(t).SendMapEntitiesTo(player);
-                    PacketSender.SendMapItems(player, t);
-                }
-
-                PacketSender.SendEntityDataToProximity(player, player);
+                return;
             }
+
+            foreach (var t in SurroundingMaps)
+            {
+                t.SendMapEntitiesTo(player);
+                PacketSender.SendMapItems(player, t.Id);
+            }
+
+            PacketSender.SendEntityDataToProximity(player, player);
         }
 
         public void SendMapEntitiesTo(Player player)
@@ -1121,13 +1238,21 @@ namespace Intersect.Server.Maps
                 Right = Guid.Empty;
             }
 
-            DbInterface.SaveGameDatabase();
+            DbInterface.SaveGameObject(this);
         }
 
         public bool TileBlocked(int x, int y)
         {
+            if (Attributes == null ||
+                x < 0 || x >= Attributes.GetLength(0) ||
+                y < 0 || y >= Attributes.GetLength(1))
+            {
+                return true;
+            }
+
             //Check if tile is a blocked attribute
-            if (Attributes[x, y] != null && Attributes[x, y].Type == MapAttributes.Blocked)
+            if (Attributes[x, y] != null && (Attributes[x, y].Type == MapAttributes.Blocked ||
+                Attributes[x,y].Type == MapAttributes.Animation && ((MapAnimationAttribute)Attributes[x,y]).IsBlock))
             {
                 return true;
             }
@@ -1187,11 +1312,149 @@ namespace Intersect.Server.Maps
             return MapInstance.Lookup.Get<MapInstance>(id);
         }
 
+        public void DestroyOrphanedLayers()
+        {
+            if (Layers == null && TileData != null)
+            {
+                Layers = JsonConvert.DeserializeObject<Dictionary<string, Tile[,]>>(LZ4.UnPickleString(TileData), mJsonSerializerSettings);
+                foreach (var key in Layers.Keys.ToArray())
+                {
+                    if (!Options.Instance.MapOpts.Layers.All.Contains(key))
+                    {
+                        Layers.Remove(key);
+                    }
+                }
+                TileData = LZ4.PickleString(JsonConvert.SerializeObject(Layers, Formatting.None, mJsonSerializerSettings));
+                Layers = null;
+                
+            }
+        }
+
         public override void Delete()
         {
             Lookup?.Delete(this);
         }
 
+        public Dictionary<MapInstance, List<int>> FindSurroundingTiles(Point location, int distance)
+        {
+            // Loop through all locations surrounding us to get valid tiles.
+            var locations = new Dictionary<MapInstance, List<int>>();
+            for (var x = 0 - distance; x <= distance; x++)
+            {
+                for (var y = 0 - distance; y <= distance; y++)
+                {
+                    // Use these to keep track of our translation.
+                    var currentMap = this;
+                    var currentX = location.X + x;
+                    var currentY = location.Y + y;
+
+                    // Are we on a valid map at all?
+                    if (currentMap == null)
+                    {
+                        break;
+                    }
+
+                    // Are we going to the map on our left?
+                    if (currentX < 0)
+                    {
+                        var oldMap = currentMap;
+                        if (currentMap.Left != Guid.Empty)
+                        {
+                            currentMap = MapInstance.Get(currentMap.Left);
+                            if (currentMap == null)
+                            {
+                                currentMap = oldMap;
+                                continue;
+                            }
+
+                            currentX = (Options.MapWidth + 1) + x;
+                        }
+                    }
+
+                    // Are we going to the map on our right?
+                    if (currentX >= Options.MapWidth)
+                    {
+                        var oldMap = currentMap;
+                        if (currentMap.Right != Guid.Empty)
+                        {
+                            currentMap = MapInstance.Get(currentMap.Right);
+                            if (currentMap == null)
+                            {
+                                currentMap = oldMap;
+                                continue;
+                            }
+
+                            currentX = -1 + x;
+                        }
+                    }
+
+                    // Are we going to the map up from us?
+                    if (currentY < 0)
+                    {
+                        var oldMap = currentMap;
+                        if (currentMap.Up != Guid.Empty)
+                        {
+                            currentMap = MapInstance.Get(currentMap.Up);
+                            if (currentMap == null)
+                            {
+                                currentMap = oldMap;
+                                continue;
+                            }
+
+                            currentY = (Options.MapHeight + 1) + y;
+                        }
+                    }
+
+                    // Are we going to the map down from us?
+                    if (currentY >= Options.MapHeight)
+                    {
+                        var oldMap = currentMap;
+                        if (currentMap.Down != Guid.Empty)
+                        {
+                            currentMap = MapInstance.Get(currentMap.Down);
+                            if (currentMap == null)
+                            {
+                                currentMap = oldMap;
+                                continue;
+                            }
+
+                            currentY = -1 + y;
+                        }
+                    }
+
+                    if (currentX < 0 || currentY < 0 || currentX >= Options.MapWidth || currentY >= Options.MapHeight)
+                    {
+                        continue;
+                    }
+
+                    if (!locations.ContainsKey(currentMap))
+                    {
+                        locations.Add(currentMap, new List<int>());
+                    }
+                    locations[currentMap].Add(currentY * Options.MapWidth + currentX);
+                }
+            }
+
+            return locations;
+        }
+
+        #region"Packet Batching"
+        public void AddBatchedMovement(Entity en, bool correction, Player forPlayer)
+        {
+            mEntityMovements.Add(en, correction, forPlayer);
+        }
+
+        public void AddBatchedActionMessage(ActionMsgPacket packet)
+        {
+            mActionMessages.Add(packet);
+        }
+
+        public void AddBatchedAnimation(PlayAnimationPacket packet)
+        {
+            mMapAnimations.Add(packet);
+        }
+
+        #endregion
     }
 
 }
