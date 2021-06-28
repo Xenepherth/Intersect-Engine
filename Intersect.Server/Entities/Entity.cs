@@ -1466,6 +1466,11 @@ namespace Intersect.Server.Entities
                 {
                     return;
                 }
+
+                if (player.Nation.IsMember(targetPlayer))
+                {
+                    return;
+                }
             }
 
             if (parentSpell == null)
@@ -1744,6 +1749,11 @@ namespace Intersect.Server.Entities
             if (target is Player targetPlayer && this is Player player)
             {
                 if (player.InParty(targetPlayer))
+                {
+                    return;
+                }
+
+                if (player.Nation.IsMember(targetPlayer))
                 {
                     return;
                 }

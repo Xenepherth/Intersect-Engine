@@ -187,7 +187,7 @@ namespace Intersect.Server.Database.PlayerData.Players
             {
                 using (var context = DbInterface.CreatePlayerContext(readOnly: false))
                 {
-                    var dbPlayer = context.Players.FirstOrDefault(p => p.Name == player.Name);
+                    var dbPlayer = context.Players.FirstOrDefault(p => p.Id == player.Id);
                     if (dbPlayer != null)
                     {
 

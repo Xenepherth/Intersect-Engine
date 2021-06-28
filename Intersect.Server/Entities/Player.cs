@@ -1344,7 +1344,7 @@ namespace Intersect.Server.Entities
             var friendly = spell?.Combat != null && spell.Combat.Friendly;
             if (entity is Player player)
             {
-                if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild == this.Guild)) || (!Options.Instance.Nation.AllowNationMemberPvp && friendly != (player.Nation != null && player.Nation.Name == this.Nation.Name)))
+                if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild == this.Guild)) || (!Options.Instance.Nation.AllowNationMemberPvp && friendly != (player.Nation.Name != null && player.Nation.Name == this.Nation.Name)))
                 {
                     return friendly;
                 }
@@ -4154,7 +4154,7 @@ namespace Intersect.Server.Entities
 
         public virtual bool IsAllyOf(Player otherPlayer)
         {
-            return this.InParty(otherPlayer) || this == otherPlayer;
+            return this.InParty(otherPlayer) || this == otherPlayer || this.Nation.IsMember(otherPlayer);
         }
 
         public bool CanSpellCast(SpellBase spell, Entity target, bool checkVitalReqs)

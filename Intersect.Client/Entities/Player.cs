@@ -1072,30 +1072,23 @@ namespace Intersect.Client.Entities
                     else if (canTargetPlayers && en.Value.GetEntityType() == EntityTypes.Player)
                     {
                         var player = en.Value as Player;
-                        if (Globals.Me.Nation == player.Nation || !player.IsStealthed())
+                        if (IsInMyParty(player) || Globals.Me.Nation == player.Nation || player.IsStealthed())
                         {
                             continue;
                         }
                     }
 
-                    if (en.Value.GetEntityType() == EntityTypes.GlobalEntity || en.Value.GetEntityType() == EntityTypes.Player)
+                    if (en.Value.GetEntityType() == EntityTypes.GlobalEntity || en.Value.GetEntityType() == EntityTypes.Player || en.Value.IsStealthed())
                     {
-                        if (!en.Value.IsStealthed())
+                        // Already in our list?
+                        if (mlastTargetList.ContainsKey(en.Value))
                         {
-                            // Already in our list?
-                            if (mlastTargetList.ContainsKey(en.Value))
-                            {
-                                mlastTargetList[en.Value].DistanceTo = GetDistanceTo(en.Value);
-                            }
-                            else
-                            {
-                                // Add entity with blank time. Never been selected.
-                                mlastTargetList.Add(en.Value, new TargetInfo() { DistanceTo = GetDistanceTo(en.Value), LastTimeSelected = 0 });
-                            }
+                            mlastTargetList[en.Value].DistanceTo = GetDistanceTo(en.Value);
                         }
                         else
                         {
-                            continue;
+                            // Add entity with blank time. Never been selected.
+                            mlastTargetList.Add(en.Value, new TargetInfo() { DistanceTo = GetDistanceTo(en.Value), LastTimeSelected = 0 });
                         }
                     }
                 }
@@ -1536,7 +1529,7 @@ namespace Intersect.Client.Entities
                         {
                             foreach (var en in Globals.Entities)
                             {
-                                if (en.Value == null || en.Value.CurrentMap != mapId || en.Value is Projectile || en.Value is Resource || en.Value.IsStealthed() && en.Value is Player player && Globals.Me.Nation == player.Nation)
+                                if (en.Value == null || en.Value.CurrentMap != mapId || en.Value is Projectile || en.Value is Resource || en.Value.IsStealthed() && en.Value is Player player && Globals.Me.Nation != player.Nation)
                                 {
                                     continue;
                                 }
@@ -2201,7 +2194,7 @@ namespace Intersect.Client.Entities
                 }
                 else
                 {
-                    continue;
+                        ;
                 }
             }
 

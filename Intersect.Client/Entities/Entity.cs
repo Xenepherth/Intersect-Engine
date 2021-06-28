@@ -949,9 +949,8 @@ namespace Intersect.Client.Entities
             if (string.IsNullOrEmpty(sprite))
             {
                 sprite = MySprite;
-                MySprite = sprite;                                
+                MySprite = sprite;
             }
-
 
             var texture = AnimatedTextures[SpriteAnimation] ?? Texture;
 
