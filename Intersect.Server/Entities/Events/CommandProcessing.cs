@@ -111,7 +111,7 @@ namespace Intersect.Server.Entities.Events
             else if (command.VariableType == VariableTypes.GuildVariable)
             {
                 var variable = GuildVariableBase.Get(command.VariableId);
-                type = variable.Type;
+                type = (int)variable.Type;
             }
 
             PacketSender.SendInputVariableDialog(player, title, txt, (VariableDataTypes)type, instance.PageInstance.Id);
