@@ -630,7 +630,8 @@ namespace Intersect.Editor.Localization
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString simulatedarkness = @"Simulate Darkness: {00}";
 
@@ -916,7 +917,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString spawnitems = @"Spawn Items";
 
@@ -1041,7 +1043,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString title = @"Common Event Editor";
 
@@ -1079,7 +1082,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString tables = @"Tables";
 
@@ -1152,7 +1156,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString time = @"Time (ms):";
 
@@ -3346,7 +3351,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString slot = @"Equipment Slot:";
 
@@ -3679,7 +3685,8 @@ Tick timer saved in server config.json.";
         public struct MapList
         {
 
-            public static LocalizedString chronological = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString alphabetical = @"Alphabetical";
 
             public static LocalizedString copyid = @"Copy Id";
 
@@ -3997,7 +4004,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString sightrange = @"Sight Range:";
 
@@ -4176,7 +4184,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString spawndelay = @"Spawn Delay (ms):";
 
@@ -4269,7 +4278,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString showafter = @"Show in quest log after completing quest?";
 
@@ -4381,7 +4391,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString spawnduration = @"Spawn Duration: (ms)";
 
@@ -4462,7 +4473,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString sellcost = @"Sell Cost:";
 
@@ -4641,7 +4653,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString speed = @"Speed:";
 
@@ -4729,7 +4742,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString searchplaceholder = @"Search...";
 
-            public static LocalizedString sortchronologically = @"Order Chronologically";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString sortalphabetically = @"Order Alphabetically";
 
             public static LocalizedString textidgv = @"Text Id: \gv ";
 
@@ -4985,7 +4999,7 @@ Negative values for time to flow backwards.";
 
             public static LocalizedString cancel = @"Cancel";
 
-            public static LocalizedString chronological = @"Chronological";
+            public static LocalizedString alphabetical = @"Alphabetical";
 
             public static LocalizedString maplist = @"Map List";
 
