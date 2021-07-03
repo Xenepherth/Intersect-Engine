@@ -112,7 +112,7 @@ namespace Intersect.Server.Entities.Events
             {
                 var variable = GuildVariableBase.Get(command.VariableId);
                 type = (int)variable.Type;
-            }
+            }   
 
             PacketSender.SendInputVariableDialog(player, title, txt, (VariableDataTypes)type, instance.PageInstance.Id);
             stackInfo.WaitingForResponse = CommandInstance.EventResponse.Dialogue;

@@ -241,7 +241,13 @@ namespace Intersect.Client.Entities
                     LoadAnimationTextures(mTransformedSprite);
                     if (value == "")
                     {
-                        MySprite = mMySprite;
+                        Texture = Globals.ContentManager.GetTexture(GameContentManager.TextureType.Entity, mMySprite);
+                        LoadAnimationTextures(mMySprite);
+                    }
+                    else
+                    {
+                        Texture = Globals.ContentManager.GetTexture(GameContentManager.TextureType.Entity, mTransformedSprite);
+                        LoadAnimationTextures(mTransformedSprite);
                     }
                 }
             }
@@ -921,7 +927,9 @@ namespace Intersect.Client.Entities
 
             var sprite = "";
             // Copy the actual render color, because we'll be editing it later and don't want to overwrite it.
-            var renderColor = new Color(Color.A, Color.R, Color.G, Color. B);
+            var renderColor = new Color(Color.A, Color.R, Color.G, Color.B);
+
+            string transformedSprite = "";
 
             //If the entity has transformed, apply that sprite instead.
             for (var n = 0; n < Status.Count; n++)
@@ -929,7 +937,7 @@ namespace Intersect.Client.Entities
                 if (Status[n].Type == StatusTypes.Transform)
                 {
                     sprite = Status[n].Data;
-                    TransformedSprite = sprite;
+                    transformedSprite = sprite;
                 }
                 //If unit is stealthed, don't render unless the entity is the player.
                 if (Status[n].Type == StatusTypes.Stealth)
@@ -946,10 +954,9 @@ namespace Intersect.Client.Entities
             }
 
             //Check if there is no transformed sprite set
-            if (string.IsNullOrEmpty(sprite))
+            if (transformedSprite != TransformedSprite)
             {
-                sprite = MySprite;
-                MySprite = sprite;
+                TransformedSprite = transformedSprite;
             }
 
             var texture = AnimatedTextures[SpriteAnimation] ?? Texture;
