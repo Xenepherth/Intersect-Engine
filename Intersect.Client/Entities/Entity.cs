@@ -953,10 +953,16 @@ namespace Intersect.Client.Entities
                 }
             }
 
-            //Check if there is no transformed sprite set
             if (transformedSprite != TransformedSprite)
             {
                 TransformedSprite = transformedSprite;
+            }
+
+            //Check if there is no transformed sprite set
+            if (string.IsNullOrEmpty(sprite))
+            {
+                sprite = MySprite;
+                MySprite = sprite;
             }
 
             var texture = AnimatedTextures[SpriteAnimation] ?? Texture;
