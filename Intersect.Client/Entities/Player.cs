@@ -2180,7 +2180,7 @@ namespace Intersect.Client.Entities
                     continue;
                 }
 
-                if (!en.Value.HideEntity && (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation)))
+                if (!en.Value.HideEntity && !en.Value.HideName && (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation)))
                 {
                     if (en.Value.GetType() != typeof(Projectile) && en.Value.GetType() != typeof(Resource))
                     {
@@ -2194,7 +2194,7 @@ namespace Intersect.Client.Entities
                 }
                 else
                 {
-                    ClearTarget();
+                    continue;
                 }
             }
 
