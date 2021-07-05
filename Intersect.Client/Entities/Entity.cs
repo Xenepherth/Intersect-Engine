@@ -237,8 +237,6 @@ namespace Intersect.Client.Entities
                 if (mTransformedSprite != value)
                 {
                     mTransformedSprite = value;
-                    Texture = Globals.ContentManager.GetTexture(GameContentManager.TextureType.Entity, mTransformedSprite);
-                    LoadAnimationTextures(mTransformedSprite);
                     if (value == "")
                     {
                         Texture = Globals.ContentManager.GetTexture(GameContentManager.TextureType.Entity, mMySprite);
@@ -927,6 +925,7 @@ namespace Intersect.Client.Entities
 
             var sprite = "";
             // Copy the actual render color, because we'll be editing it later and don't want to overwrite it.
+
             var renderColor = new Color(Color.A, Color.R, Color.G, Color.B);
 
             string transformedSprite = "";

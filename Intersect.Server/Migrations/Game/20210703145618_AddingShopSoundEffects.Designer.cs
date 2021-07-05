@@ -3,14 +3,16 @@ using System;
 using Intersect.Server.Database.GameData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Intersect.Server.Migrations.Game
 {
     [DbContext(typeof(GameContext))]
-    partial class GameContextModelSnapshot : ModelSnapshot
+    [Migration("20210703145618_AddingShopSoundEffects")]
+    partial class AddingShopSoundEffects
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,9 +126,6 @@ namespace Intersect.Server.Migrations.Game
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("EventId")
-                        .HasColumnName("Event");
-
                     b.Property<string>("Folder");
 
                     b.Property<string>("IngredientsJson")
@@ -193,26 +192,6 @@ namespace Intersect.Server.Migrations.Game
                     b.HasKey("Id");
 
                     b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("Intersect.GameObjects.GuildVariableBase", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Folder");
-
-                    b.Property<string>("Name");
-
-                    b.Property<string>("TextId");
-
-                    b.Property<long>("TimeCreated");
-
-                    b.Property<byte>("Type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GuildVariables");
                 });
 
             modelBuilder.Entity("Intersect.GameObjects.ItemBase", b =>

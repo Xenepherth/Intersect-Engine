@@ -1058,7 +1058,7 @@ namespace Intersect.Client.Entities
                     }
 
                     // Check if the entity has stealth status
-                    if (en.Value.HideEntity || (en.Value.IsStealthed() && !(en.Value is Player nationplayer && Globals.Me.Nation != nationplayer.Nation)))
+                    if (en.Value.HideEntity || (en.Value.IsStealthed() && !(en.Value is Player nationplayer && Globals.Me.Nation == nationplayer.Nation)))						
                     {
                         continue;
                     }
@@ -2180,7 +2180,7 @@ namespace Intersect.Client.Entities
                     continue;
                 }
 
-                if (!en.Value.HideEntity && !en.Value.HideName && (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation)))
+                if (!en.Value.HideEntity && (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation)))
                 {
                     if (en.Value.GetType() != typeof(Projectile) && en.Value.GetType() != typeof(Resource))
                     {
@@ -2209,7 +2209,7 @@ namespace Intersect.Client.Entities
 
                     if (en.Value.CurrentMap == eventMap.Id &&
                         !((Event)en.Value).DisablePreview &&
-                        !en.Value.HideName &&
+                        !en.Value.HideEntity &&
                         (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation)))
                     {
                         if (TargetType == 1 && TargetIndex == en.Value.Id)
@@ -2241,8 +2241,9 @@ namespace Intersect.Client.Entities
                             }
 
                             if (en.Value.CurrentMap == mapId &&
-                                !en.Value.HideEntity &&
+                                !en.Value.HideName &&
                                 !en.Value.IsStealthed() &&
+                                (!en.Value.IsStealthed() || (en.Value is Player player && Globals.Me.Nation == player.Nation)) &&
                                 en.Value.WorldPos.Contains(mousePos.X, mousePos.Y))
                             {
                                 if (en.Value.GetType() != typeof(Projectile) && en.Value.GetType() != typeof(Resource))
@@ -2267,7 +2268,8 @@ namespace Intersect.Client.Entities
 
                                 if (en.Value.CurrentMap == mapId &&
                                     !((Event) en.Value).DisablePreview &&
-                                    !en.Value.IsStealthed() &&
+                                    !en.Value.HideEntity &&
+                                    (!en.Value.IsStealthed() || en.Value is Player player && Globals.Me.IsInMyParty(player)) &&
                                     en.Value.WorldPos.Contains(mousePos.X, mousePos.Y))
                                 {
                                     if (TargetType != 1 || TargetIndex != en.Value.Id)

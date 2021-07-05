@@ -158,7 +158,7 @@ namespace Intersect.Server.Entities.Events
                         break;
                 }
             }
-
+			
             return player.CountItems(condition.ItemId) >= quantity;
         }
 
