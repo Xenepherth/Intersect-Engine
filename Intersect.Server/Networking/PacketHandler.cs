@@ -956,34 +956,24 @@ namespace Intersect.Server.Networking
                     return;
                 }
 
-                    var target = Player.FindOnline(msgSplit[0].ToLower());
-                    if (target != null)
-                    {
-                    if (player != target)
-                    {
-                        if(player.Nation != null && player.Nation.IsMember(target))
-                        {
-                            PacketSender.SendChatMsg(
-
                 var target = Player.FindOnline(msgSplit[0].ToLower());
-
-                if (target == player)
-                {
-                    return;
-                }
-
                 if (target != null)
                 {
-                    PacketSender.SendChatMsg(
+                    if (player != target)
+                    {
+                        if (player.Nation != null && player.Nation.IsMember(target))
+                        {
+                                    
+                            PacketSender.SendChatMsg(
 					
-                        player, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM, CustomColors.Chat.PrivateChat,
-                        player.Name
-                        );
+                            player, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM, CustomColors.Chat.PrivateChat,
+                            player.Name
+                            );
 
                             PacketSender.SendChatMsg(
                             target, Strings.Chat.Private.ToString(player.Name, msg), ChatMessageType.PM,
                             CustomColors.Chat.PrivateChat, player.Name
-                        );
+                            );
 
                             target.ChatTarget = player;
                             player.ChatTarget = target;
