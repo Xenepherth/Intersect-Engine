@@ -602,6 +602,7 @@
     <Compile Include="Migrations\Game\20210611154131_AddingGuildVariables.cs" />
     <Compile Include="Migrations\Game\20210611154131_AddingGuildVariables.designer.cs">
       <DependentUpon>20210611154131_AddingGuildVariables.cs</DependentUpon>
+	</Compile>
     <Compile Include="Migrations\Game\20210630114724_CraftingCommonEvents.cs" />
     <Compile Include="Migrations\Game\20210630114724_CraftingCommonEvents.designer.cs">
       <DependentUpon>20210630114724_CraftingCommonEvents.cs</DependentUpon>
