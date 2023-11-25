@@ -1661,9 +1661,16 @@ namespace Intersect.Client.Entities
                         {
                             break;
                         }
-
-                        var guildSize = Graphics.Renderer.MeasureText(player.Guild, Graphics.EntityNameFont, 1);
-                        y -= 2 + guildSize.Y;
+                        if (player.Nation == null)
+                        {
+                            var guildSize = Graphics.Renderer.MeasureText(player.Guild, Graphics.EntityNameFont, 1);
+                            y -= 2 + guildSize.Y;
+                        }
+                        else
+                        {
+                            var guildSize = Graphics.Renderer.MeasureText(player.Guild, Graphics.EntityNameFont, 1);
+                            y -= 18 + guildSize.Y;
+                        }
                     }
                     break;
 

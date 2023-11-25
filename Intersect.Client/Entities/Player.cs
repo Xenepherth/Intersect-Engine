@@ -2603,7 +2603,7 @@ namespace Intersect.Client.Entities
 
             Graphics.Renderer.DrawString(
                 Nation, Graphics.EntityNameFont, x - (int)Math.Ceiling(textSize.X / 2f), (int)y, 1,
-                Color.Cyan, true, null, Color.FromArgb(borderColor.ToArgb())
+                Color.Orange, true, null, Color.FromArgb(borderColor.ToArgb())
             );
         }
 
