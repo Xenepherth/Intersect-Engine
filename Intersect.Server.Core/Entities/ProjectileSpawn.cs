@@ -83,9 +83,11 @@ namespace Intersect.Server.Entities
                         if(targetPlayer != null)
                         {
                             if(targetPlayer.Map.ZoneType == Enums.MapZone.Safe ||
-                                Parent.Owner is Player plyr && plyr.InParty(targetPlayer))
+                                Parent.Owner is Player plyr && (plyr.InParty(targetPlayer) || (!Options.Instance.Guild.AllowGuildMemberPvp && plyr.Guild != null && plyr.Guild == targetPlayer.Guild) || (!Options.Instance.Nation.AllowNationMemberPvp && plyr.Nation != null && plyr.Nation == targetPlayer.Nation)))
                             {
-                                return false;
+                                {
+                                    return false;
+                                }
                             }
                         }
 
@@ -112,7 +114,7 @@ namespace Intersect.Server.Entities
                         if (!Parent.Base.PierceTarget)
                         {
                             if (targetPlayer.Map.ZoneType == Enums.MapZone.Safe ||
-                                Parent.Owner is Player plyr && plyr.InParty(targetPlayer))
+                                Parent.Owner is Player plyr && (plyr.InParty(targetPlayer) || (!Options.Instance.Guild.AllowGuildMemberPvp && plyr.Guild != null && plyr.Guild == targetPlayer.Guild) || (!Options.Instance.Nation.AllowNationMemberPvp && plyr.Nation != null && plyr.Nation == targetPlayer.Nation)))
                             {
                                 return false;
                             }

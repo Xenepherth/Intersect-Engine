@@ -1526,6 +1526,16 @@ namespace Intersect.Server.Entities
                 {
                     return;
                 }
+
+                if (player.IsInGuild && targetPlayer?.Guild?.Id == player.Guild.Id)
+                {
+                    return;
+                }
+
+                if (player.IsInNation && targetPlayer?.Nation?.Id == player.Nation.Id)
+                {
+                    return;
+                }
             }
 
             if (parentSpell == null)
@@ -1803,6 +1813,16 @@ namespace Intersect.Server.Entities
             if (target is Player targetPlayer && this is Player player)
             {
                 if (player.InParty(targetPlayer))
+                {
+                    return;
+                }
+                
+                if (player.IsInGuild && targetPlayer?.Guild?.Id == player.Guild.Id)
+                {
+                    return;
+                }
+
+                if (player.IsInNation && targetPlayer?.Nation?.Id == player.Nation.Id)
                 {
                     return;
                 }
