@@ -1,4 +1,4 @@
-﻿using Intersect.Core;
+using Intersect.Core;
 using Intersect.Logging;
 using Intersect.Network;
 using Intersect.Server.Core.Services;
@@ -131,6 +131,17 @@ namespace Intersect.Server.Core
                 foreach (var guild in Guild.Guilds)
                 {
                     savingTasks.Add(Task.Run(() => guild.Value.Save()));
+                }
+
+                Task.WaitAll(savingTasks.ToArray());
+
+                Log.Info("Saving loaded nations....");
+
+                savingTasks.Clear();
+                //Should we send out nation updates?
+                foreach (var nation in Nation.Nations)
+                {
+                    savingTasks.Add(Task.Run(() => nation.Value.Save()));
                 }
 
                 Task.WaitAll(savingTasks.ToArray());

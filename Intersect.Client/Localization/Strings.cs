@@ -589,7 +589,8 @@ namespace Intersect.Client.Localization
                 {0, @"local"},
                 {1, @"global"},
                 {2, @"party"},
-                {3, @"guild"}
+                {3, @"guild" },
+                {4, @"nation"}
             };
 
             public static LocalizedString channeladmin = @"admin";
@@ -616,6 +617,7 @@ namespace Intersect.Client.Localization
                 { ChatboxTab.Party, @"Party" },
                 { ChatboxTab.Global, @"Global" },
                 { ChatboxTab.Guild, @"Guild" },
+                { ChatboxTab.Nation, @"Nation" },
                 { ChatboxTab.System, @"System" },
             };
 
@@ -1787,6 +1789,12 @@ namespace Intersect.Client.Localization
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public static LocalizedString ShowGuildOverheadInformation = @"Show guild overhead information";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString ShowNationOverheadHpBar = @"Show nation overhead HP bar";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString ShowNationOverheadInformation = @"Show nation overhead information";
 
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public static LocalizedString ShowHealthAsPercentage = @"Show health as percentage";

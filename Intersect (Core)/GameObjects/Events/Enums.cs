@@ -232,6 +232,11 @@ namespace Intersect.GameObjects.Events
 
         //End Guilds
 
+        //Nations
+        CreateOrJoinNation,
+
+        //End Nations
+
         //Reset Stats
         ResetStatPointAllocations,
 

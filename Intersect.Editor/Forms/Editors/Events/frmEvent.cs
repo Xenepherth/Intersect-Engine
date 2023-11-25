@@ -750,6 +750,10 @@ namespace Intersect.Editor.Forms.Editors.Events
                     tmpCommand = new SetGuildBankSlotsCommand();
 
                     break;
+                case EventCommandType.CreateOrJoinNation:
+                    tmpCommand = new CreateOrJoinNationCommand(CurrentPage.CommandLists);
+
+                    break;
                 case EventCommandType.ResetStatPointAllocations:
                     tmpCommand = new ResetStatPointAllocationsCommand();
 
@@ -1395,6 +1399,10 @@ namespace Intersect.Editor.Forms.Editors.Events
                     break;
                 case EventCommandType.SetGuildBankSlots:
                     cmdWindow = new EventCommandSetGuildBankSlots((SetGuildBankSlotsCommand)command, CurrentPage, this);
+
+                    break;
+                case EventCommandType.CreateOrJoinNation:
+                    cmdWindow = new EventCommandCreateOrJoinNation((CreateOrJoinNationCommand)command, CurrentPage, this);
 
                     break;
                 case EventCommandType.ResetStatPointAllocations:

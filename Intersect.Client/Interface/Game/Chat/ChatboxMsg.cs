@@ -1,4 +1,4 @@
-﻿using Intersect.Enums;
+using Intersect.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -21,6 +21,7 @@ namespace Intersect.Client.Interface.Game.Chat
             { ChatboxTab.Party, new ChatMessageType[] { ChatMessageType.Party, ChatMessageType.PM, ChatMessageType.Admin } },
             { ChatboxTab.Global, new ChatMessageType[] { ChatMessageType.Global, ChatMessageType.PM, ChatMessageType.Admin } },
             { ChatboxTab.Guild, new ChatMessageType[] { ChatMessageType.Guild, ChatMessageType.PM, ChatMessageType.Admin } },
+            { ChatboxTab.Nation, new ChatMessageType[] { ChatMessageType.Nation, ChatMessageType.PM, ChatMessageType.Admin } },
             { ChatboxTab.System, new ChatMessageType[] { 
                 ChatMessageType.Experience, ChatMessageType.Loot, ChatMessageType.Inventory, ChatMessageType.Bank, 
                 ChatMessageType.Combat, ChatMessageType.Quest, ChatMessageType.Crafting, ChatMessageType.Trading, 

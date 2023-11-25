@@ -162,6 +162,12 @@ namespace Intersect.Server.Entities.Events
                         PacketSender.SendGuildMsg(player, txt, color, player.Name);
                     }
                     break;
+                case ChatboxChannel.Nation:
+                    if (player.Nation != null)
+                    {
+                        PacketSender.SendNationMsg(player, txt, color, player.Name);
+                    }
+                    break;
             }
 
             if (command.ShowChatBubble)
@@ -1567,6 +1573,105 @@ namespace Intersect.Server.Entities.Events
             }
         }
 
+        //Create or Join Nation Command
+        private static void ProcessCommand(
+            CreateOrJoinNationCommand command,
+            Player player,
+            Event instance,
+            CommandInstance stackInfo,
+            Stack<CommandInstance> callStack
+        )
+        {
+            var success = false;
+            var playerVariable = PlayerVariableBase.Get(command.VariableId);
+
+            // We only accept Strings as our Nation Names!
+            if (playerVariable.Type == VariableDataType.String)
+            {
+                // Get our intended nation name
+                var nname = player.GetVariable(playerVariable.Id)?.Value.String?.Trim();
+
+                // Can we use this name according to our configuration?
+                if (nname != null && FieldChecking.IsValidNationName(nname, Strings.Regex.nationname))
+                {
+                    // Is the name already in use?
+                    if (Nation.GetNation(nname) == null)
+                    {
+                        // Is the player already in a nation?
+                        if (player.Nation == null)
+                        {
+                            // Finally, we can actually MAKE this nation happen!
+                            var nation = Nation.CreateNation(player, nname);
+                            if (nation != null)
+                            {
+                                // Send them a welcome message!
+                                PacketSender.SendChatMsg(player, Strings.Nations.Welcome.ToString(nname), ChatMessageType.Nation, CustomColors.Alerts.Success);
+
+                                // Denote that we were successful.
+                                success = true;
+                            }
+                        }
+                        else
+                        {
+                            // This cheeky bugger is already in a nation, tell him so!
+                            PacketSender.SendChatMsg(player, Strings.Nations.AlreadyInNation, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                        }
+                    }
+                    else
+                    {
+                        // Is the player already in a nation?
+                        if (player.Nation == null)
+                        {
+                            Nation.GetNation(nname).AddMember(player);
+
+                            if (player.Nation != null)
+                            {
+                                // Send them a welcome message!
+                                PacketSender.SendChatMsg(player, Strings.Nations.Welcome.ToString(nname), ChatMessageType.Nation, CustomColors.Alerts.Success);
+
+                                // Denote that we were successful.
+                                success = true;
+                            }
+                        }
+                        else
+                        {
+                            // This cheeky bugger is already in a nation, tell him so!
+                            PacketSender.SendChatMsg(player, Strings.Nations.AlreadyInNation, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                        }
+                    }
+                }
+                else
+                {
+                    // Let our player know they need to adjust their name.
+                    PacketSender.SendChatMsg(player, Strings.Nations.VariableInvalid, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                }
+            }
+            else
+            {
+                // Notify the user that something went wrong, the user really shouldn't see this.. Assuming the creator set up his events properly.
+                PacketSender.SendChatMsg(player, Strings.Nations.VariableNotString, ChatMessageType.Nation, CustomColors.Alerts.Error);
+            }
+
+            List<EventCommand> newCommandList = null;
+            if (success && stackInfo.Page.CommandLists.ContainsKey(command.BranchIds[0]))
+            {
+                newCommandList = stackInfo.Page.CommandLists[command.BranchIds[0]];
+            }
+
+            if (!success && stackInfo.Page.CommandLists.ContainsKey(command.BranchIds[1]))
+            {
+                newCommandList = stackInfo.Page.CommandLists[command.BranchIds[1]];
+            }
+
+            var tmpStack = new CommandInstance(stackInfo.Page)
+            {
+                CommandList = newCommandList,
+                CommandIndex = 0,
+            };
+
+            callStack.Push(tmpStack);
+        }
+
         //Reset Stat Point Allocations Command
         private static void ProcessCommand(
             ResetStatPointAllocationsCommand command,
@@ -1614,6 +1719,11 @@ namespace Intersect.Server.Entities.Events
             if (command.GuildMembers && player.IsInGuild)
             {
                 affectedPlayers.AddRange(player.Guild.FindOnlineMembers().Where(pl => pl.Id != player.Id));
+            }
+
+            if (command.NationMembers && player.IsInNation)
+            {
+                affectedPlayers.AddRange(player.Nation.FindOnlineMembers().Where(pl => pl.Id != player.Id));
             }
 
             foreach (var affectedPlayer in affectedPlayers.DistinctBy(pl => pl.Id))
@@ -1756,6 +1866,7 @@ namespace Intersect.Server.Entities.Events
                 {
                     { Strings.Events.playernamecommand, player.Name },
                     { Strings.Events.playerguildcommand, player.Guild?.Name ?? "" },
+                    { Strings.Events.playernationcommand, player.Nation?.Name ?? "" },
                     { Strings.Events.timehour, Time.Hour },
                     { Strings.Events.militaryhour, Time.MilitaryHour },
                     { Strings.Events.timeminute, Time.Minute },

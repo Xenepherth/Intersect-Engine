@@ -1,4 +1,4 @@
-﻿namespace Intersect.Enums
+namespace Intersect.Enums
 {
     public enum ChatboxChannel
     {
@@ -11,5 +11,7 @@
         Party,
 
         Guild,
+
+        Nation,
     }
 }

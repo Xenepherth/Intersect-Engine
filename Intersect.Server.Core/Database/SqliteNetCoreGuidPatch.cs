@@ -97,6 +97,7 @@ public sealed class SqliteNetCoreGuidPatch
             if (entityTable == "Players")
             {
                 guidColumnNames = guidColumnNames.Append("DbGuildId").Distinct().ToArray();
+                guidColumnNames = guidColumnNames.Append("DbNationId").Distinct().ToArray();
             }
 
             var searchColumnNames = new[] { "Id" };

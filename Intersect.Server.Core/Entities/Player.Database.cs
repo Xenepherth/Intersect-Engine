@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using Intersect.Logging;
 using Intersect.Server.Database;
 using Intersect.Server.Database.PlayerData;
@@ -308,6 +308,20 @@ namespace Intersect.Server.Entities
         }
         #endregion
 
+        #region "Nations"
+        public void LoadNation()
+        {
+            using (var context = DbInterface.CreatePlayerContext())
+            {
+                var nationId = context.Players.Where(p => p.Id == Id && p.DbNation.Id != null && p.DbNation.Id != Guid.Empty).Select(p => p.DbNation.Id).FirstOrDefault();
+                if (nationId != default)
+                {
+                    Nation = Nation.LoadNation(nationId);
+                }
+            }
+        }
+        #endregion
+
         #region Listing
 
         public static int Count()
@@ -326,7 +340,7 @@ namespace Intersect.Server.Entities
             }
         }
 
-        public static IList<Player> List(string query, string sortBy, SortDirection sortDirection, int skip, int take, out int total, Guid guildId = default(Guid))
+        public static IList<Player> List(string query, string sortBy, SortDirection sortDirection, int skip, int take, out int total, Guid nationId = default(Guid), Guid guildId = default(Guid))
         {
             try
             {

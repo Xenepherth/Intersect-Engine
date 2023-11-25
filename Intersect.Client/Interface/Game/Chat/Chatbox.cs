@@ -136,7 +136,7 @@ namespace Intersect.Client.Interface.Game.Chat
             mChannelLabel.IsHidden = true;
 
             mChannelCombobox = new ComboBox(mChatboxWindow, "ChatChannelCombobox");
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 5; i++)
             {
                 var menuItem = mChannelCombobox.AddItem(Strings.Chatbox.channels[i]);
                 menuItem.UserData = i;
@@ -147,7 +147,7 @@ namespace Intersect.Client.Interface.Game.Chat
             if (Globals.Me.Type > 0)
             {
                 var menuItem = mChannelCombobox.AddItem(Strings.Chatbox.channeladmin);
-                menuItem.UserData = 4;
+                menuItem.UserData = 5;
                 menuItem.Selected += MenuItem_Selected;
             }
 
@@ -340,6 +340,9 @@ namespace Intersect.Client.Interface.Game.Chat
                 case ChatboxTab.Guild:
                     mChannelCombobox.SelectByUserData(3);
                     break;
+                case ChatboxTab.Nation:
+                    mChannelCombobox.SelectByUserData(4);
+                    break;
 
                 default:
                     // remain unchanged.
@@ -529,6 +532,7 @@ namespace Intersect.Client.Interface.Game.Chat
             mTabButtons[ChatboxTab.Local].Show();
             mTabButtons[ChatboxTab.Party].Show();
             mTabButtons[ChatboxTab.Guild].Show();
+            mTabButtons[ChatboxTab.Nation].Show();
             mTabButtons[ChatboxTab.Global].Show();
             mTabButtons[ChatboxTab.System].Show();
             mChatboxMessages.Show();
@@ -541,6 +545,7 @@ namespace Intersect.Client.Interface.Game.Chat
             mTabButtons[ChatboxTab.Local].Hide();
             mTabButtons[ChatboxTab.Party].Hide();
             mTabButtons[ChatboxTab.Guild].Hide();
+            mTabButtons[ChatboxTab.Nation].Hide();
             mTabButtons[ChatboxTab.Global].Hide();
             mTabButtons[ChatboxTab.System].Hide();
             mChatboxMessages.Hide();

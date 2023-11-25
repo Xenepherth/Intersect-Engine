@@ -2153,6 +2153,16 @@ namespace Intersect.Client.Networking
             Interface.Interface.GameUi.NotifyUpdateGuildList();
         }
 
+        public void HandlePacket(IPacketSender packetSender, NationPacket packet)
+        {
+            if (Globals.Me == null || Globals.Me.Nation == null)
+            {
+                return;
+            }
+
+            Globals.Me.NationMembers = packet.Members.OrderByDescending(m => m.Online).ThenBy(m => m.Name).ToArray();
+        }
+
 
         //GuildInvitePacket
         public void HandlePacket(IPacketSender packetSender, GuildInvitePacket packet)

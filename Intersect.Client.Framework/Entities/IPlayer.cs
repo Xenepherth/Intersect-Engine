@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using Intersect.Config.Guilds;
+using Intersect.Config.Nations;
 using Intersect.Enums;
 using Intersect.GameObjects;
 
@@ -27,6 +28,8 @@ namespace Intersect.Client.Framework.Entities
         bool IsInGuild { get; }
         string GuildName { get; }
         GuildRank GuildRank { get; }
+        bool IsInNation { get; }
+        string NationName { get; }
         bool IsBusy { get; }
 
         bool TryGetRealLocation(ref int x, ref int y, ref Guid mapId);

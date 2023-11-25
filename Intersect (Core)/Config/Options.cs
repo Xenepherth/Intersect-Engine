@@ -3,6 +3,7 @@ using System.IO;
 
 using Intersect.Config;
 using Intersect.Config.Guilds;
+using Intersect.Config.Nations;
 using Intersect.Logging;
 using Newtonsoft.Json;
 
@@ -90,6 +91,8 @@ namespace Intersect
         public QuestOptions Quest = new QuestOptions();
 
         public GuildOptions Guild = new GuildOptions();
+
+        public NationOptions Nation = new NationOptions();
 
         public LoggingOptions Logging = new LoggingOptions();
 

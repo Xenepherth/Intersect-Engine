@@ -272,6 +272,15 @@ namespace Intersect.Server.Core
                                 }
                             }
 
+                            //Should we send out nation updates?
+                            foreach (var nation in Nation.Nations)
+                            {
+                                if (nation.Value.LastUpdateTime + Options.Instance.Nation.NationUpdateInterval < Timing.Global.Milliseconds)
+                                {
+                                    LogicPool.QueueWorkItem(nation.Value.Update);
+                                }
+                            }
+
                             swCpsTimer = Timing.Global.Milliseconds + 1000;
                         }
 

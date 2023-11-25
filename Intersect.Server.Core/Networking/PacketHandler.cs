@@ -840,12 +840,16 @@ namespace Intersect.Server.Networking
                         cmd = Strings.Guilds.guildcmd;
                         break;
 
-                    case 4: //admin
+                    case 4:
+                        cmd = Strings.Nations.nationcmd;
+                        break;
+
+                    case 5: //admin
                         cmd = Strings.Chat.admincmd;
 
                         break;
 
-                    case 5: //private
+                    case 6: //private
                         PacketSender.SendChatMsg(player, msg, ChatMessageType.Local);
 
                         return;
@@ -955,6 +959,23 @@ namespace Intersect.Server.Networking
                 var rank = Options.Instance.Guild.Ranks[Math.Max(0, Math.Min(player.GuildRank, Options.Instance.Guild.Ranks.Length - 1))].Title;
                 PacketSender.SendGuildMsg(player, Strings.Guilds.guildchat.ToString(rank, player.Name, msg), CustomColors.Chat.GuildChat);
                 ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.Guild, player.Guild.Id);
+
+            }
+            else if (cmd == Strings.Nations.nationcmd)
+            {
+                if (player.Nation == null)
+                {
+                    PacketSender.SendChatMsg(player, Strings.Nations.NotInNation, ChatMessageType.Nation, CustomColors.Alerts.Error);
+                    return;
+                }
+
+                if (msg.Trim().Length == 0)
+                {
+                    return;
+                }
+
+                PacketSender.SendNationMsg(player, Strings.Nations.nationchat.ToString(player.Name, msg), CustomColors.Chat.NationChat);
+                ChatHistory.LogMessage(player, msg.Trim(), ChatMessageType.Nation, player.Nation.Id);
 
             }
             else if (cmd == Strings.Chat.announcementcmd)
@@ -2506,6 +2527,13 @@ namespace Intersect.Server.Networking
                 if (character.Guild != null && character.GuildRank == 0)
                 {
                     PacketSender.SendError(client, Strings.Guilds.deleteguildleader, Strings.Account.deleted);
+                    return;
+                }
+
+                character.LoadNation();
+                if (character.Nation != null)
+                {
+                    PacketSender.SendError(client, Strings.Nations.deletenationmember, Strings.Account.deleted);
                     return;
                 }
 

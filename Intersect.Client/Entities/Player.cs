@@ -14,6 +14,7 @@ using Intersect.Client.Localization;
 using Intersect.Client.Maps;
 using Intersect.Client.Networking;
 using Intersect.Config.Guilds;
+using Intersect.Config.Nations;
 using Intersect.Configuration;
 using Intersect.Enums;
 using Intersect.GameObjects;
@@ -132,6 +133,10 @@ namespace Intersect.Client.Entities
 
         string IPlayer.GuildName => Guild;
 
+        public string Nation { get; set; }
+
+        string IPlayer.NationName => Nation;
+
         /// <summary>
         /// Index of our rank where 0 is the leader
         /// </summary>
@@ -142,6 +147,8 @@ namespace Intersect.Client.Entities
         /// </summary>
         public bool IsInGuild => !string.IsNullOrWhiteSpace(Guild);
 
+        public bool IsInNation => !string.IsNullOrWhiteSpace(Nation);
+
         /// <summary>
         /// Obtains our rank and permissions from the game config
         /// </summary>
@@ -151,6 +158,8 @@ namespace Intersect.Client.Entities
         /// Contains a record of all members of this player's guild.
         /// </summary>
         public GuildMember[] GuildMembers = new GuildMember[0];
+
+        public NationMember[] NationMembers = new NationMember[0];
 
         public Player(Guid id, PlayerEntityPacket packet) : base(id, packet, EntityType.Player)
         {
@@ -218,6 +227,14 @@ namespace Intersect.Client.Entities
                     string.Equals(player.Name, guildMate.Name, StringComparison.CurrentCultureIgnoreCase));
         }
 
+        public bool IsNationMate(IPlayer player)
+        {
+            return NationMembers.Any(
+                nationMate =>
+                    player != null &&
+                    string.Equals(player.Name, nationMate.Name, StringComparison.CurrentCultureIgnoreCase));
+        }
+
         bool IPlayer.IsInParty => IsInParty();
 
         public bool IsInParty()
@@ -230,6 +247,8 @@ namespace Intersect.Client.Entities
         public bool IsInMyParty(Guid id) => Party.Any(member => member.Id == id);
 
         public bool IsInMyGuild(IPlayer player) => IsInGuild && player != null && player.GuildName == Guild;
+
+        public bool IsInMyNation(IPlayer player) => IsInNation && player != null && player.NationName == Nation;
 
         public bool IsBusy => !(Globals.EventHolds.Count == 0 &&
                      !Globals.MoveRouteActive &&
@@ -326,6 +345,7 @@ namespace Intersect.Client.Entities
             CombatTimer = playerPacket.CombatTimeRemaining + Timing.Global.Milliseconds;
             Guild = playerPacket.Guild;
             Rank = playerPacket.GuildRank;
+            Nation = playerPacket.Nation;
 
             if (playerPacket.Equipment != null)
             {
@@ -2438,6 +2458,14 @@ namespace Intersect.Client.Entities
                     backgroundColor = guildColors.Background;
                 }
 
+                // Nation Mates
+                else if (Globals.Me.IsInNation && Nation == Globals.Me.Nation && CustomColors.Names.Players.TryGetValue(nameof(Nation), out var nationColors))
+                {
+                    textColor = nationColors.Name;
+                    borderColor = nationColors.Outline;
+                    backgroundColor = nationColors.Background;
+                }
+
                 // Enemies in PvP
                 if (!Globals.Me.IsAllyOf(this) && Globals.Me.MapInstance.ZoneType != MapZone.Safe && CustomColors.Names.Players.TryGetValue("Hostile", out var hostileColors))
                 {
@@ -2457,7 +2485,7 @@ namespace Intersect.Client.Entities
                 return true;
             }
 
-            return IsInMyParty(en) || IsInMyGuild(en) || en.MapInstance.ZoneType == MapZone.Safe;
+            return IsInMyParty(en) || IsInMyGuild(en) || IsInMyNation(en) || en.MapInstance.ZoneType == MapZone.Safe;
         }
 
         private void DrawNameAndLabels(Color textColor, Color borderColor, Color backgroundColor)
@@ -2466,6 +2494,7 @@ namespace Intersect.Client.Entities
             DrawLabels(HeaderLabel.Text, 0, HeaderLabel.Color, textColor, borderColor, backgroundColor);
             DrawLabels(FooterLabel.Text, 1, FooterLabel.Color, textColor, borderColor, backgroundColor);
             DrawGuildName(textColor, borderColor, backgroundColor);
+            DrawNationName(textColor, borderColor, backgroundColor);
         }
 
         public virtual void DrawGuildName(Color textColor, Color borderColor = null, Color backgroundColor = null)
@@ -2519,7 +2548,62 @@ namespace Intersect.Client.Entities
 
             Graphics.Renderer.DrawString(
                 Guild, Graphics.EntityNameFont, x - (int)Math.Ceiling(textSize.X / 2f), (int)y, 1,
-                Color.FromArgb(textColor.ToArgb()), true, null, Color.FromArgb(borderColor.ToArgb())
+                Color.Green, true, null, Color.FromArgb(borderColor.ToArgb())
+            );
+        }
+
+        public virtual void DrawNationName(Color textColor, Color borderColor = null, Color backgroundColor = null)
+        {
+            if (HideName || Nation == null || Nation.Trim().Length == 0 || !Options.Instance.Nation.ShowNationNameTagsOverMembers)
+            {
+                return;
+            }
+
+            if (borderColor == null)
+            {
+                borderColor = Color.Transparent;
+            }
+
+            if (backgroundColor == null)
+            {
+                backgroundColor = Color.Transparent;
+            }
+
+            //Check for stealth amoungst status effects.
+            for (var n = 0; n < Status.Count; n++)
+            {
+                //If unit is stealthed, don't render unless the entity is the player.
+                if (Status[n].Type == SpellEffect.Stealth)
+                {
+                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
+                    {
+                        return;
+                    }
+                }
+            }
+
+            var map = MapInstance;
+            if (map == null)
+            {
+                return;
+            }
+
+            var textSize = Graphics.Renderer.MeasureText(Nation, Graphics.EntityNameFont, 1);
+
+            var x = (int)Math.Ceiling(Origin.X);
+            var y = GetLabelLocation(LabelType.Nation);
+
+            if (backgroundColor != Color.Transparent)
+            {
+                Graphics.DrawGameTexture(
+                    Graphics.Renderer.GetWhiteTexture(), new FloatRect(0, 0, 1, 1),
+                    new FloatRect(x - textSize.X / 2f - 4, y, textSize.X + 8, textSize.Y), backgroundColor
+                );
+            }
+
+            Graphics.Renderer.DrawString(
+                Nation, Graphics.EntityNameFont, x - (int)Math.Ceiling(textSize.X / 2f), (int)y, 1,
+                Color.Cyan, true, null, Color.FromArgb(borderColor.ToArgb())
             );
         }
 
@@ -2555,6 +2639,11 @@ namespace Intersect.Client.Entities
                 }
 
                 if (Globals.Database.FriendOverheadHpBar && me.IsFriend(this))
+                {
+                    return true;
+                }
+
+                if (Globals.Database.NationMemberOverheadHpBar && me.IsNationMate(this))
                 {
                     return true;
                 }
