@@ -5290,12 +5290,12 @@ namespace Intersect.Server.Entities
                 return true;
             }
 
-            if (IsInGuild && otherPlayer?.Guild?.Id == Guild.Id)
+            if (!Options.Instance.Guild.AllowGuildMemberPvp && IsInGuild && otherPlayer?.Guild?.Id == Guild.Id)
             {
                 return true;
             }
 
-            if (IsInNation && otherPlayer?.Nation?.Id == Nation.Id)
+            if (!Options.Instance.Nation.AllowNationMemberPvp && IsInNation && otherPlayer?.Nation?.Id == Nation.Id)
             {
                 return true;
             }
