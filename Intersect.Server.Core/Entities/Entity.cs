@@ -974,7 +974,7 @@ namespace Intersect.Server.Entities
         public virtual void Move(Direction moveDir, Player forPlayer, bool doNotUpdate = false,
             bool correction = false)
         {
-            if (Timing.Global.Milliseconds < MoveTimer || (!Options.Combat.MovementCancelsCast && IsCasting))
+            if (Timing.Global.Milliseconds < MoveTimer || Timing.Global.Milliseconds < AttackTimer || (!Options.Combat.MovementCancelsCast && IsCasting))
             {
                 return;
             }
