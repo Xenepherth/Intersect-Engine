@@ -2538,68 +2538,58 @@ namespace Intersect.Client.Entities
                 x - (int)Math.Ceiling(textSize.X / 2f),
                 (int)y,
                 1,
-                Color.FromArgb(textColor.ToArgb()),
+                Color.FromArgb(textColor.Green),
                 true,
                 default,
                 Color.FromArgb(borderColor.ToArgb())
-
-                Guild, Graphics.EntityNameFont, x - (int)Math.Ceiling(textSize.X / 2f), (int)y, 1,
-                Color.Green, true, null, Color.FromArgb(borderColor.ToArgb())
             );
         }
 
-        public virtual void DrawNationName(Color textColor, Color borderColor = null, Color backgroundColor = null)
+        public virtual void DrawNationName(Color textColor, Color? borderColor = default, Color? backgroundColor = default)
         {
-            if (HideName || Nation == null || Nation.Trim().Length == 0 || !Options.Instance.Nation.ShowNationNameTagsOverMembers)
+            var nationLabel = Nation?.Trim();
+            if (!ShouldDrawName || string.IsNullOrWhiteSpace(nationLabel) || !Options.Instance.Nation.ShowNationNameTagsOverMembers)
             {
                 return;
             }
 
-            if (borderColor == null)
+            if (IsStealthed && !IsInMyParty(Globals.Me))
             {
-                borderColor = Color.Transparent;
+                // Do not render if the party is stealthed and not in the local player's party
+                return;
             }
 
-            if (backgroundColor == null)
-            {
-                backgroundColor = Color.Transparent;
-            }
-
-            //Check for stealth amoungst status effects.
-            for (var n = 0; n < Status.Count; n++)
-            {
-                //If unit is stealthed, don't render unless the entity is the player.
-                if (Status[n].Type == SpellEffect.Stealth)
-                {
-                    if (this != Globals.Me && !(this is Player player && Globals.Me.IsInMyParty(player)))
-                    {
-                        return;
-                    }
-                }
-            }
-
-            var map = MapInstance;
-            if (map == null)
+            if (MapInstance == default)
             {
                 return;
             }
 
-            var textSize = Graphics.Renderer.MeasureText(Nation, Graphics.EntityNameFont, 1);
+            var textSize = Graphics.Renderer.MeasureText(nationLabel, Graphics.EntityNameFont, 1);
 
             var x = (int)Math.Ceiling(Origin.X);
             var y = GetLabelLocation(LabelType.Nation);
 
+            backgroundColor ??= Color.Transparent;
             if (backgroundColor != Color.Transparent)
             {
                 Graphics.DrawGameTexture(
-                    Graphics.Renderer.GetWhiteTexture(), new FloatRect(0, 0, 1, 1),
-                    new FloatRect(x - textSize.X / 2f - 4, y, textSize.X + 8, textSize.Y), backgroundColor
+                    Graphics.Renderer.GetWhiteTexture(),
+                    new FloatRect(0, 0, 1, 1),
+                    new FloatRect(x - textSize.X / 2f - 4, y, textSize.X + 8, textSize.Y),
+                    backgroundColor
                 );
             }
 
-            Graphics.Renderer.DrawString(
-                Nation, Graphics.EntityNameFont, x - (int)Math.Ceiling(textSize.X / 2f), (int)y, 1,
-                Color.Orange, true, null, Color.FromArgb(borderColor.ToArgb())
+            borderColor ??= Color.Transparent;
+            Graphics.Renderer.DrawString(nationLabel,
+                Graphics.EntityNameFont,
+                x - (int)Math.Ceiling(textSize.X / 2f),
+                (int)y,
+                1,
+                Color.FromArgb(textColor.Green),
+                true,
+                default,
+                Color.FromArgb(borderColor.ToArgb())
             );
         }
 
