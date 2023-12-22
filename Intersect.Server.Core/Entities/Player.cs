@@ -590,6 +590,9 @@ namespace Intersect.Server.Entities
                     case UserSaveResult.Failed:
                         Log.Warn($"Save failed for logout {logoutOperationId}");
                         break;
+                    case UserSaveResult.DatabaseFailure:
+                        Client?.LogAndDisconnect(Id, stackTrace ?? nameof(CompleteLogout));
+                        break;
                     case null:
                         Log.Warn($"Skipped save because {nameof(User)} is null.");
                         break;
@@ -649,6 +652,7 @@ namespace Intersect.Server.Entities
                                 {
                                     Log.Debug($"Editor saving user: {user.Name}");
                                 }
+
                                 DbInterface.Pool.QueueWorkItem(user.Save, false);
                             }
                             SaveTimer = Timing.Global.Milliseconds + Options.Instance.Processing.PlayerSaveInterval;
@@ -852,6 +856,8 @@ namespace Intersect.Server.Entities
                             }
                         }
                     }
+
+                    map = MapController.Get(MapId);
 
                     //Check to see if we can spawn events, if already spawned.. update them.
                     lock (mEventLock)
@@ -7322,10 +7328,14 @@ namespace Intersect.Server.Entities
             // Change their name and force save it!
             var oldName = Name;
             Name = newName;
-            User?.Save();
+            if (User?.Save() == UserSaveResult.DatabaseFailure)
+            {
+                Client?.LogAndDisconnect(Id, nameof(TryChangeName));
+                return false;
+            }
 
             // Log the activity.
-            UserActivityHistory.LogActivity(UserId, Id, Client?.GetIp(), UserActivityHistory.PeerType.Client, UserActivityHistory.UserAction.NameChange, $"Changing Character name from {oldName} to {newName}");
+            UserActivityHistory.LogActivity(UserId, Id, Client?.Ip, UserActivityHistory.PeerType.Client, UserActivityHistory.UserAction.NameChange, $"Changing Character name from {oldName} to {newName}");
 
             // Send our data around!
             PacketSender.SendEntityDataToProximity(this);

@@ -3089,7 +3089,7 @@ namespace Intersect.Server.Entities
                     vitalShields = new int[Enum.GetValues<Vital>().Length];
                     for (var x = 0; x < Enum.GetValues<Vital>().Length; x++)
                     {
-                        vitalShields[x] = status.shield[x];
+                        vitalShields[x] = status.Shield[x];
                     }
                 }
 
