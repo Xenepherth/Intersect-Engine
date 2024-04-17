@@ -483,6 +483,9 @@ namespace Intersect.GameObjects.Events.Commands
         public Guid ItemId { get; set; }
 
         public bool Unequip { get; set; }
+
+        public bool TriggerCooldown { get; set; }
+
     }
 
     public partial class ChangeSpriteCommand : EventCommand
@@ -726,6 +729,11 @@ namespace Intersect.GameObjects.Events.Commands
         public override EventCommandType Type { get; } = EventCommandType.OpenCraftingTable;
 
         public Guid CraftingTableId { get; set; }
+
+        /// <summary>
+        /// Does not allow crafting, but displays crafts and their requirements.
+        /// </summary>
+        public bool JournalMode { get; set; }
     }
 
     public partial class SetClassCommand : EventCommand

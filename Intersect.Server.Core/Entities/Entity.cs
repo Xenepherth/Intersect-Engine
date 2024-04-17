@@ -378,6 +378,20 @@ namespace Intersect.Server.Entities
         }
 
         /// <summary>
+        ///     Updates the entity's spell cooldown for the specified <paramref name="spellBase"/>.
+        ///     <para> This method is called when a spell is casted by an entity. </para>
+        /// </summary>
+        public virtual void UpdateSpellCooldown(SpellBase spellBase, int spellSlot)
+        {
+            if (spellSlot < 0 || spellSlot >= Options.MaxPlayerSkills)
+            {
+                return;
+            }
+
+            SpellCooldowns[Spells[spellSlot].SpellId] = Timing.Global.MillisecondsUtc + spellBase.CooldownDuration;
+        }
+
+        /// <summary>
         ///     Determines if this entity can move in the specified <paramref name="direction"/>.
         /// </summary>
         /// <param name="direction">The <see cref="Direction"/> the entity is attempting to move in.</param>
@@ -1467,6 +1481,12 @@ namespace Intersect.Server.Entities
             var maxVitalValue = GetMaxVital(vitalId);
             var safeAmount = Math.Min(amount, GetVital(vital));
             SetVital(vital, GetVital(vital) - safeAmount);
+            ReactToDamage(vital);
+        }
+
+        protected virtual void ReactToDamage(Vital vital)
+        {
+            return;
         }
 
         public virtual int[] GetStatValues()
@@ -2175,10 +2195,10 @@ namespace Intersect.Server.Entities
                 {
                     Animate(enemy, aliveAnimations);
                 }
-
-                //Check for any onhit damage bonus effects!
-                CheckForOnhitAttack(enemy, isAutoAttack);
             }
+
+            //Check for any onhit damage bonus effects!
+            CheckForOnhitAttack(enemy, isAutoAttack);
 
             // Add a timer before able to make the next move.
             if (this is Npc thisNpc)
@@ -2187,9 +2207,9 @@ namespace Intersect.Server.Entities
             }
         }
 
-        void CheckForOnhitAttack(Entity enemy, bool isAutoAttack)
+        protected virtual void CheckForOnhitAttack(Entity enemy, bool isAutoAttack)
         {
-            if (isAutoAttack) //Ignore spell damage.
+            if (isAutoAttack && !enemy.IsDead()) //Ignore spell damage.
             {
                 foreach (var status in CachedStatuses)
                 {
@@ -2497,25 +2517,7 @@ namespace Intersect.Server.Entities
                         break;
                 }
 
-                if (spellSlot >= 0 && spellSlot < Options.MaxPlayerSkills)
-                {
-                    // Player cooldown handling is done elsewhere!
-                    if (this is Player player)
-                    {
-                        player.UpdateCooldown(spellBase);
-
-                        // Trigger the global cooldown, if we're allowed to.
-                        if (!spellBase.IgnoreGlobalCooldown)
-                        {
-                            player.UpdateGlobalCooldown();
-                        }
-                    }
-                    else
-                    {
-                        SpellCooldowns[Spells[spellSlot].SpellId] =
-                            Timing.Global.MillisecondsUtc + spellBase.CooldownDuration;
-                    }
-                }
+                UpdateSpellCooldown(spellBase, spellSlot);
             }
             finally
             {

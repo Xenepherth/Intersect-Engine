@@ -234,6 +234,12 @@ namespace Intersect.Server.Entities
         [NotMapped, JsonIgnore]
         public bool IsFading { get; set; }
 
+        /// <summary>
+        /// Reference stored of the last weapon used for an auto-attack
+        /// </summary>
+        [NotMapped, JsonIgnore]
+        public ItemBase LastAttackingWeapon { get; set; }
+
         // Instancing
         public MapInstanceType InstanceType { get; set; } = MapInstanceType.Overworld;
 
@@ -402,6 +408,8 @@ namespace Intersect.Server.Entities
                     }
                 }
             }
+
+            CacheEquipmentTriggers();
         }
 
         public void SendPacket(IPacket packet, TransmissionMode mode = TransmissionMode.All)
@@ -915,6 +923,26 @@ namespace Intersect.Server.Entities
             }
         }
 
+        /// <summary>
+        ///     Updates the player's spell cooldown for the specified <paramref name="spellBase"/>.
+        ///     <para> This method is called when a spell is casted by a player. </para>
+        /// </summary>
+        public override void UpdateSpellCooldown(SpellBase spellBase, int spellSlot)
+        {
+            if (spellSlot < 0 || spellSlot >= Options.MaxPlayerSkills)
+            {
+                return;
+            }
+
+            this.UpdateCooldown(spellBase);
+
+            // Trigger the global cooldown, if we're allowed to.
+            if (!spellBase.IgnoreGlobalCooldown)
+            {
+                this.UpdateGlobalCooldown();
+            }
+        }
+        
         public void RemoveEvent(Guid id, bool sendLeave = true)
         {
             Event outInstance;
@@ -1463,6 +1491,39 @@ namespace Intersect.Server.Entities
             base.TryAttack(target, projectile, parentSpell, parentItem, projectileDir);
         }
 
+        protected override void ReactToDamage(Vital vital)
+        {
+            if (IsDead() || IsDisposed)
+            {
+                base.ReactToDamage(vital);
+                return;
+            }
+
+            if (vital == Vital.Health)
+            {
+                foreach (var trigger in CachedEquipmentOnDamageTriggers)
+                {
+                    EnqueueStartCommonEvent(trigger);
+                }
+            }
+
+            base.ReactToDamage(vital);
+        }
+
+        protected override void CheckForOnhitAttack(Entity enemy, bool isAutoAttack)
+        {
+            if (isAutoAttack)
+            {
+                EnqueueStartCommonEvent(LastAttackingWeapon?.GetEventTrigger(ItemEventTriggers.OnHit));
+                foreach (var trigger in CachedEquipmentOnHitTriggers)
+                {
+                    EnqueueStartCommonEvent(trigger);
+                }
+            }
+
+            base.CheckForOnhitAttack(enemy, isAutoAttack);
+        }
+
         //Attacking with spell
         public override void TryAttack(
             Entity target,
@@ -1567,6 +1628,8 @@ namespace Intersect.Server.Entities
                     }
                 }
             }
+
+            LastAttackingWeapon = weapon;
 
             if (weapon != null)
             {
@@ -2768,6 +2831,7 @@ namespace Intersect.Server.Entities
             if (success)
             {
                 // Start common events related to inventory changes.
+                EnqueueStartCommonEvent(item.Descriptor?.GetEventTrigger(ItemEventTriggers.OnPickup));
                 StartCommonEventsWithTrigger(CommonEventTrigger.InventoryChanged);
 
                 return true;
@@ -3101,6 +3165,7 @@ namespace Intersect.Server.Entities
                 EquipmentProcessItemLoss(slotIndex);
             }
 
+            EnqueueStartCommonEvent(itemDescriptor.GetEventTrigger(ItemEventTriggers.OnDrop));
             StartCommonEventsWithTrigger(CommonEventTrigger.InventoryChanged);
             UpdateGatherItemQuests(itemDescriptor.Id);
             PacketSender.SendInventoryItemUpdate(this, slotIndex);
@@ -3200,11 +3265,20 @@ namespace Intersect.Server.Entities
                     return;
                 }
 
+                var useEvent = itemBase.GetEventTrigger(ItemEventTriggers.OnUse);
+
                 switch (itemBase.ItemType)
                 {
                     case ItemType.None:
                     case ItemType.Currency:
-                        PacketSender.SendChatMsg(this, Strings.Items.cannotuse, ChatMessageType.Error);
+                        if (useEvent != default)
+                        {
+                            EnqueueStartCommonEvent(useEvent);
+                        }
+                        else
+                        {
+                            PacketSender.SendChatMsg(this, Strings.Items.cannotuse, ChatMessageType.Error);
+                        }
 
                         return;
                     case ItemType.Consumable:
@@ -3267,7 +3341,10 @@ namespace Intersect.Server.Entities
                             }
                         }
 
-                        TryTakeItem(Items[slot], 1);
+                        if (TryTakeItem(Items[slot], 1) && useEvent != default)
+                        {
+                            EnqueueStartCommonEvent(useEvent);
+                        }
 
                         break;
                     case ItemType.Equipment:
@@ -3278,6 +3355,7 @@ namespace Intersect.Server.Entities
                         }
 
                         EquipItem(itemBase, slot);
+                        EnqueueStartCommonEvent(useEvent);
 
                         break;
                     case ItemType.Spell:
@@ -3303,7 +3381,14 @@ namespace Intersect.Server.Entities
 
                         if (itemBase.SingleUse)
                         {
-                            TryTakeItem(Items[slot], 1);
+                            if (TryTakeItem(Items[slot], 1))
+                            {
+                                EnqueueStartCommonEvent(useEvent);
+                            }
+                        }
+                        else
+                        {
+                            EnqueueStartCommonEvent(useEvent);
                         }
 
                         break;
@@ -3322,6 +3407,7 @@ namespace Intersect.Server.Entities
                         break;
                     case ItemType.Bag:
                         OpenBag(Item, itemBase);
+                        EnqueueStartCommonEvent(useEvent);
 
                         break;
                     default:
@@ -3935,7 +4021,7 @@ namespace Intersect.Server.Entities
         }
 
         //Crafting
-        public bool OpenCraftingTable(CraftingTableBase table)
+        public bool OpenCraftingTable(CraftingTableBase table, bool journalMode)
         {
             if (IsBusy())
             {
@@ -3945,7 +4031,8 @@ namespace Intersect.Server.Entities
             if (table != null)
             {
                 OpenCraftingTableId = table.Id;
-                PacketSender.SendOpenCraftingTable(this, table);
+                CraftJournalMode = journalMode;
+                PacketSender.SendOpenCraftingTable(this, table, journalMode);
             }
 
             return true;
@@ -5449,7 +5536,6 @@ namespace Intersect.Server.Entities
                 target = this;
             }
 
-
             if (CastTime == 0)
             {
                 CastTime = Timing.Global.Milliseconds + spell.CastDuration;
@@ -5469,18 +5555,6 @@ namespace Intersect.Server.Entities
                 // retargeting for auto self-cast on friendly when targeting hostile
                 CastTarget = target;
 
-                //Check if the caster has the right ammunition if a projectile
-                if (spell.SpellType == SpellType.CombatSpell &&
-                    spell.Combat.TargetType == SpellTargetType.Projectile &&
-                    spell.Combat.ProjectileId != Guid.Empty)
-                {
-                    var projectileBase = spell.Combat.Projectile;
-                    if (projectileBase != null && projectileBase.AmmoItemId != Guid.Empty)
-                    {
-                        TryTakeItem(projectileBase.AmmoItemId, projectileBase.AmmoRequired);
-                    }
-                }
-
                 if (spell.CastAnimationId != Guid.Empty)
                 {
                     PacketSender.SendAnimationToProximity(
@@ -5488,17 +5562,9 @@ namespace Intersect.Server.Entities
                     ); //Target Type 1 will be global entity
                 }
 
-                // Check if the player isn't casting a spell already.
-                if (!IsCasting)
+                //Tell the client we are channeling the spell
+                if (IsCasting)
                 {
-                    // Player is not casting a spell, cast now!
-                    CastTime = 0;
-                    CastSpell(Spells[SpellCastSlot].SpellId, SpellCastSlot);
-                    CastTarget = null;
-                }
-                else
-                {
-                    //Tell the client we are channeling the spell
                     PacketSender.SendEntityCastTime(this, spellNum);
                 }
             }
@@ -5535,6 +5601,32 @@ namespace Intersect.Server.Entities
                     base.CastSpell(spellId, spellSlot);
 
                     break;
+            }
+
+            UpdateSpellCooldown(spellBase, spellSlot);
+
+            ConsumeSpellProjectile(spellBase);
+        }
+
+        /// <summary>
+        /// Checks if the caster has the required projectile(s) for the spell and tries to take them.
+        /// This method is used when a spell that requires projectile is casted.
+        /// If the spell has a valid ProjectileId, it retrieves the projectile and checks if it has a valid AmmoItemId.
+        /// If it does, it attempts to take the required amount of ammo from the player's inventory.
+        /// </summary>
+        /// <param name="spellBase">The spell that is being cast.</param>
+        private void ConsumeSpellProjectile(SpellBase spellBase)
+        {
+            // Check if the caster has the required projectile(s) for the spell and try to take it/them.
+            if (spellBase.SpellType == SpellType.CombatSpell &&
+                spellBase.Combat.TargetType == SpellTargetType.Projectile &&
+                spellBase.Combat.ProjectileId != Guid.Empty)
+            {
+                var projectileBase = spellBase.Combat.Projectile;
+                if (projectileBase != null && projectileBase.AmmoItemId != Guid.Empty)
+                {
+                    TryTakeItem(projectileBase.AmmoItemId, projectileBase.AmmoRequired);
+                }
             }
         }
 
@@ -5611,7 +5703,7 @@ namespace Intersect.Server.Entities
         }
 
         //Equipment
-        public void EquipItem(ItemBase itemBase, int slot = -1)
+        public void EquipItem(ItemBase itemBase, int slot = -1, bool updateCooldown = false)
         {
             if (itemBase == null || itemBase.ItemType != ItemType.Equipment)
             {
@@ -5649,8 +5741,16 @@ namespace Intersect.Server.Entities
                         UnequipItem(Options.WeaponIndex, false);
                     }
                 }
+
                 SetEquipmentSlot(itemBase.EquipmentSlot, slot);
+
+                if (updateCooldown)
+                {
+                    UpdateCooldown(itemBase);
+                }
             }
+
+            EnqueueStartCommonEvent(itemBase.GetEventTrigger(ItemEventTriggers.OnEquip));
 
             ProcessEquipmentUpdated(true);
         }
@@ -5682,6 +5782,11 @@ namespace Intersect.Server.Entities
                 return;
             }
 
+            if (TryGetEquippedItem(equipmentSlot, out var prevEquipped))
+            {
+                EnqueueStartCommonEvent(prevEquipped.Descriptor?.GetEventTrigger(ItemEventTriggers.OnUnequip));
+            }
+
             Equipment[equipmentSlot] = -1;
             ProcessEquipmentUpdated(sendUpdate);
         }
@@ -5698,6 +5803,43 @@ namespace Intersect.Server.Entities
             {
                 PacketSender.SendPlayerEquipmentToProximity(this);
                 PacketSender.SendEntityStats(this);
+            }
+            
+            CacheEquipmentTriggers();
+        }
+
+        [NotMapped, JsonIgnore]
+        private List<EventBase> CachedEquipmentOnHitTriggers { get; set; } = new List<EventBase>();
+        
+        [NotMapped, JsonIgnore]
+        private List<EventBase> CachedEquipmentOnDamageTriggers { get; set; } = new List<EventBase>();
+
+        public void CacheEquipmentTriggers()
+        {
+            CachedEquipmentOnHitTriggers.Clear();
+            CachedEquipmentOnDamageTriggers.Clear();
+
+            for (var slot = 0; slot < Options.EquipmentSlots.Count; slot++)
+            {
+                if (!TryGetEquippedItem(slot, out var equippedItem) || equippedItem == null || equippedItem.Descriptor == null)
+                {
+                    continue;
+                }
+
+                var onHit = equippedItem.Descriptor.GetEventTrigger(ItemEventTriggers.OnHit);
+                var onDamaged = equippedItem.Descriptor.GetEventTrigger(ItemEventTriggers.OnDamageReceived);
+
+                // We have special logic for handling weapons, so the player can't hot-swap their weapon and get a different on-hit event to proc
+                // As a result, don't cache them, instead use property "LastAttackingWeapon"
+                if (onHit != null && slot != Options.WeaponIndex)
+                {
+                    CachedEquipmentOnHitTriggers.Add(onHit);
+                }
+
+                if (onDamaged != null)
+                {
+                    CachedEquipmentOnDamageTriggers.Add(onDamaged);
+                }
             }
         }
 
@@ -6742,7 +6884,15 @@ namespace Intersect.Server.Entities
             CommonEventTrigger trigger = CommonEventTrigger.None,
             string command = default,
             string parameter = default
-        ) => _queueStartCommonEvent.Enqueue(new StartCommonEventMetadata(command ?? string.Empty, eventDescriptor, parameter ?? string.Empty, trigger));
+        ) 
+        {
+            if (eventDescriptor == null)
+            {
+                return;
+            }
+
+            _queueStartCommonEvent.Enqueue(new StartCommonEventMetadata(command ?? string.Empty, eventDescriptor, parameter ?? string.Empty, trigger));
+        }
 
         public bool UnsafeStartCommonEvent(
             EventBase baseEvent,
@@ -7402,6 +7552,8 @@ namespace Intersect.Server.Entities
         [NotMapped, JsonIgnore] public CraftingState CraftingState { get; set; }
 
         [NotMapped, JsonIgnore] public Guid OpenCraftingTableId { get; set; }
+        
+        [NotMapped, JsonIgnore] public bool CraftJournalMode { get; set; }
 
         #endregion
 

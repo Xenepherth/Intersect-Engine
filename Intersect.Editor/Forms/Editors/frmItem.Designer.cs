@@ -41,6 +41,10 @@ namespace Intersect.Editor.Forms.Editors
             btnCancel = new DarkButton();
             btnSave = new DarkButton();
             grpGeneral = new DarkGroupBox();
+            grpEvents = new DarkGroupBox();
+            cmbEventTriggers = new DarkComboBox();
+            lblEventForTrigger = new Label();
+            lstEventTriggers = new ListBox();
             grpStack = new DarkGroupBox();
             chkStackable = new DarkCheckBox();
             lblInvStackLimit = new Label();
@@ -228,6 +232,7 @@ namespace Intersect.Editor.Forms.Editors
             tooltips = new ToolTip(components);
             grpItems.SuspendLayout();
             grpGeneral.SuspendLayout();
+            grpEvents.SuspendLayout();
             grpStack.SuspendLayout();
             ((ISupportInitialize)nudInvStackLimit).BeginInit();
             ((ISupportInitialize)nudBankStackLimit).BeginInit();
@@ -379,6 +384,7 @@ namespace Intersect.Editor.Forms.Editors
             // 
             grpGeneral.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
             grpGeneral.BorderColor = System.Drawing.Color.FromArgb(90, 90, 90);
+            grpGeneral.Controls.Add(grpEvents);
             grpGeneral.Controls.Add(grpStack);
             grpGeneral.Controls.Add(grpCooldown);
             grpGeneral.Controls.Add(nudItemDespawnTime);
@@ -425,14 +431,77 @@ namespace Intersect.Editor.Forms.Editors
             grpGeneral.Controls.Add(grpBags);
             grpGeneral.Controls.Add(grpSpell);
             grpGeneral.ForeColor = System.Drawing.Color.Gainsboro;
-            grpGeneral.Location = new System.Drawing.Point(2, 1);
+            grpGeneral.Location = new System.Drawing.Point(11, 3);
             grpGeneral.Margin = new Padding(4, 3, 4, 3);
             grpGeneral.Name = "grpGeneral";
             grpGeneral.Padding = new Padding(4, 3, 4, 3);
-            grpGeneral.Size = new Size(943, 547);
+            grpGeneral.Size = new Size(943, 634);
             grpGeneral.TabIndex = 2;
             grpGeneral.TabStop = false;
             grpGeneral.Text = "General";
+            // 
+            // grpEvents
+            // 
+            grpEvents.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
+            grpEvents.BorderColor = System.Drawing.Color.FromArgb(90, 90, 90);
+            grpEvents.Controls.Add(cmbEventTriggers);
+            grpEvents.Controls.Add(lblEventForTrigger);
+            grpEvents.Controls.Add(lstEventTriggers);
+            grpEvents.ForeColor = System.Drawing.Color.Gainsboro;
+            grpEvents.Location = new System.Drawing.Point(596, 442);
+            grpEvents.Margin = new Padding(4, 3, 4, 3);
+            grpEvents.Name = "grpEvents";
+            grpEvents.Padding = new Padding(4, 3, 4, 3);
+            grpEvents.Size = new Size(329, 175);
+            grpEvents.TabIndex = 57;
+            grpEvents.TabStop = false;
+            grpEvents.Text = "Event Triggers";
+            // 
+            // cmbEventTriggers
+            // 
+            cmbEventTriggers.BackColor = System.Drawing.Color.FromArgb(69, 73, 74);
+            cmbEventTriggers.BorderColor = System.Drawing.Color.FromArgb(90, 90, 90);
+            cmbEventTriggers.BorderStyle = ButtonBorderStyle.Solid;
+            cmbEventTriggers.ButtonColor = System.Drawing.Color.FromArgb(43, 43, 43);
+            cmbEventTriggers.DrawDropdownHoverOutline = false;
+            cmbEventTriggers.DrawFocusRectangle = false;
+            cmbEventTriggers.DrawMode = DrawMode.OwnerDrawFixed;
+            cmbEventTriggers.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbEventTriggers.FlatStyle = FlatStyle.Flat;
+            cmbEventTriggers.ForeColor = System.Drawing.Color.Gainsboro;
+            cmbEventTriggers.FormattingEnabled = true;
+            cmbEventTriggers.Location = new System.Drawing.Point(57, 138);
+            cmbEventTriggers.Margin = new Padding(4, 3, 4, 3);
+            cmbEventTriggers.Name = "cmbEventTriggers";
+            cmbEventTriggers.Size = new Size(262, 24);
+            cmbEventTriggers.TabIndex = 97;
+            cmbEventTriggers.Text = null;
+            cmbEventTriggers.TextPadding = new Padding(2);
+            cmbEventTriggers.SelectedIndexChanged += cmbEventTriggers_SelectedIndexChanged;
+            // 
+            // lblEventForTrigger
+            // 
+            lblEventForTrigger.AutoSize = true;
+            lblEventForTrigger.Location = new System.Drawing.Point(13, 141);
+            lblEventForTrigger.Margin = new Padding(4, 0, 4, 0);
+            lblEventForTrigger.Name = "lblEventForTrigger";
+            lblEventForTrigger.Size = new Size(36, 15);
+            lblEventForTrigger.TabIndex = 96;
+            lblEventForTrigger.Text = "Event";
+            // 
+            // lstEventTriggers
+            // 
+            lstEventTriggers.BackColor = System.Drawing.Color.FromArgb(60, 63, 65);
+            lstEventTriggers.BorderStyle = BorderStyle.FixedSingle;
+            lstEventTriggers.ForeColor = System.Drawing.Color.Gainsboro;
+            lstEventTriggers.FormattingEnabled = true;
+            lstEventTriggers.ItemHeight = 15;
+            lstEventTriggers.Location = new System.Drawing.Point(13, 22);
+            lstEventTriggers.Margin = new Padding(4, 3, 4, 3);
+            lstEventTriggers.Name = "lstEventTriggers";
+            lstEventTriggers.Size = new Size(306, 107);
+            lstEventTriggers.TabIndex = 59;
+            lstEventTriggers.SelectedIndexChanged += lstEventTriggers_SelectedIndexChanged;
             // 
             // grpStack
             // 
@@ -1451,7 +1520,7 @@ namespace Intersect.Editor.Forms.Editors
             grpEquipment.Controls.Add(grpWeaponProperties);
             grpEquipment.Controls.Add(grpShieldProperties);
             grpEquipment.ForeColor = System.Drawing.Color.Gainsboro;
-            grpEquipment.Location = new System.Drawing.Point(2, 555);
+            grpEquipment.Location = new System.Drawing.Point(11, 643);
             grpEquipment.Margin = new Padding(4, 3, 4, 3);
             grpEquipment.Name = "grpEquipment";
             grpEquipment.Padding = new Padding(4, 3, 4, 3);
@@ -1826,6 +1895,7 @@ namespace Intersect.Editor.Forms.Editors
             nudMPPercentage.Location = new System.Drawing.Point(155, 92);
             nudMPPercentage.Margin = new Padding(4, 3, 4, 3);
             nudMPPercentage.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudMPPercentage.Minimum = new decimal(new int[] { -100, 0, 0, int.MinValue });
             nudMPPercentage.Name = "nudMPPercentage";
             nudMPPercentage.Size = new Size(90, 23);
             nudMPPercentage.TabIndex = 68;
@@ -1839,6 +1909,7 @@ namespace Intersect.Editor.Forms.Editors
             nudHPPercentage.Location = new System.Drawing.Point(155, 43);
             nudHPPercentage.Margin = new Padding(4, 3, 4, 3);
             nudHPPercentage.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudHPPercentage.Minimum = new decimal(new int[] { -100, 0, 0, int.MinValue });
             nudHPPercentage.Name = "nudHPPercentage";
             nudHPPercentage.Size = new Size(90, 23);
             nudHPPercentage.TabIndex = 67;
@@ -2009,6 +2080,7 @@ namespace Intersect.Editor.Forms.Editors
             nudSpdPercentage.Location = new System.Drawing.Point(192, 218);
             nudSpdPercentage.Margin = new Padding(4, 3, 4, 3);
             nudSpdPercentage.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudSpdPercentage.Minimum = new decimal(new int[] { -100, 0, 0, int.MinValue });
             nudSpdPercentage.Name = "nudSpdPercentage";
             nudSpdPercentage.Size = new Size(76, 23);
             nudSpdPercentage.TabIndex = 77;
@@ -2022,6 +2094,7 @@ namespace Intersect.Editor.Forms.Editors
             nudMRPercentage.Location = new System.Drawing.Point(192, 171);
             nudMRPercentage.Margin = new Padding(4, 3, 4, 3);
             nudMRPercentage.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudMRPercentage.Minimum = new decimal(new int[] { -100, 0, 0, int.MinValue });
             nudMRPercentage.Name = "nudMRPercentage";
             nudMRPercentage.Size = new Size(76, 23);
             nudMRPercentage.TabIndex = 76;
@@ -2035,6 +2108,7 @@ namespace Intersect.Editor.Forms.Editors
             nudDefPercentage.Location = new System.Drawing.Point(195, 122);
             nudDefPercentage.Margin = new Padding(4, 3, 4, 3);
             nudDefPercentage.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudDefPercentage.Minimum = new decimal(new int[] { -100, 0, 0, int.MinValue });
             nudDefPercentage.Name = "nudDefPercentage";
             nudDefPercentage.Size = new Size(76, 23);
             nudDefPercentage.TabIndex = 75;
@@ -2048,6 +2122,7 @@ namespace Intersect.Editor.Forms.Editors
             nudMagPercentage.Location = new System.Drawing.Point(192, 77);
             nudMagPercentage.Margin = new Padding(4, 3, 4, 3);
             nudMagPercentage.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudMagPercentage.Minimum = new decimal(new int[] { -100, 0, 0, int.MinValue });
             nudMagPercentage.Name = "nudMagPercentage";
             nudMagPercentage.Size = new Size(76, 23);
             nudMagPercentage.TabIndex = 74;
@@ -2061,6 +2136,7 @@ namespace Intersect.Editor.Forms.Editors
             nudStrPercentage.Location = new System.Drawing.Point(192, 32);
             nudStrPercentage.Margin = new Padding(4, 3, 4, 3);
             nudStrPercentage.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudStrPercentage.Minimum = new decimal(new int[] { -100, 0, 0, int.MinValue });
             nudStrPercentage.Name = "nudStrPercentage";
             nudStrPercentage.Size = new Size(76, 23);
             nudStrPercentage.TabIndex = 73;
@@ -2907,6 +2983,8 @@ namespace Intersect.Editor.Forms.Editors
             grpItems.PerformLayout();
             grpGeneral.ResumeLayout(false);
             grpGeneral.PerformLayout();
+            grpEvents.ResumeLayout(false);
+            grpEvents.PerformLayout();
             grpStack.ResumeLayout(false);
             grpStack.PerformLayout();
             ((ISupportInitialize)nudInvStackLimit).EndInit();
@@ -3183,5 +3261,9 @@ namespace Intersect.Editor.Forms.Editors
         private DarkNumericUpDown nudStatRangeLow;
         private ListBox lstStatRanges;
         private Label lblStatRangeFrom;
+        private DarkGroupBox grpEvents;
+        private DarkComboBox cmbEventTriggers;
+        private Label lblEventForTrigger;
+        private ListBox lstEventTriggers;
     }
 }

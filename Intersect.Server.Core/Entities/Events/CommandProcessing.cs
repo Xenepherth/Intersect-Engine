@@ -606,7 +606,7 @@ namespace Intersect.Server.Entities.Events
             }
             else
             {
-                player.EquipItem(ItemBase.Get(command.ItemId));
+                player.EquipItem(ItemBase.Get(command.ItemId), updateCooldown: command.TriggerCooldown);
             }
         }
 
@@ -1244,7 +1244,7 @@ namespace Intersect.Server.Entities.Events
             Stack<CommandInstance> callStack
         )
         {
-            player.OpenCraftingTable(CraftingTableBase.Get(command.CraftingTableId));
+            player.OpenCraftingTable(CraftingTableBase.Get(command.CraftingTableId), command.JournalMode);
             callStack.Peek().WaitingForResponse = CommandInstance.EventResponse.Crafting;
         }
 

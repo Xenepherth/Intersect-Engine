@@ -829,6 +829,9 @@ namespace Intersect.Editor.Localization
             public static LocalizedString sound = @"Sound:";
 
             public static LocalizedString soundcomplete = @"Complete Sound Playback After Anim Dies";
+            
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString LoopSoundDuringPreview = @"Loop sound during preview";
 
             public static LocalizedString swap = @"Swap Upper/Lower";
 
@@ -1680,6 +1683,8 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString unequip = @"Unequip?";
 
+            public static LocalizedString TriggerCooldown = @"Trigger Cooldown?";
+
         }
 
         public partial struct EventChangeVital
@@ -2068,6 +2073,9 @@ Tick timer saved in server config.json.";
             public static LocalizedString openbank = @"Open Bank";
 
             public static LocalizedString opencrafting = @"Open Crafting Table [{00}]";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString OpenCraftingJournal = @"Open Crafting Journal [{00}]";
 
             public static LocalizedString openshop = @"Open Shop [{00}]";
 
@@ -3121,6 +3129,12 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString label = @"Table:";
 
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString JournalMode = @"Journal Mode?";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString JournalModeTooltip = @"Opens the crafting window without the option for the player to actually craft.";
+
             public static LocalizedString okay = @"Ok";
 
             public static LocalizedString title = @"Open Crafting";
@@ -3754,6 +3768,37 @@ Tick timer saved in server config.json.";
             public static LocalizedString equipmentanimation = @"Equipment Animation:";
 
             public static LocalizedString Event = @"Event:";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString EventGroup = @"Event Triggers";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString EventGroupLabel = @"Event";
+
+            public static Dictionary<ItemEventTriggers, LocalizedString> EventTriggerNames = new Dictionary<ItemEventTriggers, LocalizedString>
+            {
+                {ItemEventTriggers.OnPickup, @"On Pickup"},
+                {ItemEventTriggers.OnDrop, @"On Drop"},
+                {ItemEventTriggers.OnUse, @"On Use"},
+                {ItemEventTriggers.OnEquip, @"On Equip"},
+                {ItemEventTriggers.OnUnequip, @"On Unequip"},
+                {ItemEventTriggers.OnHit, @"On Hit"},
+                {ItemEventTriggers.OnDamageReceived, @"On Damage Received"},
+            };
+
+            public static Dictionary<ItemEventTriggers, LocalizedString> EventTriggerSelections = new Dictionary<ItemEventTriggers, LocalizedString>
+            {
+                {ItemEventTriggers.OnPickup, @"On Pickup: {00}"},
+                {ItemEventTriggers.OnDrop, @"On Drop: {00}"},
+                {ItemEventTriggers.OnUse, @"On Use: {00}"},
+                {ItemEventTriggers.OnEquip, @"On Equip: {00}"},
+                {ItemEventTriggers.OnUnequip, @"On Unequip: {00}"},
+                {ItemEventTriggers.OnHit, @"On Hit: {00}"},
+                {ItemEventTriggers.OnDamageReceived, @"On Damage Received: {00}"},
+            };
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString EventTriggerDisabled = @"'{00}' trigger is disabled for this item type";
 
             public static LocalizedString eventpanel = @"Event";
 
@@ -4595,20 +4640,27 @@ Tick timer saved in server config.json.";
 
         public partial struct NpcSpawns
         {
-
             public static LocalizedString add = @"Add";
 
-            public static LocalizedString addremove = @"Add/Remove Map NPCs";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString AddRemove = @"Add or Remove NPC Spawn:";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString PulseColorButton = @"Selected NPC highlight color";
 
             public static LocalizedString declaredlocation = @"Declared";
 
-            public static LocalizedString direction = @"Direction:";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString Direction = @"Spawn Direction:";
 
             public static LocalizedString randomdirection = @"Random";
 
             public static LocalizedString randomlocation = @"Random";
 
             public static LocalizedString remove = @"Remove";
+
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public static LocalizedString SpawnCount = @"Spawn Count: {00}";
 
             public static LocalizedString spawndeclared = @"Spawn Location: Declared";
 

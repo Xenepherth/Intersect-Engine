@@ -288,7 +288,7 @@ namespace Intersect.Client.Entities
                     }
                     else if (!Globals.Me.TryAttack())
                     {
-                        if (!Globals.Me.IsAttacking)
+                        if (!Globals.Me.IsAttacking && (!IsMoving || Options.Instance.PlayerOpts.AllowCombatMovement))
                         {
                             Globals.Me.AttackTimer = Timing.Global.Milliseconds + Globals.Me.CalculateAttackTime();
                         }
