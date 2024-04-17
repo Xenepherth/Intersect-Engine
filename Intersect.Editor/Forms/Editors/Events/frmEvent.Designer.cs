@@ -101,6 +101,8 @@ namespace Intersect.Editor.Forms.Editors.Events
             var openGuildBankTreeNode = new TreeNode("Open Guild Bank");
             var setGuildBankSlotsTreeNode = new TreeNode("Set Guild Bank Slots Count");
             var guildsTreeNode = new TreeNode("Guilds", new TreeNode[] { createGuildTreeNode, disbandGuildTreeNode, openGuildBankTreeNode, setGuildBankSlotsTreeNode });
+            var createorjoinNationTreeNode = new TreeNode("Create or Join Nation");
+            var nationsTreeNode = new TreeNode("Nations", new TreeNode[] { createorjoinNationTreeNode });
             lblName = new Label();
             txtEventname = new DarkTextBox();
             grpEntityOptions = new DarkGroupBox();
@@ -1023,7 +1025,12 @@ namespace Intersect.Editor.Forms.Editors.Events
             setGuildBankSlotsTreeNode.Text = "Set Guild Bank Slots Count";
             guildsTreeNode.Name = "guilds";
             guildsTreeNode.Text = "Guilds";
-            lstCommands.Nodes.AddRange(new TreeNode[] { dialogueTreeNode, logicFlowTreeNode, playerControlTreeNode, movementTreeNode, specialEffectsTreeNode, questControlTreeNode, etcTreeNode, shopAndBankTreeNode, guildsTreeNode });
+            createorjoinNationTreeNode.Name = "createorjoinnation";
+            createorjoinNationTreeNode.Tag = (int)EventCommandType.CreateOrJoinNation;
+            createorjoinNationTreeNode.Text = "Create or Join Nation";
+            nationsTreeNode.Name = "nations";
+            nationsTreeNode.Text = "Nations";
+            lstCommands.Nodes.AddRange(new TreeNode[] { dialogueTreeNode, logicFlowTreeNode, playerControlTreeNode, movementTreeNode, specialEffectsTreeNode, questControlTreeNode, etcTreeNode, shopAndBankTreeNode, guildsTreeNode, nationsTreeNode });
             lstCommands.Size = new Size(500, 536);
             lstCommands.TabIndex = 2;
             lstCommands.NodeMouseDoubleClick += lstCommands_NodeMouseDoubleClick;
