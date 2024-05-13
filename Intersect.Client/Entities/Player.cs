@@ -2538,7 +2538,7 @@ namespace Intersect.Client.Entities
                 x - (int)Math.Ceiling(textSize.X / 2f),
                 (int)y,
                 1,
-                Color.FromArgb(textColor.Green),
+                Color.FromArgb(textColor.ToArgb()),
                 true,
                 default,
                 Color.FromArgb(borderColor.ToArgb())
@@ -2586,7 +2586,7 @@ namespace Intersect.Client.Entities
                 x - (int)Math.Ceiling(textSize.X / 2f),
                 (int)y,
                 1,
-                Color.FromArgb(textColor.Green),
+                Color.FromArgb(textColor.ToArgb()),
                 true,
                 default,
                 Color.FromArgb(borderColor.ToArgb())

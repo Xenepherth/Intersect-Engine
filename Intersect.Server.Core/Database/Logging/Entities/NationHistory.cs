@@ -68,7 +68,7 @@ namespace Intersect.Server.Database.Logging.Entities
                 nationId,
                 player?.UserId ?? default,
                 player?.Id ?? default,
-                player?.Client?.GetIp() ?? string.Empty,
+                player?.Client?.Ip ?? string.Empty,
                 type,
                 meta
             );
