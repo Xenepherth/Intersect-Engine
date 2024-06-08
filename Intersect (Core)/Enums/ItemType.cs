@@ -15,5 +15,7 @@ namespace Intersect.Enums
         Event = 5,
 
         Bag = 6,
+
+        Material = 7,
     }
 }
