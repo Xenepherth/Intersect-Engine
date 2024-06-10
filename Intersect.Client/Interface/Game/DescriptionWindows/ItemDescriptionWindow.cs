@@ -329,7 +329,7 @@ namespace Intersect.Client.Interface.Game.DescriptionWindows
             for (var i = 0; i < Enum.GetValues<Stat>().Length; i++)
             {
                 // Do we have item properties, if so this is a finished item. Otherwise does this item not have growing stats?
-                if (statModifiers != default || mItem.StatRanges?.Length == 0)
+                if (statModifiers != default || mItem.StatRanges?.Length == 0 || (mItem.StatRanges != default && mItem.StatRanges[i].LowRange == 0 && mItem.StatRanges[i].HighRange == 0))
                 {
                     var flatStat = mItem.StatsGiven[i];
                     if (statModifiers != default)
@@ -466,7 +466,7 @@ namespace Intersect.Client.Interface.Game.DescriptionWindows
             // Display our amount, but only if we are stackable and have more than one.
             if (mItem.IsStackable && mAmount > 1)
             {
-                data.Add(new Tuple<string, string>(Strings.ItemDescription.Amount, mAmount.ToString("N0").Replace(",", Strings.Numbers.comma)));
+                data.Add(new Tuple<string, string>(Strings.ItemDescription.Amount, mAmount.ToString("N0").Replace(",", Strings.Numbers.Comma)));
             }
 
             // Display item drop chance if configured.

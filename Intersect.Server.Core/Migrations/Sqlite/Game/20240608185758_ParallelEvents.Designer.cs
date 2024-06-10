@@ -3,6 +3,7 @@ using System;
 using Intersect.Server.Database.GameData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Intersect.Server.Migrations.Sqlite.Game
 {
     [DbContext(typeof(SqliteGameContext))]
-    partial class SqliteGameContextModelSnapshot : ModelSnapshot
+    [Migration("20240608185758_ParallelEvents")]
+    partial class ParallelEvents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.11");
@@ -725,9 +728,6 @@ namespace Intersect.Server.Migrations.Sqlite.Game
                     b.Property<int>("Delay")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("DirectShotBehavior")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Folder")
                         .HasColumnType("TEXT");
 
@@ -737,9 +737,6 @@ namespace Intersect.Server.Migrations.Sqlite.Game
                     b.Property<string>("GrappleHookOptionsJson")
                         .HasColumnType("TEXT")
                         .HasColumnName("GrappleHookOptions");
-
-                    b.Property<bool>("HomingBehavior")
-                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IgnoreActiveResources")
                         .HasColumnType("INTEGER");

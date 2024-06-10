@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Intersect.Enums;
 using Intersect.GameObjects;
 using Intersect.GameObjects.Maps;
 using Intersect.Network.Packets.Server;
+using Intersect.Server.Database;
 using Intersect.Server.Entities.Combat;
 using Intersect.Server.Maps;
 using Intersect.Utilities;
@@ -40,6 +39,12 @@ namespace Intersect.Server.Entities
 
         public Entity Target;
 
+        private int mLastTargetX = -1;
+
+        private int mLastTargetY = -1;
+
+        private Guid mLastTargetMapId = Guid.Empty;
+
         public Projectile(
             Entity owner,
             SpellBase parentSpell,
@@ -56,6 +61,7 @@ namespace Intersect.Server.Entities
             Base = projectile;
             Name = Base.Name;
             Owner = owner;
+            Target = owner.Target;
             Stat = owner.Stat;
             MapId = mapId;
             base.X = X;
@@ -357,6 +363,94 @@ namespace Intersect.Server.Entities
             return killSpawn;
         }
 
+        private float GetProjectileX(ProjectileSpawn spawn)
+        {
+            if (mLastTargetMapId != Guid.Empty && mLastTargetMapId != spawn.MapId)
+            {
+                var map = MapController.Get(spawn.MapId);
+                var grid = DbInterface.GetGrid(map.MapGrid);
+
+                //loop through surrounding maps
+                for (var y = map.MapGridY - 1; y <= map.MapGridY + 1; y++)
+                {
+                    if (y == -1 || y >= grid.Height)
+                    {
+                        continue;
+                    }
+
+                    for (var x = map.MapGridY - 1; x <= map.MapGridX + 1; x++)
+                    {
+                        if (x == -1 || x >= grid.Width)
+                        {
+                            continue;
+                        }
+
+                        if (grid.MapIdGrid[x, y] != Guid.Empty && grid.MapIdGrid[x, y] == mLastTargetMapId)
+                        {
+                            var leftSide = x == map.MapGridX - 1;
+                            var rightSide = x == map.MapGridX + 1;
+
+                            if (leftSide)
+                            {
+                                return mLastTargetX - Options.MapWidth - spawn.X;
+                            }
+
+                            if (rightSide)
+                            {
+                                return mLastTargetX + Options.MapWidth - spawn.X;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return mLastTargetX - spawn.X;
+        }
+
+        private float GetProjectileY(ProjectileSpawn spawn)
+        {
+            if (mLastTargetMapId != Guid.Empty && mLastTargetMapId != spawn.MapId)
+            {
+                var map = MapController.Get(spawn.MapId);
+                var grid = DbInterface.GetGrid(map.MapGrid);
+
+                //loop through surrounding maps
+                for (var y = map.MapGridY - 1; y <= map.MapGridY + 1; y++)
+                {
+                    if (y == -1 || y >= grid.Height)
+                    {
+                        continue;
+                    }
+
+                    for (var x = map.MapGridY - 1; x <= map.MapGridX + 1; x++)
+                    {
+                        if (x == -1 || x >= grid.Width)
+                        {
+                            continue;
+                        }
+
+                        if (grid.MapIdGrid[x, y] != Guid.Empty && grid.MapIdGrid[x, y] == mLastTargetMapId)
+                        {
+                            var topSide = y == map.MapGridY - 1;
+                            var bottomSide = y == map.MapGridY + 1;
+
+                            if (topSide)
+                            {
+                                return mLastTargetY - Options.MapHeight - spawn.Y;
+                            }
+
+                            if (bottomSide)
+                            {
+                                return mLastTargetY + Options.MapHeight - spawn.Y;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return mLastTargetY - spawn.Y;
+        }
+
         public bool MoveFragment(ProjectileSpawn spawn, bool move = true)
         {
             float newx = spawn.X;
@@ -367,8 +461,41 @@ namespace Intersect.Server.Entities
             {
                 spawn.Distance++;
                 spawn.TransmittionTimer += (long)(Base.Speed / (float)Base.Range);
-                newx = spawn.X + GetRangeX(spawn.Dir, 1);
-                newy = spawn.Y + GetRangeY(spawn.Dir, 1);
+                
+                if (Target != default && (Base.HomingBehavior || Base.DirectShotBehavior))
+                {
+                    //homing logic
+                    mLastTargetX = Target.X;
+                    mLastTargetY = Target.Y;
+                    mLastTargetMapId = Target.MapId;
+                    var directionX = GetProjectileX(spawn);
+                    var directionY = GetProjectileY(spawn);
+                    var length = Math.Sqrt(directionX * directionX + directionY * directionY);
+
+                    newx += (float)(directionX / length);
+                    newy += (float)(directionY / length);
+
+                    if (Base.DirectShotBehavior)
+                    {
+                        Target = default;
+                    }
+                }
+                else if (mLastTargetX != -1 && mLastTargetY != -1)
+                {
+                    //last target location logic
+                    var directionX = GetProjectileX(spawn);
+                    var directionY = GetProjectileY(spawn);
+                    var length = Math.Sqrt(directionX * directionX + directionY * directionY);
+
+                    newx += (float)(directionX / length);
+                    newy += (float)(directionY / length);
+                }
+                else
+                {
+                    // Default logic
+                    newx = spawn.X + GetRangeX(spawn.Dir, 1);
+                    newy = spawn.Y + GetRangeY(spawn.Dir, 1);
+                }
             }
 
             var killSpawn = false;
@@ -462,7 +589,7 @@ namespace Intersect.Server.Entities
             var pkt = (ProjectileEntityPacket) packet;
             pkt.ProjectileId = Base.Id;
             pkt.ProjectileDirection = (byte) Dir;
-            pkt.TargetId = Target?.Id ?? Guid.Empty;
+            pkt.TargetId = Owner.Target != default && Owner.Target.Id != Guid.Empty ? Owner.Target.Id : Guid.Empty;
             pkt.OwnerId = Owner?.Id ?? Guid.Empty;
 
             return pkt;

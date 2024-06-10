@@ -1,4 +1,3 @@
-using System;
 using Intersect.Client.Framework.Entities;
 using Intersect.Client.General;
 using Intersect.Enums;
@@ -40,6 +39,12 @@ namespace Intersect.Client.Entities.Projectiles
         public ProjectileSpawns[] Spawns;
 
         public Guid TargetId;
+
+        public int mLastTargetX = -1;
+
+        public int mLastTargetY = -1;
+
+        public Guid mLastTargetMapId = Guid.Empty;
 
         /// <summary>
         ///     The constructor for the inherated projectile class
@@ -306,8 +311,35 @@ namespace Intersect.Client.Entities.Projectiles
                     {
                         if (Spawns[s] != null && Maps.MapInstance.Get(Spawns[s].SpawnMapId) != null)
                         {
-                            Spawns[s].OffsetX = GetRangeX(Spawns[s].Dir, GetDisplacement(Spawns[s].SpawnTime));
-                            Spawns[s].OffsetY = GetRangeY(Spawns[s].Dir, GetDisplacement(Spawns[s].SpawnTime));
+                            if (TargetId != Guid.Empty && Globals.Entities.ContainsKey(TargetId) && (mMyBase.HomingBehavior || mMyBase.DirectShotBehavior))
+                            {
+                                var target = Globals.Entities[TargetId];
+                                mLastTargetX = target.X;
+                                mLastTargetY = target.Y;
+                                mLastTargetMapId = target.MapId;
+
+                                Spawns[s].OffsetX = GetProjectileLerping(Spawns[s], true);
+                                Spawns[s].OffsetY = GetProjectileLerping(Spawns[s], false);
+                                SetProjectileRotation(Spawns[s]);
+
+                                if (mMyBase.DirectShotBehavior)
+                                {
+                                    TargetId = Guid.Empty;
+                                }
+                            }
+                            else if(mLastTargetX != -1 && mLastTargetY != -1)
+                            {
+                                Spawns[s].OffsetX = GetProjectileLerping(Spawns[s], true);
+                                Spawns[s].OffsetY = GetProjectileLerping(Spawns[s], false);
+                                SetProjectileRotation(Spawns[s]);
+                            }
+                            else
+                            {
+                                Spawns[s].OffsetX = GetRangeX(Spawns[s].Dir, GetDisplacement(Spawns[s].SpawnTime));
+                                Spawns[s].OffsetY = GetRangeY(Spawns[s].Dir, GetDisplacement(Spawns[s].SpawnTime));
+                                Spawns[s].Anim.SetRotation(false);
+                            }
+
                             Spawns[s]
                                 .Anim.SetPosition(
                                     Maps.MapInstance.Get(Spawns[s].SpawnMapId).GetX() +
@@ -333,6 +365,117 @@ namespace Intersect.Client.Entities.Projectiles
             return true;
         }
 
+        private float GetProjectileX(ProjectileSpawns spawn)
+        {
+            if (mLastTargetMapId != Guid.Empty && mLastTargetMapId != spawn.SpawnMapId)
+            {
+                var map = Maps.MapInstance.Get(spawn.SpawnMapId);
+                for (var y = map.GridY - 1; y <= map.GridY + 1; y++)
+                {
+                    if (y < 0 || y >= Options.MapHeight)
+                    {
+                        continue;
+                    }
+
+                    for (var x = map.GridX - 1; x <= map.GridX + 1; x++)
+                    {
+                        if (x < 0 || x >= Options.MapWidth)
+                        {
+                            continue;
+                        }
+
+                        if (Globals.MapGrid[x, y] != Guid.Empty && Globals.MapGrid[x, y] == mLastTargetMapId)
+                        {
+                            var leftSide = x == map.GridX - 1;
+                            var rightSide = x == map.GridX + 1;
+
+                            if (leftSide)
+                            {
+                                return mLastTargetX - Options.MapWidth - spawn.SpawnX;
+                            }
+
+                            if (rightSide)
+                            {
+                                return mLastTargetX + Options.MapWidth - spawn.SpawnX;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return mLastTargetX - spawn.SpawnX;
+        }
+
+        private float GetProjectileY(ProjectileSpawns spawn)
+        {
+            if (mLastTargetMapId != Guid.Empty && mLastTargetMapId != spawn.SpawnMapId)
+            {
+                var map = Maps.MapInstance.Get(spawn.SpawnMapId);
+                for (var y = map.GridY - 1; y <= map.GridY + 1; y++)
+                {
+                    if (y < 0 || y >= Options.MapHeight)
+                    {
+                        continue;
+                    }
+
+                    for (var x = map.GridX - 1; x <= map.GridX + 1; x++)
+                    {
+                        if (x < 0 || x >= Options.MapWidth)
+                        {
+                            continue;
+                        }
+
+                        if(x >= Globals.MapGrid.GetLength(0) || y >= Globals.MapGrid.GetLength(1))
+                        {
+                            continue;
+                        }
+
+                        if (Globals.MapGrid[x, y] != Guid.Empty && Globals.MapGrid[x, y] == mLastTargetMapId)
+                        {
+                            var upSide = y == map.GridY + 1;
+                            var downSide = y == map.GridY - 1;
+
+                            if (upSide)
+                            {
+                                return mLastTargetY + Options.MapHeight - spawn.SpawnY;
+                            }
+
+                            if (downSide)
+                            {
+                                return mLastTargetY - Options.MapHeight - spawn.SpawnY;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return mLastTargetY - spawn.SpawnY;
+        }
+
+        private float GetProjectileLerping(ProjectileSpawns spawn, bool isXAxis)
+        {
+            var directionX = GetProjectileX(spawn);
+            var directionY = GetProjectileY(spawn);
+            var valueToLerp = isXAxis ? directionX : directionY;
+
+            var length = (float)Math.Sqrt(directionX * directionX + directionY * directionY);
+            valueToLerp /= length;
+
+            var lerpFactor = 0.1f;
+            var offset = isXAxis ? spawn.OffsetX : spawn.OffsetY;
+            var desiredValue = GetDisplacement(spawn.SpawnTime) * valueToLerp;
+
+            return offset + (desiredValue - offset) * lerpFactor;
+        }
+
+        private void SetProjectileRotation(ProjectileSpawns spawn)
+        {
+            var directionX = GetProjectileX(spawn);
+            var directionY = GetProjectileY(spawn);
+            var angle = (float)(Math.Atan2(directionY, directionX) * (180.0 / Math.PI) + 90);
+            spawn.Anim.SetRotation(angle);
+        }
+
         public void CheckForCollision()
         {
             if (mSpawnCount != 0 || mQuantity < mMyBase.Quantity)
@@ -346,6 +489,18 @@ namespace Intersect.Client.Entities.Projectiles
                         {
                             var newx = Spawns[i].X + (int)GetRangeX(Spawns[i].Dir, 1);
                             var newy = Spawns[i].Y + (int)GetRangeY(Spawns[i].Dir, 1);
+
+                            if (mMyBase.HomingBehavior || mMyBase.DirectShotBehavior)
+                            {
+                                if (TargetId != Guid.Empty && Globals.Entities.ContainsKey(TargetId) && Globals.Entities.ContainsKey(mOwner))
+                                {
+                                    var me = Globals.Entities[mOwner];
+                                    var target = Globals.Entities[TargetId];
+                                    newx = Spawns[i].X + (int)GetRangeX(me.DirectionToTarget(target), 1);
+                                    newy = Spawns[i].Y + (int)GetRangeY(me.DirectionToTarget(target), 1);
+                                }
+                            }
+
                             var newMapId = Spawns[i].MapId;
                             var killSpawn = false;
 

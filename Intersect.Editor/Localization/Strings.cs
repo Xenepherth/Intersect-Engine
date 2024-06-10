@@ -1673,9 +1673,13 @@ Tick timer saved in server config.json.";
         public partial struct EventEquipItems
         {
 
+            public static LocalizedString EquipTitle = @"Equip Item";
+
             public static LocalizedString cancel = @"Cancel";
 
             public static LocalizedString item = @"Item:";
+
+            public static LocalizedString slot = @"Slot:";
 
             public static LocalizedString okay = @"Ok";
 
@@ -1896,6 +1900,8 @@ Tick timer saved in server config.json.";
             public static LocalizedString equipitem = @"Equip Player Item [{00}]";
 
             public static LocalizedString unequipitem = @"Unequip Player Item [{00}]";
+
+            public static LocalizedString unequipslot = @"Unequip Player Slot [{00}]";
 
             public static LocalizedString changespells = @"Change Player Spells [{00}]";
 
@@ -2901,6 +2907,8 @@ Tick timer saved in server config.json.";
             public static LocalizedString newpage = @"New Page";
 
             public static LocalizedString pageoptions = @"Page Options";
+
+            public static LocalizedString ParallelRun = @"Can run in Parallel?";
 
             public static LocalizedString passable = @"Passable";
 
@@ -4734,6 +4742,12 @@ Tick timer saved in server config.json.";
 
             public static LocalizedString autorotate = @"Auto Rotate Animation?";
 
+            public static LocalizedString BehaviorDefault = @"Default";
+
+            public static LocalizedString BehaviorDirectShot = @"Direct Shot Behavior";
+
+            public static LocalizedString BehaviorHoming = @"Homing Behavior";
+
             public static LocalizedString cancel = @"Cancel";
 
             public static LocalizedString collisions = @"Ignore Collision:";
@@ -4809,6 +4823,8 @@ Tick timer saved in server config.json.";
             public static LocalizedString speed = @"Speed (ms):";
 
             public static LocalizedString spell = @"Collision Spell:";
+
+            public static LocalizedString TargettingOptions = @"Targetting Options";
 
             public static LocalizedString title = @"Projectile Editor";
 

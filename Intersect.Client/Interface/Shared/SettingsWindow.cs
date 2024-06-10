@@ -452,7 +452,7 @@ namespace Intersect.Client.Interface.Shared
                 var prefix = $"Control{Enum.GetName(typeof(Control), control)}";
                 var label = new Label(mKeybindingSettingsContainer, $"{prefix}Label")
                 {
-                    Text = Strings.Controls.controldict[name],
+                    Text = Strings.Controls.KeyDictionary[name],
                     AutoSizeToContents = true,
                     Font = defaultFont,
                 };
@@ -710,7 +710,7 @@ namespace Intersect.Client.Interface.Shared
                             mKeybindingEditControls.UpdateControl(control.Key, bindingIndex, Keys.None, Keys.None);
 
                             // Update UI.
-                            mKeybindingBtns[control.Key][bindingIndex].Text = Strings.Keys.keydict[Enum.GetName(typeof(Keys), Keys.None).ToLower()];
+                            mKeybindingBtns[control.Key][bindingIndex].Text = Strings.Keys.KeyDictionary[Enum.GetName(typeof(Keys), Keys.None).ToLower()];
                         }
                     }
                 }
@@ -902,7 +902,7 @@ namespace Intersect.Client.Interface.Shared
         {
             if (mKeybindingEditBtn == null)
             {
-                sender.Text = Strings.Controls.listening;
+                sender.Text = Strings.Controls.Listening;
                 mKeyEdit = ((KeyValuePair<Control, int>)sender.UserData).Value;
                 mKeybindingEditControl = ((KeyValuePair<Control, int>)sender.UserData).Key;
                 mKeybindingEditBtn = sender;

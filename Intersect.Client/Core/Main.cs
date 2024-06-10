@@ -194,11 +194,8 @@ namespace Intersect.Client.Core
         {
             if (Globals.ConnectionLost)
             {
-                Main.Logout(false);
-                Interface.Interface.ShowError(Strings.Errors.lostconnection);
-
+                Logout(false);
                 Globals.ConnectionLost = false;
-
                 return;
             }
 
@@ -342,6 +339,7 @@ namespace Intersect.Client.Core
 
             if (!ClientContext.IsSinglePlayer)
             {
+                Globals.SoftLogout = !characterSelect;
                 PacketSender.SendLogout(characterSelect);
             }
 

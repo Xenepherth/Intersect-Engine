@@ -329,6 +329,11 @@ namespace Intersect.Client.Entities
                 Interface.Interface.GameUi.HideGuildWindow();
             }
 
+            if (IsBlocking && !IsAttacking && !IsMoving)
+            {
+                IsBlocking = false;
+            }
+
             var returnval = base.Update();
 
             return returnval;
@@ -658,7 +663,7 @@ namespace Intersect.Client.Entities
                 shop.BuyingWhitelist && shop.BuyingItems.Any(buyingItem => buyingItem.ItemId == itemDescriptor.Id)
                 || !shop.BuyingWhitelist && !shop.BuyingItems.Any(buyingItem => buyingItem.ItemId == itemDescriptor.Id);
 
-            var prompt = Strings.Shop.sellprompt;
+            var prompt = Strings.Shop.SellPrompt;
             var inputType = InputBox.InputType.YesNo;
             EventHandler onSuccess = SellInputBoxOkay;
             var userData = inventorySlotIndex;
@@ -667,7 +672,7 @@ namespace Intersect.Client.Entities
 
             if (!shopCanBuyItem)
             {
-                prompt = Strings.Shop.cannotsell;
+                prompt = Strings.Shop.CannotSell;
                 inputType = InputBox.InputType.OkayOnly;
                 onSuccess = null;
                 userData = -1;
@@ -678,7 +683,7 @@ namespace Intersect.Client.Entities
                 if (inventoryQuantity > 1)
                 {
                     maxQuantity = inventoryQuantity;
-                    prompt = Strings.Shop.sellitemprompt;
+                    prompt = Strings.Shop.SellItemPrompt;
                     inputType = InputBox.InputType.NumericSliderInput;
                     onSuccess = SellItemInputBoxOkay;
                     userData = inventorySlotIndex;
@@ -686,7 +691,7 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Shop.sellitem,
+                title: Strings.Shop.SellItem,
                 prompt: prompt.ToString(itemDescriptor.Name),
                 modal: true,
                 inputType: inputType,
@@ -732,8 +737,8 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Shop.buyitem,
-                prompt: Strings.Shop.buyitemprompt.ToString(itemDescriptor.Name),
+                title: Strings.Shop.BuyItem,
+                prompt: Strings.Shop.BuyItemPrompt.ToString(itemDescriptor.Name),
                 modal: true,
                 inputType: InputBox.InputType.NumericSliderInput,
                 onSuccess: BuyItemInputBoxOkay,
@@ -857,8 +862,8 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Bank.deposititem,
-                prompt: Strings.Bank.deposititemprompt.ToString(itemDescriptor.Name),
+                title: Strings.Bank.DepositItem,
+                prompt: Strings.Bank.DepositItemPrompt.ToString(itemDescriptor.Name),
                 modal: true,
                 inputType: InputBox.InputType.NumericSliderInput,
                 onSuccess: DepositItemInputBoxOkay,
@@ -977,8 +982,8 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Bank.withdrawitem,
-                prompt: Strings.Bank.withdrawitemprompt.ToString(itemDescriptor.Name),
+                title: Strings.Bank.WithdrawItem,
+                prompt: Strings.Bank.WithdrawItemPrompt.ToString(itemDescriptor.Name),
                 modal: true,
                 inputType: InputBox.InputType.NumericSliderInput,
                 onSuccess: WithdrawItemInputBoxOkay,
@@ -1034,8 +1039,8 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Bags.storeitem,
-                prompt: Strings.Bags.storeitemprompt.ToString(itemDescriptor.Name), true,
+                title: Strings.Bags.StoreItem,
+                prompt: Strings.Bags.StoreItemPrompt.ToString(itemDescriptor.Name), true,
                 inputType: InputBox.InputType.NumericSliderInput,
                 onSuccess: StoreBagItemInputBoxOkay,
                 onCancel: null,
@@ -1086,8 +1091,8 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Bags.retreiveitem,
-                prompt: Strings.Bags.retreiveitemprompt.ToString(itemDescriptor.Name),
+                title: Strings.Bags.RetrieveItem,
+                prompt: Strings.Bags.RetrieveItemPrompt.ToString(itemDescriptor.Name),
                 modal: true,
                 inputType: InputBox.InputType.NumericSliderInput,
                 onSuccess: RetreiveBagItemInputBoxOkay,
@@ -1126,8 +1131,8 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Trading.offeritem,
-                prompt: Strings.Trading.offeritemprompt.ToString(tradingItem.Name),
+                title: Strings.Trading.OfferItem,
+                prompt: Strings.Trading.OfferItemPrompt.ToString(tradingItem.Name),
                 modal: true,
                 inputType: InputBox.InputType.NumericSliderInput,
                 onSuccess: TradeItemInputBoxOkay,
@@ -1164,8 +1169,8 @@ namespace Intersect.Client.Entities
             }
 
             InputBox.Open(
-                title: Strings.Trading.revokeitem,
-                prompt: Strings.Trading.revokeitemprompt.ToString(revokedItem.Name),
+                title: Strings.Trading.RevokeItem,
+                prompt: Strings.Trading.RevokeItemPrompt.ToString(revokedItem.Name),
                 modal: true,
                 inputType: InputBox.InputType.NumericSliderInput,
                 onSuccess: RevokeItemInputBoxOkay,
@@ -1200,8 +1205,8 @@ namespace Intersect.Client.Entities
             if (SpellBase.TryGet(spellSlot.Id, out var spellDescriptor))
             {
                 InputBox.Open(
-                    title: Strings.Spells.forgetspell,
-                    prompt: Strings.Spells.forgetspellprompt.ToString(spellDescriptor.Name),
+                    title: Strings.Spells.ForgetSpell,
+                    prompt: Strings.Spells.ForgetSpellPrompt.ToString(spellDescriptor.Name),
                     modal: true,
                     inputType: InputBox.InputType.YesNo,
                     onSuccess: ForgetSpellInputBoxOkay,
@@ -1652,6 +1657,7 @@ namespace Intersect.Client.Entities
             {
                 TargetBox?.SetEntity(null);
                 TargetBox?.Hide();
+                PacketSender.SendTarget(Guid.Empty);
                 return;
             }
 
@@ -1669,6 +1675,7 @@ namespace Intersect.Client.Entities
             }
 
             TargetBox?.Show();
+            PacketSender.SendTarget(en.Id);
         }
 
         private void AutoTurnToTarget(Entity en)
