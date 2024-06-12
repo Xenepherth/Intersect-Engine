@@ -146,7 +146,7 @@ namespace Intersect.Client.Interface.Game.Chat
             //Add admin channel only if power > 0.
             if (Globals.Me.Type > 0)
             {
-                var menuItem = mChannelCombobox.AddItem(Strings.Chatbox.channeladmin);
+                var menuItem = mChannelCombobox.AddItem(Strings.Chatbox.ChannelAdmin);
                 menuItem.UserData = 5;
 
                 menuItem.Selected += MenuItem_Selected;
