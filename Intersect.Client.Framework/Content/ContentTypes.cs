@@ -1,62 +1,66 @@
-﻿using Intersect.Client.Framework.Audio;
+﻿using System;
+
+using Intersect.Client.Framework.Audio;
 using Intersect.Client.Framework.Graphics;
 
-namespace Intersect.Client.Framework.Content;
-
-
-public enum ContentTypes
+namespace Intersect.Client.Framework.Content
 {
-    [AssetType(typeof(GameTexture))]
-    Animation,
 
-    [AssetType(typeof(GameTexture))]
-    Entity,
+    public enum ContentTypes
+    {
+        [AssetType(typeof(GameTexture))]
+        Animation,
 
-    [AssetType(typeof(GameTexture))]
-    Face,
+        [AssetType(typeof(GameTexture))]
+        Entity,
 
-    [AssetType(typeof(GameTexture))]
-    Fog,
+        [AssetType(typeof(GameTexture))]
+        Face,
 
-    [AssetType(typeof(GameFont))]
-    Font,
+        [AssetType(typeof(GameTexture))]
+        Fog,
 
-    [AssetType(typeof(GameTexture))]
-    Image,
+        [AssetType(typeof(GameFont))]
+        Font,
 
-    [AssetType(typeof(GameTexture))]
-    Interface,
+        [AssetType(typeof(GameTexture))]
+        Image,
 
-    [AssetType(typeof(GameTexture))]
-    Item,
+        [AssetType(typeof(GameTexture))]
+        Interface,
 
-    [AssetType(typeof(GameTexture))]
-    Miscellaneous,
+        [AssetType(typeof(GameTexture))]
+        Item,
 
-    [AssetType(typeof(GameAudioSource))]
-    Music,
+        [AssetType(typeof(GameTexture))]
+        Miscellaneous,
 
-    [AssetType(typeof(GameTexture))]
-    Paperdoll,
+        [AssetType(typeof(GameAudioSource))]
+        Music,
 
-    [AssetType(typeof(GameTexture))]
-    Resource,
+        [AssetType(typeof(GameTexture))]
+        Paperdoll,
 
-    [AssetType(typeof(GameShader))]
-    Shader,
+        [AssetType(typeof(GameTexture))]
+        Resource,
 
-    [AssetType(typeof(GameAudioSource))]
-    Sound,
+        [AssetType(typeof(GameShader))]
+        Shader,
 
-    [AssetType(typeof(GameTexture))]
-    Spell,
+        [AssetType(typeof(GameAudioSource))]
+        Sound,
 
-    [AssetType(typeof(GameTexture))]
-    TexturePack,
+        [AssetType(typeof(GameTexture))]
+        Spell,
 
-    [AssetType(typeof(GameTexture))]
-    TileSet,
+        [AssetType(typeof(GameTexture))]
+        TexturePack,
 
-    [Obsolete] Gui = Interface
+        [AssetType(typeof(GameTexture))]
+        TileSet,
+
+        [Obsolete] Gui = Interface
+
+    }
 
 }

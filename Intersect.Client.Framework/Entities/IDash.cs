@@ -1,7 +1,8 @@
-﻿namespace Intersect.Client.Framework.Entities;
-
-public interface IDash
+﻿namespace Intersect.Client.Framework.Entities
 {
-    float OffsetX { get; }
-    float OffsetY { get; }
+    public interface IDash
+    {
+        float OffsetX { get; }
+        float OffsetY { get; }
+    }
 }

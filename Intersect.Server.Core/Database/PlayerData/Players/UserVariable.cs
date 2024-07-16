@@ -2,24 +2,25 @@ using Intersect.GameObjects;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Intersect.Server.Database.PlayerData.Players;
-
-public partial class UserVariable : Variable
+namespace Intersect.Server.Database.PlayerData.Players
 {
-    public UserVariable() : this(Guid.Empty) { }
-
-    public UserVariable(Guid userVariableBaseId)
+    public partial class UserVariable : Variable
     {
-        VariableId = userVariableBaseId;
+        public UserVariable() : this(Guid.Empty) { }
+
+        public UserVariable(Guid userVariableBaseId)
+        {
+            VariableId = userVariableBaseId;
+        }
+
+        [NotMapped]
+        public string VariableName => UserVariableBase.GetName(VariableId);
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [JsonIgnore]
+        public Guid UserId { get; protected set; }
+
+        [JsonIgnore]
+        public virtual User User { get; protected set; }
     }
-
-    [NotMapped]
-    public string VariableName => UserVariableBase.GetName(VariableId);
-
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    [JsonIgnore]
-    public Guid UserId { get; protected set; }
-
-    [JsonIgnore]
-    public virtual User User { get; protected set; }
 }

@@ -1,11 +1,12 @@
 ﻿using Intersect.GameObjects;
 
-namespace Intersect.Client.Framework.Entities;
-
-public interface IResource : IEntity
+namespace Intersect.Client.Framework.Entities
 {
-    ResourceBase BaseResource { get; }
-    
-    bool IsDepleted { get; }
+    public interface IResource : IEntity
+    {
+        ResourceBase BaseResource { get; }
+        
+        bool IsDepleted { get; }
 
+    }
 }

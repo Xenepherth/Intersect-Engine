@@ -1,78 +1,83 @@
-﻿using Intersect.Client.Framework.GenericClasses;
+﻿using System.Collections.Generic;
+using System.Linq;
 
-namespace Intersect.Client.Framework.Graphics;
+using Intersect.Client.Framework.GenericClasses;
 
-
-public partial class GameTexturePacks
+namespace Intersect.Client.Framework.Graphics
 {
 
-    private static List<GameTexturePackFrame> mFrames = new List<GameTexturePackFrame>();
-
-    private static Dictionary<string, List<GameTexturePackFrame>> mFrameTypes =
-        new Dictionary<string, List<GameTexturePackFrame>>();
-
-    public static void AddFrame(GameTexturePackFrame frame)
+    public partial class GameTexturePacks
     {
-        mFrames.Add(frame);
 
-        //find the sub folder
-        var sep = new char[] {'/', '\\'};
-        var subFolder = frame.Filename.Split(sep)[1].ToLower();
-        if (!mFrameTypes.ContainsKey(subFolder))
+        private static List<GameTexturePackFrame> mFrames = new List<GameTexturePackFrame>();
+
+        private static Dictionary<string, List<GameTexturePackFrame>> mFrameTypes =
+            new Dictionary<string, List<GameTexturePackFrame>>();
+
+        public static void AddFrame(GameTexturePackFrame frame)
         {
-            mFrameTypes.Add(subFolder, new List<GameTexturePackFrame>());
+            mFrames.Add(frame);
+
+            //find the sub folder
+            var sep = new char[] {'/', '\\'};
+            var subFolder = frame.Filename.Split(sep)[1].ToLower();
+            if (!mFrameTypes.ContainsKey(subFolder))
+            {
+                mFrameTypes.Add(subFolder, new List<GameTexturePackFrame>());
+            }
+
+            if (!mFrameTypes[subFolder].Contains(frame))
+            {
+                mFrameTypes[subFolder].Add(frame);
+            }
         }
 
-        if (!mFrameTypes[subFolder].Contains(frame))
+        public static GameTexturePackFrame[] GetFolderFrames(string folder)
         {
-            mFrameTypes[subFolder].Add(frame);
-        }
-    }
+            if (mFrameTypes.ContainsKey(folder.ToLower()))
+            {
+                return mFrameTypes[folder.ToLower()].ToArray();
+            }
 
-    public static GameTexturePackFrame[] GetFolderFrames(string folder)
-    {
-        if (mFrameTypes.ContainsKey(folder.ToLower()))
-        {
-            return mFrameTypes[folder.ToLower()].ToArray();
+            return null;
         }
 
-        return null;
+        public static GameTexturePackFrame GetFrame(string filename)
+        {
+            filename = filename.Replace("\\", "/");
+            return mFrames.Where(p => p.Filename.ToLower() == filename).FirstOrDefault();
+        }
+
     }
 
-    public static GameTexturePackFrame GetFrame(string filename)
+    public partial class GameTexturePackFrame
     {
-        filename = filename.Replace("\\", "/");
-        return mFrames.Where(p => p.Filename.ToLower() == filename).FirstOrDefault();
+
+        public GameTexturePackFrame(
+            string filename,
+            Rectangle rect,
+            bool rotated,
+            Rectangle sourceSpriteRect,
+            GameTexture packTexture
+        )
+        {
+            Filename = filename.Replace('\\', '/');
+            Rect = rect;
+            Rotated = rotated;
+            SourceRect = sourceSpriteRect;
+            PackTexture = packTexture;
+        }
+
+        public string Filename { get; set; }
+
+        public Rectangle Rect { get; set; }
+
+        public bool Rotated { get; set; }
+
+        public Rectangle SourceRect { get; set; }
+
+        public GameTexture PackTexture { get; set; }
+
     }
-
-}
-
-public partial class GameTexturePackFrame
-{
-
-    public GameTexturePackFrame(
-        string filename,
-        Rectangle rect,
-        bool rotated,
-        Rectangle sourceSpriteRect,
-        GameTexture packTexture
-    )
-    {
-        Filename = filename.Replace('\\', '/');
-        Rect = rect;
-        Rotated = rotated;
-        SourceRect = sourceSpriteRect;
-        PackTexture = packTexture;
-    }
-
-    public string Filename { get; set; }
-
-    public Rectangle Rect { get; set; }
-
-    public bool Rotated { get; set; }
-
-    public Rectangle SourceRect { get; set; }
-
-    public GameTexture PackTexture { get; set; }
 
 }

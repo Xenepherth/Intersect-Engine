@@ -1,30 +1,37 @@
-﻿namespace Intersect.Client.Framework.Content;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public enum TextureType
+namespace Intersect.Client.Framework.Content
 {
+    public enum TextureType
+    {
 
-    Tileset = 0,
+        Tileset = 0,
 
-    Item,
+        Item,
 
-    Entity,
+        Entity,
 
-    Spell,
+        Spell,
 
-    Animation,
+        Animation,
 
-    Face,
+        Face,
 
-    Image,
+        Image,
 
-    Fog,
+        Fog,
 
-    Resource,
+        Resource,
 
-    Paperdoll,
+        Paperdoll,
 
-    Gui,
+        Gui,
 
-    Misc,
+        Misc,
 
+    }
 }

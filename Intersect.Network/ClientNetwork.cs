@@ -7,128 +7,129 @@ using Intersect.Logging;
 using Intersect.Network.Events;
 using Intersect.Network.LiteNetLib;
 
-namespace Intersect.Network;
-
-public partial class ClientNetwork : AbstractNetwork, IClient
+namespace Intersect.Network
 {
-    private static readonly NetworkLayerInterfaceFactory DefaultNetworkLayerInterfaceFactory =
-        (network, parameters) => new LiteNetLibInterface(network, parameters);
-
-    internal static NetworkLayerInterfaceFactory? NetworkLayerInterfaceFactory { get; set; }
-
-    private readonly INetworkLayerInterface _interface;
-    private bool _isConnected;
-
-    public ClientNetwork(
-        IApplicationContext applicationContext,
-        NetworkConfiguration configuration,
-        RSAParameters rsaParameters
-    ) : base(
-        applicationContext,
-        configuration
-    )
+    public partial class ClientNetwork : AbstractNetwork, IClient
     {
-        Id = Guid.Empty;
+        private static readonly NetworkLayerInterfaceFactory DefaultNetworkLayerInterfaceFactory =
+            (network, parameters) => new LiteNetLibInterface(network, parameters);
 
-        _isConnected = false;
+        internal static NetworkLayerInterfaceFactory? NetworkLayerInterfaceFactory { get; set; }
 
-        _interface =
-            (NetworkLayerInterfaceFactory ?? DefaultNetworkLayerInterfaceFactory).Invoke(this, rsaParameters);
-        _interface.OnConnected += HandleInterfaceOnConnected;
-        _interface.OnConnectionApproved += HandleInterfaceOnConnectonApproved;
-        _interface.OnConnectionDenied += HandleInterfaceOnConnectonDenied;
-        _interface.OnDisconnected += HandleInterfaceOnDisconnected;
-        AddNetworkLayerInterface(_interface);
-        StartInterfaces();
-    }
+        private readonly INetworkLayerInterface _interface;
+        private bool _isConnected;
 
-    public override event HandleConnectionEvent OnConnected;
-    public override event HandleConnectionEvent OnConnectionApproved;
-    public override event HandleConnectionEvent OnConnectionDenied;
-    public override event HandleConnectionRequest OnConnectionRequested;
-    public override event HandleConnectionEvent OnDisconnected;
-    public override event HandlePacketAvailable OnPacketAvailable;
-    public override event HandleUnconnectedMessage OnUnconnectedMessage;
-
-    public IConnection Connection => Connections.FirstOrDefault();
-
-    public override bool IsConnected => _isConnected;
-
-    public bool IsServerOnline => IsConnected;
-
-    public int Ping
-    {
-        get
+        public ClientNetwork(
+            IApplicationContext applicationContext,
+            NetworkConfiguration configuration,
+            RSAParameters rsaParameters
+        ) : base(
+            applicationContext,
+            configuration
+        )
         {
-            // Send a ping to the server. Timeout: 5000ms (5 seconds). Packet size: 32 bytes. TTL: 64. Don't fragment.
-            var reply = new Ping().Send(Configuration.Host, 5000, new byte[32], new PingOptions(64, true));
+            Id = Guid.Empty;
 
-            // Return the roundtrip time in milliseconds (ms) as an integer value (no decimals).
-            return reply?.Status == IPStatus.Success ? (int)reply.RoundtripTime : 999999;
+            _isConnected = false;
+
+            _interface =
+                (NetworkLayerInterfaceFactory ?? DefaultNetworkLayerInterfaceFactory).Invoke(this, rsaParameters);
+            _interface.OnConnected += HandleInterfaceOnConnected;
+            _interface.OnConnectionApproved += HandleInterfaceOnConnectonApproved;
+            _interface.OnConnectionDenied += HandleInterfaceOnConnectonDenied;
+            _interface.OnDisconnected += HandleInterfaceOnDisconnected;
+            AddNetworkLayerInterface(_interface);
+            StartInterfaces();
         }
-    }
 
-    public bool Connect()
-    {
-        return IsConnected || _interface.Connect();
-    }
+        public override event HandleConnectionEvent OnConnected;
+        public override event HandleConnectionEvent OnConnectionApproved;
+        public override event HandleConnectionEvent OnConnectionDenied;
+        public override event HandleConnectionRequest OnConnectionRequested;
+        public override event HandleConnectionEvent OnDisconnected;
+        public override event HandlePacketAvailable OnPacketAvailable;
+        public override event HandleUnconnectedMessage OnUnconnectedMessage;
 
-    protected override bool SendUnconnected(IPEndPoint endPoint, UnconnectedPacket packet) =>
-        _interface.SendUnconnectedPacket(endPoint, packet);
+        public IConnection Connection => Connections.FirstOrDefault();
 
-    public override bool Send(IPacket packet, TransmissionMode mode = TransmissionMode.All)
-    {
-        return _interface?.SendPacket(packet, (IConnection)null, mode) ?? false;
-    }
+        public override bool IsConnected => _isConnected;
 
-    public override bool Send(IConnection connection, IPacket packet, TransmissionMode mode = TransmissionMode.All)
-    {
-        return Send(packet, mode);
-    }
+        public bool IsServerOnline => IsConnected;
 
-    public override bool Send(ICollection<IConnection> connections, IPacket packet, TransmissionMode mode = TransmissionMode.All)
-    {
-        return Send(packet, mode);
-    }
+        public int Ping
+        {
+            get
+            {
+                // Send a ping to the server. Timeout: 5000ms (5 seconds). Packet size: 32 bytes. TTL: 64. Don't fragment.
+                var reply = new Ping().Send(Configuration.Host, 5000, new byte[32], new PingOptions(64, true));
 
-    protected virtual void HandleInterfaceOnConnected(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
-    {
-        Log.Info($"Connected [{connectionEventArgs.Connection?.Guid}].");
-        _isConnected = true;
-        OnConnected?.Invoke(sender, connectionEventArgs);
-    }
+                // Return the roundtrip time in milliseconds (ms) as an integer value (no decimals).
+                return reply?.Status == IPStatus.Success ? (int)reply.RoundtripTime : 999999;
+            }
+        }
 
-    protected virtual void HandleInterfaceOnConnectonApproved(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
-    {
-        Log.Info($"Connection approved [{connectionEventArgs.Connection?.Guid}].");
-        OnConnectionApproved?.Invoke(sender, connectionEventArgs);
-    }
+        public bool Connect()
+        {
+            return IsConnected || _interface.Connect();
+        }
 
-    protected virtual void HandleInterfaceOnConnectonDenied(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
-    {
-        Log.Info($"Connection denied [{connectionEventArgs.Connection?.Guid}].");
-        OnConnectionDenied?.Invoke(sender, connectionEventArgs);
-    }
+        protected override bool SendUnconnected(IPEndPoint endPoint, UnconnectedPacket packet) =>
+            _interface.SendUnconnectedPacket(endPoint, packet);
 
-    protected virtual void HandleInterfaceOnDisconnected(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
-    {
-        Log.Info($"Disconnected [{connectionEventArgs.Connection?.Guid ?? Guid.Empty}].");
-        _isConnected = false;
-        OnDisconnected?.Invoke(sender, connectionEventArgs);
-    }
+        public override bool Send(IPacket packet, TransmissionMode mode = TransmissionMode.All)
+        {
+            return _interface?.SendPacket(packet, (IConnection)null, mode) ?? false;
+        }
 
-    public override void Close()
-    {
-        StopInterfaces("closing");
-    }
+        public override bool Send(IConnection connection, IPacket packet, TransmissionMode mode = TransmissionMode.All)
+        {
+            return Send(packet, mode);
+        }
 
-    internal void AssignId(Guid id)
-    {
-        Id = id;
-    }
+        public override bool Send(ICollection<IConnection> connections, IPacket packet, TransmissionMode mode = TransmissionMode.All)
+        {
+            return Send(packet, mode);
+        }
 
-    protected override IDictionary<TKey, TValue> CreateDictionaryLegacy<TKey, TValue>()
-    {
-        return new ConcurrentDictionary<TKey, TValue>();
+        protected virtual void HandleInterfaceOnConnected(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
+        {
+            Log.Info($"Connected [{connectionEventArgs.Connection?.Guid}].");
+            _isConnected = true;
+            OnConnected?.Invoke(sender, connectionEventArgs);
+        }
+
+        protected virtual void HandleInterfaceOnConnectonApproved(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
+        {
+            Log.Info($"Connection approved [{connectionEventArgs.Connection?.Guid}].");
+            OnConnectionApproved?.Invoke(sender, connectionEventArgs);
+        }
+
+        protected virtual void HandleInterfaceOnConnectonDenied(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
+        {
+            Log.Info($"Connection denied [{connectionEventArgs.Connection?.Guid}].");
+            OnConnectionDenied?.Invoke(sender, connectionEventArgs);
+        }
+
+        protected virtual void HandleInterfaceOnDisconnected(INetworkLayerInterface sender, ConnectionEventArgs connectionEventArgs)
+        {
+            Log.Info($"Disconnected [{connectionEventArgs.Connection?.Guid ?? Guid.Empty}].");
+            _isConnected = false;
+            OnDisconnected?.Invoke(sender, connectionEventArgs);
+        }
+
+        public override void Close()
+        {
+            StopInterfaces("closing");
+        }
+
+        internal void AssignId(Guid id)
+        {
+            Id = id;
+        }
+
+        protected override IDictionary<TKey, TValue> CreateDictionaryLegacy<TKey, TValue>()
+        {
+            return new ConcurrentDictionary<TKey, TValue>();
+        }
     }
 }

@@ -1,10 +1,11 @@
-﻿namespace Intersect.Enums;
-
-public enum EventRenderLayer
+﻿namespace Intersect.Enums
 {
-    BelowPlayer = 0,
+    public enum EventRenderLayer
+    {
+        BelowPlayer = 0,
 
-    SameAsPlayer,
+        SameAsPlayer,
 
-    AbovePlayer,
+        AbovePlayer,
+    }
 }

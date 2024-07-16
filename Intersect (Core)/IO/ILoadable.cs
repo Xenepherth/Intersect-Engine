@@ -1,9 +1,11 @@
-﻿namespace Intersect.IO;
-
-
-public interface ILoadable<in TFrom>
+﻿namespace Intersect.IO
 {
 
-    bool Load(TFrom from = default(TFrom));
+    public interface ILoadable<in TFrom>
+    {
+
+        bool Load(TFrom from = default(TFrom));
+
+    }
 
 }

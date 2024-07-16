@@ -1,4 +1,8 @@
-﻿using Intersect.IO.Files;
+﻿using System;
+using System.IO;
+
+using Intersect.Editor.Core;
+using Intersect.IO.Files;
 using Intersect.Logging;
 using Intersect.Utilities;
 
@@ -6,191 +10,192 @@ using Microsoft.Xna.Framework.Graphics;
 
 using Graphics = Intersect.Editor.Core.Graphics;
 
-namespace Intersect.Editor.Content;
-
-public partial class Texture
+namespace Intersect.Editor.Content
 {
-    private readonly string mPath;
-
-    private long mLastAccessTime;
-
-    private bool mLoadError;
-
-    private int mWidth = -1;
-
-    private int mHeight = -1;
-
-    private Texture2D mTexture;
-
-    public Texture(string path)
+    public partial class Texture
     {
-        mPath = path;
-        GameContentManager.AllTextures.Add(this);
-    }
+        private readonly string mPath;
 
-    public void LoadTexture()
-    {
-        mLoadError = true;
-        if (string.IsNullOrWhiteSpace(mPath))
+        private long mLastAccessTime;
+
+        private bool mLoadError;
+
+        private int mWidth = -1;
+
+        private int mHeight = -1;
+
+        private Texture2D mTexture;
+
+        public Texture(string path)
         {
-            Log.Error("Invalid texture path (empty/null).");
-
-            return;
+            mPath = path;
+            GameContentManager.AllTextures.Add(this);
         }
 
-        var relativePath = FileSystemHelper.RelativePath(Directory.GetCurrentDirectory(), mPath);
-
-        if (!File.Exists(mPath))
+        public void LoadTexture()
         {
-            Log.Error($"Texture does not exist: {relativePath}");
-
-            return;
-        }
-
-        using (var fileStream = File.Open(mPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
-            try
+            mLoadError = true;
+            if (string.IsNullOrWhiteSpace(mPath))
             {
-                mTexture = Texture2D.FromStream(Graphics.GetGraphicsDevice(), fileStream);
-                if (mTexture == null)
+                Log.Error("Invalid texture path (empty/null).");
+
+                return;
+            }
+
+            var relativePath = FileSystemHelper.RelativePath(Directory.GetCurrentDirectory(), mPath);
+
+            if (!File.Exists(mPath))
+            {
+                Log.Error($"Texture does not exist: {relativePath}");
+
+                return;
+            }
+
+            using (var fileStream = File.Open(mPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                try
                 {
-                    Log.Error($"Failed to load texture due to unknown error: {relativePath}");
+                    mTexture = Texture2D.FromStream(Graphics.GetGraphicsDevice(), fileStream);
+                    if (mTexture == null)
+                    {
+                        Log.Error($"Failed to load texture due to unknown error: {relativePath}");
 
-                    return;
+                        return;
+                    }
+
+                    mWidth = mTexture.Width;
+                    mHeight = mTexture.Height;
+                    mLoadError = false;
                 }
-
-                mWidth = mTexture.Width;
-                mHeight = mTexture.Height;
-                mLoadError = false;
-            }
-            catch (Exception exception)
-            {
-                Log.Error(
-                    exception,
-                    $"Failed to load texture ({FileSystemHelper.FormatSize(fileStream.Length)}): {relativePath}"
-                );
+                catch (Exception exception)
+                {
+                    Log.Error(
+                        exception,
+                        $"Failed to load texture ({FileSystemHelper.FormatSize(fileStream.Length)}): {relativePath}"
+                    );
+                }
             }
         }
-    }
 
-    public string GetPath() => mPath;
+        public string GetPath() => mPath;
 
-    public void ResetAccessTime()
-    {
-        mLastAccessTime = Timing.Global.MillisecondsUtc + 15000;
-    }
-
-    public int GetWidth()
-    {
-        ResetAccessTime();
-        if (mWidth != -1)
+        public void ResetAccessTime()
         {
+            mLastAccessTime = Timing.Global.MillisecondsUtc + 15000;
+        }
+
+        public int GetWidth()
+        {
+            ResetAccessTime();
+            if (mWidth != -1)
+            {
+                return mWidth;
+            }
+
+            if (mTexture == null)
+            {
+                GetDimensions();
+            }
+
+            if (mLoadError)
+            {
+                mWidth = 0;
+            }
+
             return mWidth;
         }
 
-        if (mTexture == null)
+        public int GetHeight()
         {
-            GetDimensions();
-        }
+            ResetAccessTime();
+            if (mHeight != -1)
+            {
+                return mHeight;
+            }
 
-        if (mLoadError)
-        {
-            mWidth = 0;
-        }
+            if (mTexture == null)
+            {
+                GetDimensions();
+            }
 
-        return mWidth;
-    }
+            if (mLoadError)
+            {
+                mHeight = 0;
+            }
 
-    public int GetHeight()
-    {
-        ResetAccessTime();
-        if (mHeight != -1)
-        {
             return mHeight;
         }
 
-        if (mTexture == null)
+        public Texture2D GetTexture()
         {
-            GetDimensions();
-        }
-
-        if (mLoadError)
-        {
-            mHeight = 0;
-        }
-
-        return mHeight;
-    }
-
-    public Texture2D GetTexture()
-    {
-        ResetAccessTime();
-        if (mTexture == null)
-        {
-            LoadTexture();
-        }
-
-        return mTexture;
-    }
-
-    public void GetDimensions()
-    {
-        mLoadError = true;
-        if (string.IsNullOrWhiteSpace(mPath))
-        {
-            Log.Error("Invalid texture path (empty/null).");
-
-            return;
-        }
-
-        var relativePath = FileSystemHelper.RelativePath(Directory.GetCurrentDirectory(), mPath);
-
-        if (!File.Exists(mPath))
-        {
-            Log.Error($"Texture does not exist: {relativePath}");
-
-            return;
-        }
-
-        using (var fileStream = File.Open(mPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
-            try
+            ResetAccessTime();
+            if (mTexture == null)
             {
-                var img = System.Drawing.Image.FromStream(fileStream, false, false);
-                if (img == null)
+                LoadTexture();
+            }
+
+            return mTexture;
+        }
+
+        public void GetDimensions()
+        {
+            mLoadError = true;
+            if (string.IsNullOrWhiteSpace(mPath))
+            {
+                Log.Error("Invalid texture path (empty/null).");
+
+                return;
+            }
+
+            var relativePath = FileSystemHelper.RelativePath(Directory.GetCurrentDirectory(), mPath);
+
+            if (!File.Exists(mPath))
+            {
+                Log.Error($"Texture does not exist: {relativePath}");
+
+                return;
+            }
+
+            using (var fileStream = File.Open(mPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                try
                 {
-                    Log.Error($"Failed to load texture due to unknown error: {relativePath}");
+                    var img = System.Drawing.Image.FromStream(fileStream, false, false);
+                    if (img == null)
+                    {
+                        Log.Error($"Failed to load texture due to unknown error: {relativePath}");
 
-                    return;
+                        return;
+                    }
+
+                    mWidth = img.Width;
+                    mHeight = img.Height;
+                    mLoadError = false;
                 }
-
-                mWidth = img.Width;
-                mHeight = img.Height;
-                mLoadError = false;
+                catch (Exception exception)
+                {
+                    Log.Error(
+                        exception,
+                        $"Failed to load texture ({FileSystemHelper.FormatSize(fileStream.Length)}): {relativePath}"
+                    );
+                }
             }
-            catch (Exception exception)
+        }
+
+        public void Update()
+        {
+            if (mTexture == null)
             {
-                Log.Error(
-                    exception,
-                    $"Failed to load texture ({FileSystemHelper.FormatSize(fileStream.Length)}): {relativePath}"
-                );
+                return;
             }
-        }
-    }
 
-    public void Update()
-    {
-        if (mTexture == null)
-        {
-            return;
-        }
+            if (mLastAccessTime >= Timing.Global.MillisecondsUtc)
+            {
+                return;
+            }
 
-        if (mLastAccessTime >= Timing.Global.MillisecondsUtc)
-        {
-            return;
+            mTexture.Dispose();
+            mTexture = null;
         }
-
-        mTexture.Dispose();
-        mTexture = null;
     }
 }

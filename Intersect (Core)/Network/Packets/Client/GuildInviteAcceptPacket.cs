@@ -1,15 +1,16 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class GuildInviteAcceptPacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    /// <summary>
-    /// Parameterless Constructor for MessagePack
-    /// </summary>
-    public GuildInviteAcceptPacket()
+    [MessagePackObject]
+    public partial class GuildInviteAcceptPacket : IntersectPacket
     {
+        /// <summary>
+        /// Parameterless Constructor for MessagePack
+        /// </summary>
+        public GuildInviteAcceptPacket()
+        {
 
+        }
     }
 }

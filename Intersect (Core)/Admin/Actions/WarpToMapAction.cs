@@ -1,24 +1,27 @@
-﻿using MessagePack;
+﻿using System;
 
-namespace Intersect.Admin.Actions;
+using MessagePack;
 
-[MessagePackObject]
-public partial class WarpToMapAction : AdminAction
+namespace Intersect.Admin.Actions
 {
-    //Parameterless Constructor for MessagePack
-    public WarpToMapAction()
+    [MessagePackObject]
+    public partial class WarpToMapAction : AdminAction
     {
+        //Parameterless Constructor for MessagePack
+        public WarpToMapAction()
+        {
 
+        }
+
+        public WarpToMapAction(Guid mapId)
+        {
+            MapId = mapId;
+        }
+
+        [Key(1)]
+        public override Enums.AdminAction Action { get; } = Enums.AdminAction.WarpTo;
+
+        [Key(2)]
+        public Guid MapId { get; set; }
     }
-
-    public WarpToMapAction(Guid mapId)
-    {
-        MapId = mapId;
-    }
-
-    [Key(1)]
-    public override Enums.AdminAction Action { get; } = Enums.AdminAction.WarpTo;
-
-    [Key(2)]
-    public Guid MapId { get; set; }
 }

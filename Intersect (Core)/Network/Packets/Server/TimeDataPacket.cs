@@ -1,21 +1,23 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class TimeDataPacket : IntersectPacket
+namespace Intersect.Network.Packets.Server
 {
-    //Parameterless Constructor for MessagePack
-    public TimeDataPacket()
+    [MessagePackObject]
+    public partial class TimeDataPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public TimeDataPacket()
+        {
+        }
 
-    public TimeDataPacket(string timeJson)
-    {
-        TimeJson = timeJson;
-    }
+        public TimeDataPacket(string timeJson)
+        {
+            TimeJson = timeJson;
+        }
 
-    [Key(0)]
-    public string TimeJson { get; set; }
+        [Key(0)]
+        public string TimeJson { get; set; }
+
+    }
 
 }

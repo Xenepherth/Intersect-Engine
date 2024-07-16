@@ -1,29 +1,33 @@
-﻿namespace Intersect.Threading;
+﻿using System;
 
-
-/// <inheritdoc />
-public abstract partial class Threaded<TArgument> : Threaded
+namespace Intersect.Threading
 {
 
     /// <inheritdoc />
-    protected Threaded(string name = null) : base(name)
+    public abstract partial class Threaded<TArgument> : Threaded
     {
-    }
 
-    /// <inheritdoc />
-    protected override void ThreadStart(params object[] args)
-    {
-        // TODO: Generic utility that checks arg types against expected types
-        if (args == null || args.Length < 1)
+        /// <inheritdoc />
+        protected Threaded(string name = null) : base(name)
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(args), $@"Expected one argument of type {typeof(TArgument).FullName}."
-            );
         }
 
-        ThreadStart((TArgument) args[0]);
-    }
+        /// <inheritdoc />
+        protected override void ThreadStart(params object[] args)
+        {
+            // TODO: Generic utility that checks arg types against expected types
+            if (args == null || args.Length < 1)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(args), $@"Expected one argument of type {typeof(TArgument).FullName}."
+                );
+            }
 
-    protected abstract void ThreadStart(TArgument argument);
+            ThreadStart((TArgument) args[0]);
+        }
+
+        protected abstract void ThreadStart(TArgument argument);
+
+    }
 
 }

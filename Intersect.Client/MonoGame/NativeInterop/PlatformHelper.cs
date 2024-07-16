@@ -1,28 +1,29 @@
 using System.Runtime.InteropServices;
 
-namespace Intersect.Client.MonoGame.NativeInterop;
-
-public static class PlatformHelper
+namespace Intersect.Client.MonoGame.NativeInterop
 {
-    public static readonly Platform CurrentPlatform;
-
-    static PlatformHelper()
+    public static class PlatformHelper
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        public static readonly Platform CurrentPlatform;
+
+        static PlatformHelper()
         {
-            CurrentPlatform = Platform.Windows;
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            CurrentPlatform = Platform.MacOS;
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            CurrentPlatform = Platform.Linux;
-        }
-        else
-        {
-            CurrentPlatform = Platform.Unknown;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                CurrentPlatform = Platform.Windows;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                CurrentPlatform = Platform.MacOS;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                CurrentPlatform = Platform.Linux;
+            }
+            else
+            {
+                CurrentPlatform = Platform.Unknown;
+            }
         }
     }
 }

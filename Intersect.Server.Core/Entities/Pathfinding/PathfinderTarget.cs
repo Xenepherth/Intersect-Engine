@@ -1,23 +1,27 @@
-﻿namespace Intersect.Server.Entities.Pathfinding;
+﻿using System;
 
-
-public partial class PathfinderTarget
+namespace Intersect.Server.Entities.Pathfinding
 {
 
-    public Guid TargetMapId;
-
-    public int TargetX;
-
-    public int TargetY;
-
-    public int TargetZ;
-
-    public PathfinderTarget(Guid mapId, int x, int y, int z)
+    public partial class PathfinderTarget
     {
-        TargetMapId = mapId;
-        TargetX = x;
-        TargetY = y;
-        TargetZ = z;
+
+        public Guid TargetMapId;
+
+        public int TargetX;
+
+        public int TargetY;
+
+        public int TargetZ;
+
+        public PathfinderTarget(Guid mapId, int x, int y, int z)
+        {
+            TargetMapId = mapId;
+            TargetX = x;
+            TargetY = y;
+            TargetZ = z;
+        }
+
     }
 
 }

@@ -1,28 +1,33 @@
-﻿namespace Intersect.Utilities;
+﻿using System;
+using System.IO;
 
-
-public static partial class StreamUtils
+namespace Intersect.Utilities
 {
 
-    public static void Pipe(Stream input, Stream output)
+    public static partial class StreamUtils
     {
-        if (input == null)
+
+        public static void Pipe(Stream input, Stream output)
         {
-            throw new ArgumentNullException(nameof(input));
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            var buffer = new byte[8192];
+
+            int bytesRead;
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, bytesRead);
+            }
         }
 
-        if (output == null)
-        {
-            throw new ArgumentNullException(nameof(output));
-        }
-
-        var buffer = new byte[8192];
-
-        int bytesRead;
-        while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
-        {
-            output.Write(buffer, 0, bytesRead);
-        }
     }
 
 }

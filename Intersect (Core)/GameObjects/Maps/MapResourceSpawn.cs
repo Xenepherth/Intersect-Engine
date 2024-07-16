@@ -1,14 +1,17 @@
-﻿namespace Intersect.GameObjects.Maps;
+﻿using System;
 
-public partial class ResourceSpawn
+namespace Intersect.GameObjects.Maps
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public partial class ResourceSpawn
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid ResourceId;
+        public Guid ResourceId;
 
-    public byte X;
+        public byte X;
 
-    public byte Y;
+        public byte Y;
 
-    public byte Z;
+        public byte Z;
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using MessagePack;
+using System.IO.Hashing;
 using System.Security.Cryptography;
 using Intersect.GameObjects.Maps;
 using Intersect.Models;

@@ -1,70 +1,51 @@
+using System;
+using System.Collections.Generic;
 using Intersect.Enums;
 using Intersect.GameObjects;
 using Intersect.Server.Entities.Combat;
 using Intersect.Server.Entities.Events;
 using Intersect.Utilities;
 
-namespace Intersect.Server.Entities;
-
-
-public partial class ProjectileSpawn
+namespace Intersect.Server.Entities
 {
 
-    public Direction Dir;
-
-    public int Distance;
-
-    public Guid MapId;
-
-    public Projectile Parent;
-
-    public ProjectileBase ProjectileBase;
-
-    public long TransmissionTimer = Timing.Global.Milliseconds;
-
-    public float X;
-
-    public float Y;
-
-    public byte Z;
-
-    public bool Dead;
-
-    public Guid MapInstanceId;
-
-    private List<Guid> _entitiesCollided = new List<Guid>();
-
-    public ProjectileSpawn(
-        Direction dir,
-        byte x,
-        byte y,
-        byte z,
-        Guid mapId,
-        Guid mapInstanceId,
-        ProjectileBase projectileBase,
-        Projectile parent
-    )
+    public partial class ProjectileSpawn
     {
-        MapId = mapId;
-        MapInstanceId = mapInstanceId;
-        X = x;
-        Y = y;
-        Z = z;
-        Dir = dir;
-        ProjectileBase = projectileBase;
-        Parent = parent;
-        TransmissionTimer = Timing.Global.Milliseconds +
-                            (long)(ProjectileBase.Speed / (float)ProjectileBase.Range);
-    }
 
-    public bool IsAtLocation(Guid mapId, int x, int y, int z)
-    {
-        return MapId == mapId && X == x && Y == y && Z == z;
-    }
+        public Direction Dir;
 
-    public bool HitEntity(Entity targetEntity)
-    {
-        if (targetEntity is EventPageInstance)
+        public int Distance;
+
+        public Guid MapId;
+
+        public Projectile Parent;
+
+        public ProjectileBase ProjectileBase;
+
+        public long TransmittionTimer = Timing.Global.Milliseconds;
+
+        public float X;
+
+        public float Y;
+
+        public byte Z;
+
+        public bool Dead;
+
+        public Guid MapInstanceId;
+
+        private List<Guid> mEntitiesCollided = new List<Guid>();
+
+        public ProjectileSpawn(
+            Direction dir,
+            byte x,
+            byte y,
+            byte z,
+            Guid mapId,
+            Guid mapInstanceId,
+            ProjectileBase projectileBase,
+            Projectile parent
+        )
         {
             MapId = mapId;
             MapInstanceId = mapInstanceId;
@@ -95,16 +76,18 @@ public partial class ProjectileSpawn
             if (targetEntity != null && targetEntity != Parent.Owner)
             {
                 // Have we collided with this entity before? If so, cancel out.
-                if (_entitiesCollided.Contains(targetEntity.Id))
+                if (mEntitiesCollided.Contains(targetEntity.Id))
                 {
                     if (!Parent.Base.PierceTarget)
                     {
-                        if (targetPlayer != null)
+                        if(targetPlayer != null)
                         {
-                            if (targetPlayer.Map.ZoneType == Enums.MapZone.Safe ||
-                                Parent.Owner is Player plyr && plyr.InParty(targetPlayer))
+                            if(targetPlayer.Map.ZoneType == Enums.MapZone.Safe ||
+                                Parent.Owner is Player plyr && (plyr.InParty(targetPlayer) || (!Options.Instance.Guild.AllowGuildMemberPvp && plyr.Guild != null && plyr.Guild == targetPlayer.Guild) || (!Options.Instance.Nation.AllowNationMemberPvp && plyr.Nation != null && plyr.Nation == targetPlayer.Nation)))
                             {
-                                return false;
+                                {
+                                    return false;
+                                }
                             }
                         }
 
@@ -115,7 +98,7 @@ public partial class ProjectileSpawn
                         return false;
                     }
                 }
-                _entitiesCollided.Add(targetEntity.Id);
+                mEntitiesCollided.Add(targetEntity.Id);
 
                 if (targetPlayer != null)
                 {
@@ -131,7 +114,7 @@ public partial class ProjectileSpawn
                         if (!Parent.Base.PierceTarget)
                         {
                             if (targetPlayer.Map.ZoneType == Enums.MapZone.Safe ||
-                                Parent.Owner is Player plyr && plyr.InParty(targetPlayer))
+                                Parent.Owner is Player plyr && (plyr.InParty(targetPlayer) || (!Options.Instance.Guild.AllowGuildMemberPvp && plyr.Guild != null && plyr.Guild == targetPlayer.Guild) || (!Options.Instance.Nation.AllowNationMemberPvp && plyr.Nation != null && plyr.Nation == targetPlayer.Nation)))
                             {
                                 return false;
                             }
@@ -142,9 +125,9 @@ public partial class ProjectileSpawn
                 }
                 else if (targetEntity is Resource targetResource)
                 {
-                    if (targetResource.IsDead())
+                    if(targetResource.IsDead())
                     {
-                        if (!ProjectileBase.IgnoreExhaustedResources)
+                        if(!ProjectileBase.IgnoreExhaustedResources)
                         {
                             return true;
                         }
@@ -163,12 +146,13 @@ public partial class ProjectileSpawn
                 }
                 else //Any other Parent.Target
                 {
-                    if (Parent.Owner is not Npc ownerNpc ||
+                    var ownerNpc = Parent.Owner as Npc;
+                    if (ownerNpc == null ||
                         ownerNpc.CanNpcCombat(targetEntity, Parent.Spell != null && Parent.Spell.Combat.Friendly))
                     {
                         Parent.Owner.TryAttack(targetEntity, Parent.Base, Parent.Spell, Parent.Item, Dir);
 
-                        if (Dir <= Direction.Right && ShouldHook(targetEntity) && !Parent.HasGrappled)
+                        if (Dir <= Direction.Right && ShouldHook(targetEntity) && !Parent.HasGrappled) 
                         {
                             HookEntity();
                         }
@@ -182,42 +166,51 @@ public partial class ProjectileSpawn
             }
 
             return false;
-        }     
-
-    /// <summary>
-    /// Returns whether or not to hook the player to the target
-    /// </summary>
-    /// <param name="en"></param>
-    /// <returns></returns>
-    public bool ShouldHook(Entity en)
-    {
-        if (en == null)
-        {
-            return false;
         }
 
-        return en switch
+        /// <summary>
+        /// Returns whether or not to hook the player to the target
+        /// </summary>
+        /// <param name="en"></param>
+        /// <returns></returns>
+        public bool ShouldHook(Entity en)
         {
-            Player => ProjectileBase.GrappleHookOptions.Contains(Enums.GrappleOption.Player),
-            Npc => ProjectileBase.GrappleHookOptions.Contains(Enums.GrappleOption.NPC),
-            Resource => ProjectileBase.GrappleHookOptions.Contains(Enums.GrappleOption.Resource),
-            _ => throw new ArgumentException($"Unsupported entity type {en.GetType().FullName}", nameof(en)),
-        };
-    }
+            if(en == null)
+            {
+                return false;
+            }
 
-    /// <summary>
-    /// Hook the player to the target
-    /// </summary>
-    public void HookEntity()
-    {
-        //Don't handle directional projectile grapplehooks
-        Parent.HasGrappled = true;
-        Parent.Owner.Dir = Dir;
-        var _ = new Dash(
-            Parent.Owner, Distance, Parent.Owner.Dir, Parent.Base.IgnoreMapBlocks,
-            Parent.Base.IgnoreActiveResources, Parent.Base.IgnoreExhaustedResources,
-            Parent.Base.IgnoreZDimension
-        );
+            switch(en)
+            {
+                case Player _:
+                    return ProjectileBase.GrappleHookOptions.Contains(Enums.GrappleOption.Player);
+
+                case Npc _:
+                    return ProjectileBase.GrappleHookOptions.Contains(Enums.GrappleOption.NPC);
+
+                case Resource _:
+                    return ProjectileBase.GrappleHookOptions.Contains(Enums.GrappleOption.Resource);
+
+                default:
+                    throw new ArgumentException($"Unsupported entity type {en.GetType().FullName}", nameof(en));
+            }
+        }
+
+        /// <summary>
+        /// Hook the player to the target
+        /// </summary>
+        public void HookEntity()
+        {
+            //Don't handle directional projectile grapplehooks
+            Parent.HasGrappled = true;
+            Parent.Owner.Dir = Dir;
+            var _ = new Dash(
+                Parent.Owner, Distance, Parent.Owner.Dir, Parent.Base.IgnoreMapBlocks,
+                Parent.Base.IgnoreActiveResources, Parent.Base.IgnoreExhaustedResources,
+                Parent.Base.IgnoreZDimension
+            );
+        }
+
     }
 
 }

@@ -1,9 +1,11 @@
-﻿namespace Intersect.Server.Database.PlayerData.Players;
-
-
-public interface ISlot
+﻿namespace Intersect.Server.Database.PlayerData.Players
 {
 
-    int Slot { get; }
+    public interface ISlot
+    {
+
+        int Slot { get; }
+
+    }
 
 }

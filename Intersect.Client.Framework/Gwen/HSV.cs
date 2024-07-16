@@ -1,13 +1,15 @@
-﻿namespace Intersect.Client.Framework.Gwen;
-
-
-public partial struct Hsv
+﻿namespace Intersect.Client.Framework.Gwen
 {
 
-    public float H;
+    public partial struct Hsv
+    {
 
-    public float s;
+        public float H;
 
-    public float V;
+        public float s;
+
+        public float V;
+
+    }
 
 }

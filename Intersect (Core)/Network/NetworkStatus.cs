@@ -1,24 +1,25 @@
-﻿namespace Intersect.Network;
-
-public enum NetworkStatus
+﻿namespace Intersect.Network
 {
+    public enum NetworkStatus
+    {
 
-    Unknown = 0,
+        Unknown = 0,
 
-    Connecting,
+        Connecting,
 
-    Online,
+        Online,
 
-    Offline,
+        Offline,
 
-    Failed,
+        Failed,
 
-    VersionMismatch,
+        VersionMismatch,
 
-    ServerFull,
+        ServerFull,
 
-    HandshakeFailure,
+        HandshakeFailure,
 
-    Quitting,
+        Quitting,
 
+    }
 }

@@ -1,21 +1,24 @@
 ﻿using MessagePack;
+using System;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class TradeRequestPacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    //Parameterless Constructor for MessagePack
-    public TradeRequestPacket()
+    [MessagePackObject]
+    public partial class TradeRequestPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public TradeRequestPacket()
+        {
+        }
 
-    public TradeRequestPacket(Guid targetId)
-    {
-        TargetId = targetId;
-    }
+        public TradeRequestPacket(Guid targetId)
+        {
+            TargetId = targetId;
+        }
 
-    [Key(0)]
-    public Guid TargetId { get; set; }
+        [Key(0)]
+        public Guid TargetId { get; set; }
+
+    }
 
 }

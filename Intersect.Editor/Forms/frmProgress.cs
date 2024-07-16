@@ -1,77 +1,80 @@
-using Intersect.Editor.Core;
+using System;
+using System.Windows.Forms;
+
 using Intersect.Editor.Localization;
 
-namespace Intersect.Editor.Forms;
-
-
-public partial class FrmProgress : Form
+namespace Intersect.Editor.Forms
 {
 
-    private int mProgressVal;
-
-    private bool mShouldClose;
-
-    private bool mShowCancelBtn;
-
-    private string mStatusText;
-
-    public FrmProgress()
+    public partial class FrmProgress : Form
     {
-        InitializeComponent();
-        Icon = Program.Icon;
 
-        InitLocalization();
-    }
+        private int mProgressVal;
 
-    private void InitLocalization()
-    {
-        btnCancel.Text = Strings.ProgressForm.cancel;
-    }
+        private bool mShouldClose;
 
-    public void SetTitle(string title)
-    {
-        Text = title;
-    }
+        private bool mShowCancelBtn;
 
-    public void SetProgress(string label, int progress, bool showCancel)
-    {
-        mStatusText = label;
-        if (progress < 0)
+        private string mStatusText;
+
+        public FrmProgress()
         {
-            mProgressVal = 0;
-            progressBar.Style = ProgressBarStyle.Marquee;
-        }
-        else
-        {
-            mProgressVal = progress;
-            progressBar.Style = ProgressBarStyle.Blocks;
+            InitializeComponent();
+            Icon = Program.Icon;
+
+            InitLocalization();
         }
 
-        mShowCancelBtn = showCancel;
-        tmrUpdater_Tick(null, null);
-        Application.DoEvents();
-    }
-
-    public void NotifyClose()
-    {
-        mShouldClose = true;
-    }
-
-    private void tmrUpdater_Tick(object sender, EventArgs e)
-    {
-        if (!IsHandleCreated)
+        private void InitLocalization()
         {
-            return;
+            btnCancel.Text = Strings.ProgressForm.cancel;
         }
 
-        if (!InvokeRequired)
+        public void SetTitle(string title)
         {
-            lblStatus.Text = mStatusText;
-            progressBar.Value = mProgressVal;
-            btnCancel.Visible = mShowCancelBtn;
-            if (mShouldClose)
+            Text = title;
+        }
+
+        public void SetProgress(string label, int progress, bool showCancel)
+        {
+            mStatusText = label;
+            if (progress < 0)
             {
-                Close();
+                mProgressVal = 0;
+                progressBar.Style = ProgressBarStyle.Marquee;
+            }
+            else
+            {
+                mProgressVal = progress;
+                progressBar.Style = ProgressBarStyle.Blocks;
+            }
+
+            mShowCancelBtn = showCancel;
+            tmrUpdater_Tick(null, null);
+            Application.DoEvents();
+        }
+
+        public void NotifyClose()
+        {
+            mShouldClose = true;
+        }
+
+        private void tmrUpdater_Tick(object sender, EventArgs e)
+        {
+            if (!IsHandleCreated)
+            {
+                return;
+            }
+
+            if (!InvokeRequired)
+            {
+                lblStatus.Text = mStatusText;
+                progressBar.Value = mProgressVal;
+                btnCancel.Visible = mShowCancelBtn;
+                if (mShouldClose)
+                {
+                    Close();
+                }
             }
         }
     }

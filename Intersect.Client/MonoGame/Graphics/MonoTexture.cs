@@ -1,4 +1,7 @@
-﻿using Intersect.Client.Framework.Graphics;
+﻿using System;
+using System.IO;
+
+using Intersect.Client.Framework.Graphics;
 using Intersect.Client.Interface.Game.Chat;
 using Intersect.Client.Localization;
 using Intersect.Compression;
@@ -9,289 +12,290 @@ using Intersect.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Intersect.Client.MonoGame.Graphics;
-
-public partial class MonoTexture : GameTexture
+namespace Intersect.Client.MonoGame.Graphics
 {
-    private GraphicsDevice mGraphicsDevice;
-
-    private int mHeight = -1;
-
-    private long mLastAccessTime;
-
-    private bool mLoadError;
-
-    private string mName = "";
-
-    private GameTexturePackFrame mPackFrame;
-
-    private readonly string mPath = "";
-
-    private readonly string mRealPath = "";
-
-    private Texture2D mTexture;
-
-    private int mWidth = -1;
-
-    private readonly Func<Stream> CreateStream;
-
-    private bool _doNotFree = false;
-
-    private MonoTexture(Texture2D texture2D, string assetName)
+    public partial class MonoTexture : GameTexture
     {
-        mGraphicsDevice = texture2D.GraphicsDevice;
-        mPath = assetName;
-        mName = assetName;
-        mTexture = texture2D;
-        _doNotFree = true;
-    }
+        private GraphicsDevice mGraphicsDevice;
 
-    public MonoTexture(GraphicsDevice graphicsDevice, string filename, string realPath)
-    {
-        mGraphicsDevice = graphicsDevice;
-        mPath = filename;
-        mRealPath = realPath;
-        mName = Path.GetFileName(filename);
-    }
+        private int mHeight = -1;
 
-    public MonoTexture(GraphicsDevice graphicsDevice, string assetName, Func<Stream> createStream)
-    {
-        mGraphicsDevice = graphicsDevice;
-        mPath = assetName;
-        mName = assetName;
-        CreateStream = createStream;
-    }
+        private long mLastAccessTime;
 
-    public MonoTexture(GraphicsDevice graphicsDevice, string filename, GameTexturePackFrame packFrame)
-    {
-        mGraphicsDevice = graphicsDevice;
-        mPath = filename;
-        mName = Path.GetFileName(filename);
-        mPackFrame = packFrame;
-        mWidth = packFrame.SourceRect.Width;
-        mHeight = packFrame.SourceRect.Height;
-    }
+        private bool mLoadError;
 
-    private void Load(Stream stream)
-    {
-        mTexture = Texture2D.FromStream(mGraphicsDevice, stream);
-        if (mTexture == null)
+        private string mName = "";
+
+        private GameTexturePackFrame mPackFrame;
+
+        private readonly string mPath = "";
+
+        private readonly string mRealPath = "";
+
+        private Texture2D mTexture;
+
+        private int mWidth = -1;
+
+        private readonly Func<Stream> CreateStream;
+
+        private bool _doNotFree = false;
+
+        private MonoTexture(Texture2D texture2D, string assetName)
         {
-            throw new InvalidDataException("Failed to load texture, received no data.");
+            mGraphicsDevice = texture2D.GraphicsDevice;
+            mPath = assetName;
+            mName = assetName;
+            mTexture = texture2D;
+            _doNotFree = true;
         }
 
-        mWidth = mTexture.Width;
-        mHeight = mTexture.Height;
-        mLoadError = false;
-    }
-
-    public void LoadTexture()
-    {
-        if (mTexture != null)
+        public MonoTexture(GraphicsDevice graphicsDevice, string filename, string realPath)
         {
-            return;
+            mGraphicsDevice = graphicsDevice;
+            mPath = filename;
+            mRealPath = realPath;
+            mName = Path.GetFileName(filename);
         }
 
-        if (CreateStream != null)
+        public MonoTexture(GraphicsDevice graphicsDevice, string assetName, Func<Stream> createStream)
         {
-            using (var stream = CreateStream())
+            mGraphicsDevice = graphicsDevice;
+            mPath = assetName;
+            mName = assetName;
+            CreateStream = createStream;
+        }
+
+        public MonoTexture(GraphicsDevice graphicsDevice, string filename, GameTexturePackFrame packFrame)
+        {
+            mGraphicsDevice = graphicsDevice;
+            mPath = filename;
+            mName = Path.GetFileName(filename);
+            mPackFrame = packFrame;
+            mWidth = packFrame.SourceRect.Width;
+            mHeight = packFrame.SourceRect.Height;
+        }
+
+        private void Load(Stream stream)
+        {
+            mTexture = Texture2D.FromStream(mGraphicsDevice, stream);
+            if (mTexture == null)
             {
-                Load(stream);
+                throw new InvalidDataException("Failed to load texture, received no data.");
+            }
+
+            mWidth = mTexture.Width;
+            mHeight = mTexture.Height;
+            mLoadError = false;
+        }
+
+        public void LoadTexture()
+        {
+            if (mTexture != null)
+            {
                 return;
             }
-        }
 
-        if (mPackFrame != null)
-        {
-            ((MonoTexture) mPackFrame.PackTexture)?.LoadTexture();
-
-            return;
-        }
-
-        mLoadError = true;
-        if (string.IsNullOrWhiteSpace(mRealPath))
-        {
-            Log.Error("Invalid texture path (empty/null).");
-
-            return;
-        }
-
-        var relativePath = FileSystemHelper.RelativePath(Directory.GetCurrentDirectory(), mPath);
-
-        if (!File.Exists(mRealPath))
-        {
-            Log.Error($"Texture does not exist: {relativePath}");
-
-            return;
-        }
-
-        using (var fileStream = File.Open(mRealPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-        {
-            try
+            if (CreateStream != null)
             {
-                if (Path.GetExtension(mPath) == ".asset")
+                using (var stream = CreateStream())
                 {
-                    using (var gzip = GzipCompression.CreateDecompressedFileStream(fileStream))
+                    Load(stream);
+                    return;
+                }
+            }
+
+            if (mPackFrame != null)
+            {
+                ((MonoTexture) mPackFrame.PackTexture)?.LoadTexture();
+
+                return;
+            }
+
+            mLoadError = true;
+            if (string.IsNullOrWhiteSpace(mRealPath))
+            {
+                Log.Error("Invalid texture path (empty/null).");
+
+                return;
+            }
+
+            var relativePath = FileSystemHelper.RelativePath(Directory.GetCurrentDirectory(), mPath);
+
+            if (!File.Exists(mRealPath))
+            {
+                Log.Error($"Texture does not exist: {relativePath}");
+
+                return;
+            }
+
+            using (var fileStream = File.Open(mRealPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                try
+                {
+                    if (Path.GetExtension(mPath) == ".asset")
                     {
-                        Load(gzip);
+                        using (var gzip = GzipCompression.CreateDecompressedFileStream(fileStream))
+                        {
+                            Load(gzip);
+                        }
+                    }
+                    else
+                    {
+                        Load(fileStream);
                     }
                 }
-                else
+                catch (Exception exception)
                 {
-                    Load(fileStream);
+                    Log.Error(
+                        exception,
+                        $"Failed to load texture ({FileSystemHelper.FormatSize(fileStream.Length)}): {relativePath}"
+                    );
+
+                    ChatboxMsg.AddMessage(
+                        new ChatboxMsg(
+                            Strings.Errors.LoadFile.ToString(Strings.Words.LcaseSprite) + " [" + mName + "]",
+                            new Color(0xBF, 0x0, 0x0), Enums.ChatMessageType.Error
+                        )
+                    );
                 }
             }
-            catch (Exception exception)
-            {
-                Log.Error(
-                    exception,
-                    $"Failed to load texture ({FileSystemHelper.FormatSize(fileStream.Length)}): {relativePath}"
-                );
-
-                ChatboxMsg.AddMessage(
-                    new ChatboxMsg(
-                        Strings.Errors.LoadFile.ToString(Strings.Words.LcaseSprite) + " [" + mName + "]",
-                        new Color(0xBF, 0x0, 0x0), Enums.ChatMessageType.Error
-                    )
-                );
-            }
         }
-    }
 
-    public void ResetAccessTime()
-    {
-        mLastAccessTime = Timing.Global.MillisecondsUtc + 15000;
-    }
-
-    public override string GetName()
-    {
-        return mName;
-    }
-
-    public override int GetWidth()
-    {
-        ResetAccessTime();
-        if (mWidth != -1)
+        public void ResetAccessTime()
         {
+            mLastAccessTime = Timing.Global.MillisecondsUtc + 15000;
+        }
+
+        public override string GetName()
+        {
+            return mName;
+        }
+
+        public override int GetWidth()
+        {
+            ResetAccessTime();
+            if (mWidth != -1)
+            {
+                return mWidth;
+            }
+
+            if (mTexture == null)
+            {
+                LoadTexture();
+            }
+
+            if (mLoadError)
+            {
+                mWidth = 0;
+            }
+
             return mWidth;
         }
 
-        if (mTexture == null)
+        public override int GetHeight()
         {
-            LoadTexture();
-        }
+            ResetAccessTime();
+            if (mHeight != -1)
+            {
+                return mHeight;
+            }
 
-        if (mLoadError)
-        {
-            mWidth = 0;
-        }
+            if (mTexture == null)
+            {
+                LoadTexture();
+            }
 
-        return mWidth;
-    }
+            if (mLoadError)
+            {
+                mHeight = 0;
+            }
 
-    public override int GetHeight()
-    {
-        ResetAccessTime();
-        if (mHeight != -1)
-        {
             return mHeight;
         }
 
-        if (mTexture == null)
+        public override object GetTexture()
         {
-            LoadTexture();
-        }
-
-        if (mLoadError)
-        {
-            mHeight = 0;
-        }
-
-        return mHeight;
-    }
-
-    public override object GetTexture()
-    {
-        if (mPackFrame != null)
-        {
-            return mPackFrame.PackTexture.GetTexture();
-        }
-
-        ResetAccessTime();
-
-        if (mTexture == null)
-        {
-            LoadTexture();
-        }
-
-        return mTexture;
-    }
-
-    public override Color GetPixel(int x1, int y1)
-    {
-        if (mTexture == null)
-        {
-            LoadTexture();
-        }
-
-        if (mLoadError)
-        {
-            return Color.White;
-        }
-
-        var tex = mTexture;
-
-        var pack = GetTexturePackFrame();
-        if (pack != null)
-        {
-            tex = (Texture2D) mPackFrame.PackTexture.GetTexture();
-            if (pack.Rotated)
+            if (mPackFrame != null)
             {
-                var z = x1;
-                x1 = pack.Rect.Right - y1 - pack.Rect.Height;
-                y1 = pack.Rect.Top + z;
+                return mPackFrame.PackTexture.GetTexture();
             }
-            else
+
+            ResetAccessTime();
+
+            if (mTexture == null)
             {
-                x1 += pack.Rect.X;
-                y1 += pack.Rect.Y;
+                LoadTexture();
             }
+
+            return mTexture;
         }
 
-        var pixel = new Microsoft.Xna.Framework.Color[1];
-        tex?.GetData(0, new Rectangle(x1, y1, 1, 1), pixel, 0, 1);
-
-        return new Color(pixel[0].A, pixel[0].R, pixel[0].G, pixel[0].B);
-    }
-
-    public override GameTexturePackFrame GetTexturePackFrame()
-    {
-        return mPackFrame;
-    }
-
-    public void Update()
-    {
-        if (_doNotFree)
+        public override Color GetPixel(int x1, int y1)
         {
-            return;
+            if (mTexture == null)
+            {
+                LoadTexture();
+            }
+
+            if (mLoadError)
+            {
+                return Color.White;
+            }
+
+            var tex = mTexture;
+
+            var pack = GetTexturePackFrame();
+            if (pack != null)
+            {
+                tex = (Texture2D) mPackFrame.PackTexture.GetTexture();
+                if (pack.Rotated)
+                {
+                    var z = x1;
+                    x1 = pack.Rect.Right - y1 - pack.Rect.Height;
+                    y1 = pack.Rect.Top + z;
+                }
+                else
+                {
+                    x1 += pack.Rect.X;
+                    y1 += pack.Rect.Y;
+                }
+            }
+
+            var pixel = new Microsoft.Xna.Framework.Color[1];
+            tex?.GetData(0, new Rectangle(x1, y1, 1, 1), pixel, 0, 1);
+
+            return new Color(pixel[0].A, pixel[0].R, pixel[0].G, pixel[0].B);
         }
 
-        if (mTexture == null)
+        public override GameTexturePackFrame GetTexturePackFrame()
         {
-            return;
+            return mPackFrame;
         }
 
-        if (mLastAccessTime >= Timing.Global.MillisecondsUtc)
+        public void Update()
         {
-            return;
+            if (_doNotFree)
+            {
+                return;
+            }
+
+            if (mTexture == null)
+            {
+                return;
+            }
+
+            if (mLastAccessTime >= Timing.Global.MillisecondsUtc)
+            {
+                return;
+            }
+
+            mTexture.Dispose();
+            mTexture = null;
         }
 
-        mTexture.Dispose();
-        mTexture = null;
-    }
-
-    public static MonoTexture CreateFromTexture2D(Texture2D texture2D, string assetName)
-    {
-        return new MonoTexture(texture2D, assetName);
+        public static MonoTexture CreateFromTexture2D(Texture2D texture2D, string assetName)
+        {
+            return new MonoTexture(texture2D, assetName);
+        }
     }
 }

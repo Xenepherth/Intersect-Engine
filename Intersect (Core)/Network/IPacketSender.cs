@@ -1,12 +1,13 @@
 ﻿using Intersect.Core;
 
-namespace Intersect.Network;
-
-public interface IPacketSender
+namespace Intersect.Network
 {
-    IApplicationContext ApplicationContext { get; }
+    public interface IPacketSender
+    {
+        IApplicationContext ApplicationContext { get; }
 
-    INetwork Network { get; }
+        INetwork Network { get; }
 
-    bool Send(IPacket packet);
+        bool Send(IPacket packet);
+    }
 }

@@ -1,54 +1,56 @@
 ﻿using Intersect.Client.Framework.Gwen.Control;
 
-namespace Intersect.Client.Framework.Gwen.ControlInternal;
-
-
-/// <summary>
-///     Label for PropertyRow.
-/// </summary>
-public partial class PropertyRowLabel : Label
+namespace Intersect.Client.Framework.Gwen.ControlInternal
 {
 
-    private readonly PropertyRow mPropertyRow;
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="PropertyRowLabel" /> class.
+    ///     Label for PropertyRow.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    public PropertyRowLabel(PropertyRow parent) : base(parent)
+    public partial class PropertyRowLabel : Label
     {
-        AutoSizeToContents = false;
-        Alignment = Pos.Left | Pos.CenterV;
-        mPropertyRow = parent;
-    }
 
-    /// <summary>
-    ///     Updates control colors.
-    /// </summary>
-    public override void UpdateColors()
-    {
-        if (IsDisabled)
+        private readonly PropertyRow mPropertyRow;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="PropertyRowLabel" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        public PropertyRowLabel(PropertyRow parent) : base(parent)
         {
-            TextColor = Skin.Colors.Button.Disabled;
-
-            return;
+            AutoSizeToContents = false;
+            Alignment = Pos.Left | Pos.CenterV;
+            mPropertyRow = parent;
         }
 
-        if (mPropertyRow != null && mPropertyRow.IsEditing)
+        /// <summary>
+        ///     Updates control colors.
+        /// </summary>
+        public override void UpdateColors()
         {
-            TextColor = Skin.Colors.Properties.LabelSelected;
+            if (IsDisabled)
+            {
+                TextColor = Skin.Colors.Button.Disabled;
 
-            return;
+                return;
+            }
+
+            if (mPropertyRow != null && mPropertyRow.IsEditing)
+            {
+                TextColor = Skin.Colors.Properties.LabelSelected;
+
+                return;
+            }
+
+            if (mPropertyRow != null && mPropertyRow.IsHovered)
+            {
+                TextColor = Skin.Colors.Properties.LabelHover;
+
+                return;
+            }
+
+            TextColor = Skin.Colors.Properties.LabelNormal;
         }
 
-        if (mPropertyRow != null && mPropertyRow.IsHovered)
-        {
-            TextColor = Skin.Colors.Properties.LabelHover;
-
-            return;
-        }
-
-        TextColor = Skin.Colors.Properties.LabelNormal;
     }
 
 }

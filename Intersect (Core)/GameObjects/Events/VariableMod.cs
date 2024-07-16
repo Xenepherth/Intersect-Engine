@@ -1,42 +1,45 @@
-﻿using Intersect.Enums;
+﻿using System;
+
+using Intersect.Enums;
 
 using Newtonsoft.Json;
 
-namespace Intersect.GameObjects.Events;
-
-
-public partial class VariableMod
+namespace Intersect.GameObjects.Events
 {
 
-}
+    public partial class VariableMod
+    {
 
-public partial class IntegerVariableMod : VariableMod
-{
-    public Enums.VariableMod ModType { get; set; } = Enums.VariableMod.Set;
+    }
 
-    public long Value { get; set; }
+    public partial class IntegerVariableMod : VariableMod
+    {
+        public Enums.VariableMod ModType { get; set; } = Enums.VariableMod.Set;
 
-    public long HighValue { get; set; }
+        public long Value { get; set; }
 
-    [JsonProperty("DupVariableId")]
-    public Guid DuplicateVariableId { get; set; }
-}
+        public long HighValue { get; set; }
 
-public partial class BooleanVariableMod : VariableMod
-{
-    public bool Value { get; set; }
+        [JsonProperty("DupVariableId")]
+        public Guid DuplicateVariableId { get; set; }
+    }
 
-    public VariableType DupVariableType { get; set; } = VariableType.PlayerVariable;
+    public partial class BooleanVariableMod : VariableMod
+    {
+        public bool Value { get; set; }
 
-    [JsonProperty("DupVariableId")]
-    public Guid DuplicateVariableId { get; set; }
-}
+        public VariableType DupVariableType { get; set; } = VariableType.PlayerVariable;
 
-public partial class StringVariableMod : VariableMod
-{
-    public Enums.VariableMod ModType { get; set; } = Enums.VariableMod.Set;
+        [JsonProperty("DupVariableId")]
+        public Guid DuplicateVariableId { get; set; }
+    }
 
-    public string Value { get; set; }
+    public partial class StringVariableMod : VariableMod
+    {
+        public Enums.VariableMod ModType { get; set; } = Enums.VariableMod.Set;
 
-    public string Replace { get; set; }
+        public string Value { get; set; }
+
+        public string Replace { get; set; }
+    }
 }

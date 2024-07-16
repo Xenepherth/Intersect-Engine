@@ -1,27 +1,31 @@
-namespace Intersect.Server.Entities;
+﻿using System;
 
-
-public partial class Entity
+namespace Intersect.Server.Entities
 {
 
-    #region Comparison
-
-    /// <summary>
-    /// Compares two player names, returning if they are equivalent.
-    /// </summary>
-    /// <param name="name">a name</param>
-    /// <param name="nameOther">a name to compare with</param>
-    /// <returns><code>false</code> if <code>null</code> or non-byte-equal ignoring case</returns>
-    public static bool CompareName(string name, string nameOther)
+    public partial class Entity
     {
-        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(nameOther))
+
+        #region Comparison
+
+        /// <summary>
+        /// Compares two player names, returning if they are equivalent.
+        /// </summary>
+        /// <param name="name">a name</param>
+        /// <param name="nameOther">a name to compare with</param>
+        /// <returns><code>false</code> if <code>null</code> or non-byte-equal ignoring case</returns>
+        public static bool CompareName(string name, string nameOther)
         {
-            return false;
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(nameOther))
+            {
+                return false;
+            }
+
+            return string.Equals(name, nameOther, StringComparison.OrdinalIgnoreCase);
         }
 
-        return string.Equals(name, nameOther, StringComparison.OrdinalIgnoreCase);
-    }
+        #endregion
 
-    #endregion
+    }
 
 }

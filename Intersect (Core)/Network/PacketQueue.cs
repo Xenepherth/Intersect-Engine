@@ -1,142 +1,148 @@
-﻿namespace Intersect.Network;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 
-
-// TODO : Auto-stale packet deletion
-public sealed partial class PacketQueue : IDisposable
+namespace Intersect.Network
 {
 
-    private readonly object mDequeLock;
-
-    private readonly Queue<IPacket> mQueue;
-
-    private readonly object mQueueLock;
-
-    private bool mDisposed;
-
-    public PacketQueue()
+    // TODO : Auto-stale packet deletion
+    public sealed partial class PacketQueue : IDisposable
     {
-        mDequeLock = new object();
-        mQueueLock = new object();
-        mQueue = new Queue<IPacket>();
-    }
 
-    public int Size => mQueue?.Count ?? -1;
+        private readonly object mDequeLock;
 
-    public void Dispose()
-    {
-        if (mDisposed)
+        private readonly Queue<IPacket> mQueue;
+
+        private readonly object mQueueLock;
+
+        private bool mDisposed;
+
+        public PacketQueue()
         {
-            return;
+            mDequeLock = new object();
+            mQueueLock = new object();
+            mQueue = new Queue<IPacket>();
         }
 
-        if (mQueue != null)
+        public int Size => mQueue?.Count ?? -1;
+
+        public void Dispose()
         {
-            Monitor.PulseAll(mQueue);
+            if (mDisposed)
+            {
+                return;
+            }
+
+            if (mQueue != null)
+            {
+                Monitor.PulseAll(mQueue);
+            }
+
+            if (mQueueLock != null)
+            {
+                Monitor.PulseAll(mQueueLock);
+            }
+
+            if (mDequeLock != null)
+            {
+                Monitor.PulseAll(mDequeLock);
+            }
+
+            mDisposed = true;
         }
 
-        if (mQueueLock != null)
+        public void Interrupt()
         {
-            Monitor.PulseAll(mQueueLock);
+            lock (mQueueLock)
+            {
+                Monitor.PulseAll(mQueueLock);
+            }
+
+            lock (mDequeLock)
+            {
+                Monitor.PulseAll(mDequeLock);
+            }
         }
 
-        if (mDequeLock != null)
+        public bool Enqueue(IPacket packet)
         {
-            Monitor.PulseAll(mDequeLock);
-        }
+            if (mDisposed)
+            {
+                return false;
+            }
 
-        mDisposed = true;
-    }
+            if (mQueueLock == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-    public void Interrupt()
-    {
-        lock (mQueueLock)
-        {
-            Monitor.PulseAll(mQueueLock);
-        }
+            if (mQueue == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-        lock (mDequeLock)
-        {
-            Monitor.PulseAll(mDequeLock);
-        }
-    }
-
-    public bool Enqueue(IPacket packet)
-    {
-        if (mDisposed)
-        {
-            return false;
-        }
-
-        if (mQueueLock == null)
-        {
-            throw new ArgumentNullException();
-        }
-
-        if (mQueue == null)
-        {
-            throw new ArgumentNullException();
-        }
-
-        //Log.Debug("Waiting on queue lock...");
-        lock (mQueueLock)
-        {
-            mQueue.Enqueue(packet);
-
-            //Log.Debug($"enqueuedSize={mQueue.Count}");
-            Monitor.Pulse(mQueueLock);
-        }
-
-        return true;
-    }
-
-    public bool TryNext(out IPacket packet)
-    {
-        if (mDequeLock == null)
-        {
-            throw new ArgumentNullException();
-        }
-
-        if (mQueueLock == null)
-        {
-            throw new ArgumentNullException();
-        }
-
-        if (mQueue == null)
-        {
-            throw new ArgumentNullException();
-        }
-
-        //Log.Debug("Waiting on deque lock...");
-        lock (mDequeLock)
-        {
             //Log.Debug("Waiting on queue lock...");
             lock (mQueueLock)
             {
-                //Log.Debug("Checking if blocked...");
+                mQueue.Enqueue(packet);
 
-                if (mQueue.Count < 1)
-                {
-                    //Log.Debug("Blocked... waiting for new packets...");
-                    Monitor.Wait(mQueueLock);
-                }
-
-                if (mQueue.Count < 1)
-                {
-                    packet = null;
-
-                    return false;
-                }
-
-                //Log.Debug($"size={mQueue.Count}");
-                packet = mQueue.Dequeue();
-                if (mQueue.Count > 0)
-                {
-                    Monitor.Pulse(mQueueLock);
-                }
+                //Log.Debug($"enqueuedSize={mQueue.Count}");
+                Monitor.Pulse(mQueueLock);
             }
 
             return true;
         }
+
+        public bool TryNext(out IPacket packet)
+        {
+            if (mDequeLock == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (mQueueLock == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (mQueue == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            //Log.Debug("Waiting on deque lock...");
+            lock (mDequeLock)
+            {
+                //Log.Debug("Waiting on queue lock...");
+                lock (mQueueLock)
+                {
+                    //Log.Debug("Checking if blocked...");
+
+                    if (mQueue.Count < 1)
+                    {
+                        //Log.Debug("Blocked... waiting for new packets...");
+                        Monitor.Wait(mQueueLock);
+                    }
+
+                    if (mQueue.Count < 1)
+                    {
+                        packet = null;
+
+                        return false;
+                    }
+
+                    //Log.Debug($"size={mQueue.Count}");
+                    packet = mQueue.Dequeue();
+                    if (mQueue.Count > 0)
+                    {
+                        Monitor.Pulse(mQueueLock);
+                    }
+                }
+
+                return true;
+            }
+        }
+
     }
 
 }

@@ -1,8 +1,9 @@
-namespace Intersect.Client.Framework.Gwen.Control;
-
-public interface IColorableText
+namespace Intersect.Client.Framework.Gwen.Control
 {
-    Color TextColor { get; set; }
+    public interface IColorableText
+    {
+        Color TextColor { get; set; }
 
-    Color TextColorOverride { get; set; }
+        Color TextColorOverride { get; set; }
+    }
 }

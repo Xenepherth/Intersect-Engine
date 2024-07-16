@@ -1,8 +1,9 @@
-namespace Intersect.Enums;
-
-public enum StringVariableComparator
+namespace Intersect.Enums
 {
-    Equal = 0,
+    public enum StringVariableComparator
+    {
+        Equal = 0,
 
-    Contains,
+        Contains,
+    }
 }

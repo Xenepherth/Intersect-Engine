@@ -1,56 +1,60 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 
-namespace Intersect.Localization;
+using Newtonsoft.Json;
 
-
-[Serializable]
-public partial class LocaleToken : LocaleNamespace
+namespace Intersect.Localization
 {
 
-    [JsonIgnore] private LocalizedString mName;
-
-    public LocaleToken()
+    [Serializable]
+    public partial class LocaleToken : LocaleNamespace
     {
-    }
 
-    public LocaleToken(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
+        [JsonIgnore] private LocalizedString mName;
+
+        public LocaleToken()
         {
-            throw new ArgumentException($@"Parameter '{nameof(name)}' cannot be null or whitespace.");
         }
 
-        mName = name.Trim();
-    }
-
-    [JsonProperty(nameof(Name), NullValueHandling = NullValueHandling.Ignore)]
-    protected LocalizedString JsonName
-    {
-        get => mName;
-        set
+        public LocaleToken(string name)
         {
-            if (value != null && value.ToString().Length < 2)
+            if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException(
-                    $@"Token names must be at least 2 characters long, but '{value}' was provided."
-                );
+                throw new ArgumentException($@"Parameter '{nameof(name)}' cannot be null or whitespace.");
             }
 
-            mName = value;
+            mName = name.Trim();
         }
-    }
 
-    [JsonIgnore]
-    public virtual LocalizedString Name
-    {
-        get => mName ?? throw new InvalidOperationException();
-        set
+        [JsonProperty(nameof(Name), NullValueHandling = NullValueHandling.Ignore)]
+        protected LocalizedString JsonName
         {
-            if (mName == null)
+            get => mName;
+            set
             {
+                if (value != null && value.ToString().Length < 2)
+                {
+                    throw new ArgumentException(
+                        $@"Token names must be at least 2 characters long, but '{value}' was provided."
+                    );
+                }
+
                 mName = value;
             }
         }
+
+        [JsonIgnore]
+        public virtual LocalizedString Name
+        {
+            get => mName ?? throw new InvalidOperationException();
+            set
+            {
+                if (mName == null)
+                {
+                    mName = value;
+                }
+            }
+        }
+
     }
 
 }

@@ -1,41 +1,46 @@
-﻿namespace Intersect.Collections;
+﻿using System;
+using System.Collections.Generic;
 
-
-public interface ILookup<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
+namespace Intersect.Collections
 {
 
-    Type KeyType { get; }
+    public interface ILookup<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
+    {
 
-    Type ValueType { get; }
+        Type KeyType { get; }
 
-    int Count { get; }
+        Type ValueType { get; }
 
-    IDictionary<TKey, TValue> Clone { get; }
+        int Count { get; }
 
-    ICollection<KeyValuePair<TKey, TValue>> Pairs { get; }
+        IDictionary<TKey, TValue> Clone { get; }
 
-    ICollection<TKey> Keys { get; }
+        ICollection<KeyValuePair<TKey, TValue>> Pairs { get; }
 
-    ICollection<TValue> Values { get; }
+        ICollection<TKey> Keys { get; }
 
-    TValue Get(TKey key);
+        ICollection<TValue> Values { get; }
 
-    TObject Get<TObject>(TKey key) where TObject : TValue;
+        TValue Get(TKey key);
 
-    bool TryGetValue<TObject>(TKey key, out TObject value) where TObject : TValue;
+        TObject Get<TObject>(TKey key) where TObject : TValue;
 
-    bool TryGetValue(TKey key, out TValue value);
+        bool TryGetValue<TObject>(TKey key, out TObject value) where TObject : TValue;
 
-    bool Add(TValue value);
+        bool TryGetValue(TKey key, out TValue value);
 
-    TValue AddNew(Type type, TKey key);
+        bool Add(TValue value);
 
-    bool Set(TKey key, TValue value);
+        TValue AddNew(Type type, TKey key);
 
-    bool Delete(TValue value);
+        bool Set(TKey key, TValue value);
 
-    bool DeleteAt(TKey key);
+        bool Delete(TValue value);
 
-    void Clear();
+        bool DeleteAt(TKey key);
+
+        void Clear();
+
+    }
 
 }

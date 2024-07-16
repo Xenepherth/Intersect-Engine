@@ -1,70 +1,76 @@
-﻿namespace Intersect.Network;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-
-public sealed partial class PacketDispatcher
+namespace Intersect.Network
 {
 
-    private readonly IDictionary<Type, IList<HandlePacket>> mHandlers;
-
-    public PacketDispatcher()
+    public sealed partial class PacketDispatcher
     {
-        mHandlers = new Dictionary<Type, IList<HandlePacket>>();
-    }
 
-    private IList<HandlePacket> GetHandlers(Type type)
-    {
-        if (mHandlers == null)
+        private readonly IDictionary<Type, IList<HandlePacket>> mHandlers;
+
+        public PacketDispatcher()
         {
-            throw new ArgumentNullException();
+            mHandlers = new Dictionary<Type, IList<HandlePacket>>();
         }
 
-        if (type == null)
+        private IList<HandlePacket> GetHandlers(Type type)
         {
-            throw new ArgumentNullException();
+            if (mHandlers == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (type == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (!mHandlers.TryGetValue(type, out var handlers))
+            {
+                handlers = new List<HandlePacket>();
+                mHandlers.Add(type, handlers);
+            }
+
+            return handlers;
         }
 
-        if (!mHandlers.TryGetValue(type, out var handlers))
+        public bool RegisterHandler(Type type, HandlePacket handler)
         {
-            handlers = new List<HandlePacket>();
-            mHandlers.Add(type, handlers);
+            var handlers = GetHandlers(type);
+            if (handlers?.Contains(handler) ?? false)
+            {
+                return false;
+            }
+
+            handlers?.Add(handler);
+
+            return true;
         }
 
-        return handlers;
-    }
-
-    public bool RegisterHandler(Type type, HandlePacket handler)
-    {
-        var handlers = GetHandlers(type);
-        if (handlers?.Contains(handler) ?? false)
+        public void DeregisterHandlers(Type type)
         {
-            return false;
+            GetHandlers(type)?.Clear();
         }
 
-        handlers?.Add(handler);
-
-        return true;
-    }
-
-    public void DeregisterHandlers(Type type)
-    {
-        GetHandlers(type)?.Clear();
-    }
-
-    public bool DeregisterHandler(Type type, HandlePacket handler)
-    {
-        var handlers = GetHandlers(type);
-
-        return (handlers?.Contains(handler) ?? false) && handlers.Remove(handler);
-    }
-
-    public bool Dispatch(IPacket packet)
-    {
-        if (packet == null)
+        public bool DeregisterHandler(Type type, HandlePacket handler)
         {
-            throw new ArgumentNullException();
+            var handlers = GetHandlers(type);
+
+            return (handlers?.Contains(handler) ?? false) && handlers.Remove(handler);
         }
 
-        return GetHandlers(packet.GetType())?.Any(handler => handler != null && handler(null, packet)) ?? false;
+        public bool Dispatch(IPacket packet)
+        {
+            if (packet == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return GetHandlers(packet.GetType())?.Any(handler => handler != null && handler(null, packet)) ?? false;
+        }
+
     }
 
 }

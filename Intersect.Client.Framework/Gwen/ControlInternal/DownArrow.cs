@@ -1,37 +1,39 @@
 ﻿using Intersect.Client.Framework.Gwen.Control;
 
-namespace Intersect.Client.Framework.Gwen.ControlInternal;
-
-
-/// <summary>
-///     ComboBox arrow.
-/// </summary>
-public partial class DownArrow : Base
+namespace Intersect.Client.Framework.Gwen.ControlInternal
 {
 
-    private readonly ComboBox mComboBox;
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DownArrow" /> class.
+    ///     ComboBox arrow.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    public DownArrow(ComboBox parent) : base(parent) // or Base?
+    public partial class DownArrow : Base
     {
-        MouseInputEnabled = false;
-        SetSize(15, 15);
 
-        mComboBox = parent;
-    }
+        private readonly ComboBox mComboBox;
 
-    /// <summary>
-    ///     Renders the control using specified skin.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void Render(Skin.Base skin)
-    {
-        skin.DrawComboBoxArrow(
-            this, mComboBox.IsHovered, mComboBox.IsDepressed, mComboBox.IsOpen, mComboBox.IsDisabled
-        );
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DownArrow" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        public DownArrow(ComboBox parent) : base(parent) // or Base?
+        {
+            MouseInputEnabled = false;
+            SetSize(15, 15);
+
+            mComboBox = parent;
+        }
+
+        /// <summary>
+        ///     Renders the control using specified skin.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void Render(Skin.Base skin)
+        {
+            skin.DrawComboBoxArrow(
+                this, mComboBox.IsHovered, mComboBox.IsDepressed, mComboBox.IsOpen, mComboBox.IsDisabled
+            );
+        }
+
     }
 
 }

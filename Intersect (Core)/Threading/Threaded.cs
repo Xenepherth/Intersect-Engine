@@ -1,43 +1,48 @@
-﻿namespace Intersect.Threading;
+﻿using System;
+using System.Threading;
 
-
-public abstract partial class Threaded : IDisposable
+namespace Intersect.Threading
 {
 
-    private readonly Thread mThread;
-
-    private bool mDisposed;
-
-    protected Threaded(string name = null)
+    public abstract partial class Threaded : IDisposable
     {
-        mThread = new Thread(ThreadStartWrapper);
-        if (!string.IsNullOrEmpty(name))
-        {
-            mThread.Name = name;
-        }
-    }
 
-    public void Dispose()
-    {
-        if (mDisposed)
+        private readonly Thread mThread;
+
+        private bool mDisposed;
+
+        protected Threaded(string name = null)
         {
-            return;
+            mThread = new Thread(ThreadStartWrapper);
+            if (!string.IsNullOrEmpty(name))
+            {
+                mThread.Name = name;
+            }
         }
 
-        mThread.Interrupt();
+        public void Dispose()
+        {
+            if (mDisposed)
+            {
+                return;
+            }
 
-        mDisposed = true;
+            mThread.Interrupt();
+
+            mDisposed = true;
+        }
+
+        public Thread Start(params object[] args)
+        {
+            mThread.Start(args);
+
+            return mThread;
+        }
+
+        private void ThreadStartWrapper(object args) => ThreadStart(args as object[]);
+
+        protected abstract void ThreadStart(params object[] args);
+
     }
-
-    public Thread Start(params object[] args)
-    {
-        mThread.Start(args);
-
-        return mThread;
-    }
-
-    private void ThreadStartWrapper(object args) => ThreadStart(args as object[]);
-
-    protected abstract void ThreadStart(params object[] args);
 
 }

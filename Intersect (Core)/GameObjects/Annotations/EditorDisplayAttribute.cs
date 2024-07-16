@@ -1,101 +1,104 @@
-namespace Intersect.GameObjects.Annotations;
+using System;
 
-public enum EmptyBehavior
+namespace Intersect.GameObjects.Annotations
 {
-    NoChange,
-
-    ShowNoneOnEmpty,
-
-    ShowNoneOnNull,
-
-    ShowNoneOnNullOrEmpty,
-}
-
-public enum StringBehavior
-{
-    NoChange,
-
-    Trim,
-}
-
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public class EditorDisplayAttribute : Attribute
-{
-    public EmptyBehavior EmptyBehavior { get; set; } = EmptyBehavior.NoChange;
-
-    public EditorFieldType FieldType { get; set; } = EditorFieldType.Default;
-
-    public StringBehavior StringBehavior { get; set; } = StringBehavior.NoChange;
-
-    [Obsolete("We want to re-implement strings to be object-oriented.")]
-    public virtual string Format(Type stringsType, object value)
+    public enum EmptyBehavior
     {
-        string displayValue;
-        switch (value)
-        {
-            case string stringValue:
-                displayValue = stringValue;
+        NoChange,
 
-                switch (StringBehavior)
-                {
-                    case StringBehavior.NoChange:
-                        break;
+        ShowNoneOnEmpty,
 
-                    case StringBehavior.Trim:
-                        displayValue = stringValue.Trim();
-                        break;
-                }
+        ShowNoneOnNull,
 
-                break;
-
-            default:
-                displayValue = value?.ToString();
-                break;
-        }
-
-        switch (EmptyBehavior)
-        {
-            case EmptyBehavior.NoChange:
-                break;
-
-            case EmptyBehavior.ShowNoneOnEmpty:
-                if (displayValue != default && string.IsNullOrEmpty(displayValue))
-                {
-                    displayValue = GetNone(stringsType);
-                }
-                break;
-
-            case EmptyBehavior.ShowNoneOnNull:
-                if (displayValue == default)
-                {
-                    displayValue = GetNone(stringsType);
-                }
-                break;
-
-            case EmptyBehavior.ShowNoneOnNullOrEmpty:
-                if (string.IsNullOrEmpty(displayValue))
-                {
-                    displayValue = GetNone(stringsType);
-                }
-                break;
-        }
-
-        return displayValue;
+        ShowNoneOnNullOrEmpty,
     }
 
-    protected static string GetNone(Type stringsType)
+    public enum StringBehavior
     {
-        if (stringsType == default)
+        NoChange,
+
+        Trim,
+    }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class EditorDisplayAttribute : Attribute
+    {
+        public EmptyBehavior EmptyBehavior { get; set; } = EmptyBehavior.NoChange;
+
+        public EditorFieldType FieldType { get; set; } = EditorFieldType.Default;
+
+        public StringBehavior StringBehavior { get; set; } = StringBehavior.NoChange;
+
+        [Obsolete("We want to re-implement strings to be object-oriented.")]
+        public virtual string Format(Type stringsType, object value)
         {
-            throw new ArgumentNullException(nameof(stringsType));
+            string displayValue;
+            switch (value)
+            {
+                case string stringValue:
+                    displayValue = stringValue;
+
+                    switch (StringBehavior)
+                    {
+                        case StringBehavior.NoChange:
+                            break;
+
+                        case StringBehavior.Trim:
+                            displayValue = stringValue.Trim();
+                            break;
+                    }
+
+                    break;
+
+                default:
+                    displayValue = value?.ToString();
+                    break;
+            }
+
+            switch (EmptyBehavior)
+            {
+                case EmptyBehavior.NoChange:
+                    break;
+
+                case EmptyBehavior.ShowNoneOnEmpty:
+                    if (displayValue != default && string.IsNullOrEmpty(displayValue))
+                    {
+                        displayValue = GetNone(stringsType);
+                    }
+                    break;
+
+                case EmptyBehavior.ShowNoneOnNull:
+                    if (displayValue == default)
+                    {
+                        displayValue = GetNone(stringsType);
+                    }
+                    break;
+
+                case EmptyBehavior.ShowNoneOnNullOrEmpty:
+                    if (string.IsNullOrEmpty(displayValue))
+                    {
+                        displayValue = GetNone(stringsType);
+                    }
+                    break;
+            }
+
+            return displayValue;
         }
 
-        var noneFieldInfo = stringsType.GetNestedType("General")?.GetField("None");
-        if (noneFieldInfo == default)
+        protected static string GetNone(Type stringsType)
         {
-            throw new InvalidOperationException();
-        }
+            if (stringsType == default)
+            {
+                throw new ArgumentNullException(nameof(stringsType));
+            }
 
-        return noneFieldInfo?.GetValue(null)?.ToString();
+            var noneFieldInfo = stringsType.GetNestedType("General")?.GetField("None");
+            if (noneFieldInfo == default)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return noneFieldInfo?.GetValue(null)?.ToString();
+        }
     }
 }

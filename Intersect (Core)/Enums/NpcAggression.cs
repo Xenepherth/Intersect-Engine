@@ -1,14 +1,15 @@
-namespace Intersect.Enums;
-
-public enum NpcAggression
+namespace Intersect.Enums
 {
-    Aggressive,
+    public enum NpcAggression
+    {
+        Aggressive,
 
-    AttackWhenAttacked,
+        AttackWhenAttacked,
 
-    AttackOnSight,
+        AttackOnSight,
 
-    Neutral,
+        Neutral,
 
-    Guard,
+        Guard,
+    }
 }

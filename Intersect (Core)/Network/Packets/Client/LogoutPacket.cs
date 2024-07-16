@@ -1,21 +1,23 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class LogoutPacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    //Parameterless Constructor for MessagePack
-    public LogoutPacket()
+    [MessagePackObject]
+    public partial class LogoutPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public LogoutPacket()
+        {
+        }
 
-    public LogoutPacket(bool returnToCharSelect)
-    {
-        ReturningToCharSelect = returnToCharSelect;
-    }
+        public LogoutPacket(bool returnToCharSelect)
+        {
+            ReturningToCharSelect = returnToCharSelect;
+        }
 
-    [Key(0)]
-    public bool ReturningToCharSelect { get; set; }
+        [Key(0)]
+        public bool ReturningToCharSelect { get; set; }
+
+    }
 
 }

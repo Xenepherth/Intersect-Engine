@@ -1,69 +1,73 @@
-﻿namespace Intersect.Logging;
+﻿using System;
 
-
-public interface ILogger
+namespace Intersect.Logging
 {
 
-    LogConfiguration Configuration { get; set; }
+    public interface ILogger
+    {
 
-    void All(string message);
+        LogConfiguration Configuration { get; set; }
 
-    void All(string format, params object[] args);
+        void All(string message);
 
-    void All(Exception exception, string message = null);
+        void All(string format, params object[] args);
 
-    void Debug(string message);
+        void All(Exception exception, string message = null);
 
-    void Debug(string format, params object[] args);
+        void Debug(string message);
 
-    void Debug(Exception exception, string message = null);
+        void Debug(string format, params object[] args);
 
-    void Diagnostic(string message);
+        void Debug(Exception exception, string message = null);
 
-    void Diagnostic(string format, params object[] args);
+        void Diagnostic(string message);
 
-    void Diagnostic(Exception exception, string message = null);
+        void Diagnostic(string format, params object[] args);
 
-    void Error(string message);
+        void Diagnostic(Exception exception, string message = null);
 
-    void Error(string format, params object[] args);
+        void Error(string message);
 
-    void Error(Exception exception, string message = null);
+        void Error(string format, params object[] args);
 
-    void Info(string message);
+        void Error(Exception exception, string message = null);
 
-    void Info(string format, params object[] args);
+        void Info(string message);
 
-    void Info(Exception exception, string message = null);
+        void Info(string format, params object[] args);
 
-    void Trace(string message);
+        void Info(Exception exception, string message = null);
 
-    void Trace(string format, params object[] args);
+        void Trace(string message);
 
-    void Trace(Exception exception, string message = null);
+        void Trace(string format, params object[] args);
 
-    void Verbose(string message);
+        void Trace(Exception exception, string message = null);
 
-    void Verbose(string format, params object[] args);
+        void Verbose(string message);
 
-    void Verbose(Exception exception, string message = null);
+        void Verbose(string format, params object[] args);
 
-    void Warn(string message);
+        void Verbose(Exception exception, string message = null);
 
-    void Warn(string format, params object[] args);
+        void Warn(string message);
 
-    void Warn(Exception exception, string message = null);
+        void Warn(string format, params object[] args);
 
-    void Write(LogLevel logLevel, string message);
+        void Warn(Exception exception, string message = null);
 
-    void Write(LogLevel logLevel, string format, params object[] args);
+        void Write(LogLevel logLevel, string message);
 
-    void Write(LogLevel logLevel, Exception exception, string message = null);
+        void Write(LogLevel logLevel, string format, params object[] args);
 
-    void Write(string message);
+        void Write(LogLevel logLevel, Exception exception, string message = null);
 
-    void Write(string format, params object[] args);
+        void Write(string message);
 
-    void Write(Exception exception, string message = null);
+        void Write(string format, params object[] args);
+
+        void Write(Exception exception, string message = null);
+
+    }
 
 }

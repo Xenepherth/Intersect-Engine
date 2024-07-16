@@ -1,14 +1,18 @@
-namespace Intersect.Server.Maps;
+﻿using System;
 
-
-public partial class MapItemSpawn
+namespace Intersect.Server.Maps
 {
-    public Guid Id { get; } = Guid.NewGuid();
 
-    public int AttributeSpawnX = -1;
+    public partial class MapItemSpawn
+    {
+        public Guid Id { get; } = Guid.NewGuid();
 
-    public int AttributeSpawnY = -1;
+        public int AttributeSpawnX = -1;
 
-    public long RespawnTime = -1;
+        public int AttributeSpawnY = -1;
+
+        public long RespawnTime = -1;
+
+    }
 
 }

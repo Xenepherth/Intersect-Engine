@@ -4,27 +4,29 @@ using Intersect.Server.Entities;
 
 using Newtonsoft.Json;
 
-namespace Intersect.Server.Database.PlayerData.Players;
-
-
-public partial class PlayerVariable : Variable, IPlayerOwned
+namespace Intersect.Server.Database.PlayerData.Players
 {
 
-    public PlayerVariable() : this(Guid.Empty) { }
-
-    public PlayerVariable(Guid id)
+    public partial class PlayerVariable : Variable, IPlayerOwned
     {
-        VariableId = id;
+
+        public PlayerVariable() : this(Guid.Empty) { }
+
+        public PlayerVariable(Guid id)
+        {
+            VariableId = id;
+        }
+
+        [NotMapped]
+        public string VariableName => PlayerVariableBase.GetName(VariableId);
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [JsonIgnore]
+        public Guid PlayerId { get; protected set; }
+
+        [JsonIgnore]
+        public virtual Player Player { get; protected set; }
+
     }
-
-    [NotMapped]
-    public string VariableName => PlayerVariableBase.GetName(VariableId);
-
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    [JsonIgnore]
-    public Guid PlayerId { get; protected set; }
-
-    [JsonIgnore]
-    public virtual Player Player { get; protected set; }
 
 }

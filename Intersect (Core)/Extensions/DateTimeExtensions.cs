@@ -1,49 +1,53 @@
-﻿namespace Intersect.Extensions;
+﻿using System;
 
-
-public static partial class DateTimeExtensions
+namespace Intersect.Extensions
 {
 
-    public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-    public static DateTime Clone(this DateTime dateTime)
+    public static partial class DateTimeExtensions
     {
-        return new DateTime(dateTime.Ticks, dateTime.Kind);
-    }
 
-    public static DateTime ConvertKind(this DateTime dateTime, DateTimeKind kind)
-    {
-        // If it's the same kind, just return the same DateTime.
-        if (kind == dateTime.Kind)
+        public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public static DateTime Clone(this DateTime dateTime)
         {
-            return dateTime;
+            return new DateTime(dateTime.Ticks, dateTime.Kind);
         }
 
-        switch (kind)
+        public static DateTime ConvertKind(this DateTime dateTime, DateTimeKind kind)
         {
-            case DateTimeKind.Local:
-                return dateTime.ToLocalTime();
+            // If it's the same kind, just return the same DateTime.
+            if (kind == dateTime.Kind)
+            {
+                return dateTime;
+            }
 
-            case DateTimeKind.Unspecified:
-                return new DateTime(dateTime.Ticks, DateTimeKind.Unspecified);
+            switch (kind)
+            {
+                case DateTimeKind.Local:
+                    return dateTime.ToLocalTime();
 
-            case DateTimeKind.Utc:
-                return dateTime.ToUniversalTime();
+                case DateTimeKind.Unspecified:
+                    return new DateTime(dateTime.Ticks, DateTimeKind.Unspecified);
 
-            default:
-                throw new ArgumentOutOfRangeException(nameof(kind), kind, @"Unknown DateTimeKind value.");
+                case DateTimeKind.Utc:
+                    return dateTime.ToUniversalTime();
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(kind), kind, @"Unknown DateTimeKind value.");
+            }
         }
-    }
 
-    public static TimeSpan AsUnixTimeSpan(this DateTime dateTime)
-    {
-        var dateTimeUtc = dateTime;
-        if (dateTime.Kind != DateTimeKind.Utc)
+        public static TimeSpan AsUnixTimeSpan(this DateTime dateTime)
         {
-            dateTimeUtc = dateTime.ToUniversalTime();
+            var dateTimeUtc = dateTime;
+            if (dateTime.Kind != DateTimeKind.Utc)
+            {
+                dateTimeUtc = dateTime.ToUniversalTime();
+            }
+
+            return dateTimeUtc - UnixEpoch;
         }
 
-        return dateTimeUtc - UnixEpoch;
     }
 
 }

@@ -1,133 +1,136 @@
+using System;
 using System.Text;
 
-namespace Intersect.Logging.Formatting;
-
-
-/// <summary>
-/// Basic formatter for text logs, includes details and timestamps.
-/// </summary>
-public partial class DefaultFormatter : ILogFormatter
+namespace Intersect.Logging.Formatting
 {
 
-    public const string DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
-
-    public DefaultFormatter()
+    /// <summary>
+    /// Basic formatter for text logs, includes details and timestamps.
+    /// </summary>
+    public partial class DefaultFormatter : ILogFormatter
     {
-        TimestampFormat = DefaultTimestampFormat;
-    }
 
-    public string TimestampFormat { get; set; }
+        public const string DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
 
-    /// <inheritdoc />
-    public string Format(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        DateTime dateTime,
-        Exception exception,
-        string message,
-        params object[] args
-    )
-    {
-        var prefix = FormatPrefix(configuration, logLevel, dateTime).ToString();
-        var builder = new StringBuilder();
-
-        if (message != null)
+        public DefaultFormatter()
         {
-            FormatLine(builder, prefix, message, args);
+            TimestampFormat = DefaultTimestampFormat;
         }
 
-        if (exception != null)
+        public string TimestampFormat { get; set; }
+
+        /// <inheritdoc />
+        public string Format(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            DateTime dateTime,
+            Exception exception,
+            string message,
+            params object[] args
+        )
         {
-            FormatLine(builder, prefix, exception);
+            var prefix = FormatPrefix(configuration, logLevel, dateTime).ToString();
+            var builder = new StringBuilder();
+
+            if (message != null)
+            {
+                FormatLine(builder, prefix, message, args);
+            }
+
+            if (exception != null)
+            {
+                FormatLine(builder, prefix, exception);
+            }
+
+            return builder.ToString();
         }
 
-        return builder.ToString();
-    }
-
-    protected virtual StringBuilder FormatPrefix(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        DateTime dateTime,
-        StringBuilder builder = null
-    )
-    {
-        if (builder == null)
+        protected virtual StringBuilder FormatPrefix(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            DateTime dateTime,
+            StringBuilder builder = null
+        )
         {
-            builder = new StringBuilder();
-        }
+            if (builder == null)
+            {
+                builder = new StringBuilder();
+            }
 
-        if (!string.IsNullOrWhiteSpace(TimestampFormat))
-        {
-            builder.Append(dateTime.ToString(TimestampFormat));
+            if (!string.IsNullOrWhiteSpace(TimestampFormat))
+            {
+                builder.Append(dateTime.ToString(TimestampFormat));
+                builder.Append(' ');
+            }
+
+            builder.Append($"[{logLevel}]");
             builder.Append(' ');
+
+            // ReSharper disable once InvertIf
+            if (!string.IsNullOrEmpty(configuration.Tag))
+            {
+                builder.Append(configuration.Tag);
+                builder.Append(": ");
+            }
+
+            return builder;
         }
 
-        builder.Append($"[{logLevel}]");
-        builder.Append(' ');
-
-        // ReSharper disable once InvertIf
-        if (!string.IsNullOrEmpty(configuration.Tag))
-        {
-            builder.Append(configuration.Tag);
-            builder.Append(": ");
-        }
-
-        return builder;
-    }
-
-    private static void FormatLine(
-        StringBuilder builder,
-        string prefix,
-        string message,
-        params object[] args
-    )
-    {
-        builder.Append(prefix);
-
-        if (args?.Length > 0)
-        {
-            builder.AppendFormat(message, args);
-        }
-        else
-        {
-            builder.Append(message);
-        }
-
-        builder.AppendLine();
-    }
-
-    private static void FormatLine(
-        StringBuilder builder,
-        string prefix,
-        Exception exception,
-        bool recurse = true
-    )
-    {
-        if (!string.IsNullOrWhiteSpace(prefix))
+        private static void FormatLine(
+            StringBuilder builder,
+            string prefix,
+            string message,
+            params object[] args
+        )
         {
             builder.Append(prefix);
+
+            if (args?.Length > 0)
+            {
+                builder.AppendFormat(message, args);
+            }
+            else
+            {
+                builder.Append(message);
+            }
+
+            builder.AppendLine();
         }
 
-        builder.AppendLine($@"{exception.GetType().Name}: {exception.Message}");
-
-        if (exception.StackTrace?.Length < 10000)
+        private static void FormatLine(
+            StringBuilder builder,
+            string prefix,
+            Exception exception,
+            bool recurse = true
+        )
         {
-            builder.AppendLine($@"    Stack: {exception.StackTrace}");
+            if (!string.IsNullOrWhiteSpace(prefix))
+            {
+                builder.Append(prefix);
+            }
+
+            builder.AppendLine($@"{exception.GetType().Name}: {exception.Message}");
+
+            if (exception.StackTrace?.Length < 10000)
+            {
+                builder.AppendLine($@"    Stack: {exception.StackTrace}");
+            }
+
+            builder.AppendLine();
+
+            if (!recurse)
+            {
+                return;
+            }
+
+            var innerException = exception;
+            while ((innerException = innerException.InnerException) != null)
+            {
+                builder.AppendLine(@"Caused By");
+                FormatLine(builder, null, innerException, false);
+            }
         }
 
-        builder.AppendLine();
-
-        if (!recurse)
-        {
-            return;
-        }
-
-        var innerException = exception;
-        while ((innerException = innerException.InnerException) != null)
-        {
-            builder.AppendLine(@"Caused By");
-            FormatLine(builder, null, innerException, false);
-        }
     }
 
 }

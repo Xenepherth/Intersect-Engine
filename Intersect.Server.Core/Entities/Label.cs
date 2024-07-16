@@ -1,19 +1,21 @@
 ﻿using Newtonsoft.Json;
 
-namespace Intersect.Server.Entities;
-
-
-public partial struct Label
+namespace Intersect.Server.Entities
 {
 
-    [JsonProperty("Label")] public string Text;
-
-    public Color Color;
-
-    public Label(string label, Color color)
+    public partial struct Label
     {
-        Text = label;
-        Color = color;
+
+        [JsonProperty("Label")] public string Text;
+
+        public Color Color;
+
+        public Label(string label, Color color)
+        {
+            Text = label;
+            Color = color;
+        }
+
     }
 
 }

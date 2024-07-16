@@ -1,45 +1,49 @@
+using System;
 using System.Reflection;
 
-namespace Intersect.GameObjects.Annotations;
+using Intersect.Localization;
 
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public sealed class EditorLabelAttribute : Attribute
+namespace Intersect.GameObjects.Annotations
 {
-    public EditorLabelAttribute(string name)
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public sealed class EditorLabelAttribute : Attribute
     {
-        Group = default;
-        Name = !string.IsNullOrEmpty(name) ? name : throw new ArgumentNullException(nameof(name));
-    }
-
-    public EditorLabelAttribute(string group, string name) : this(name)
-    {
-        Group = !string.IsNullOrEmpty(group) ? group : throw new ArgumentNullException(nameof(group));
-    }
-
-    public string Group { get; }
-
-    public string Name { get; }
-
-    [Obsolete("We want to re-implement strings to be object-oriented.")]
-    public string Evaluate(Type stringsType)
-    {
-        if (stringsType == default)
+        public EditorLabelAttribute(string name)
         {
-            throw new ArgumentNullException(nameof(stringsType));
+            Group = default;
+            Name = !string.IsNullOrEmpty(name) ? name : throw new ArgumentNullException(nameof(name));
         }
 
-        var groupType = stringsType.GetNestedType(Group, BindingFlags.Public | BindingFlags.Static);
-        if (groupType == default)
+        public EditorLabelAttribute(string group, string name) : this(name)
         {
-            throw new InvalidOperationException($"'{stringsType.FullName}.{Group}' does not exist.");
+            Group = !string.IsNullOrEmpty(group) ? group : throw new ArgumentNullException(nameof(group));
         }
 
-        var fieldInfo = groupType.GetField(Name);
-        if (fieldInfo == default)
-        {
-            throw new InvalidOperationException($"'{groupType.FullName}.{Name}' does not exist.");
-        }
+        public string Group { get; }
 
-        return fieldInfo.GetValue(null)?.ToString();
+        public string Name { get; }
+
+        [Obsolete("We want to re-implement strings to be object-oriented.")]
+        public string Evaluate(Type stringsType)
+        {
+            if (stringsType == default)
+            {
+                throw new ArgumentNullException(nameof(stringsType));
+            }
+
+            var groupType = stringsType.GetNestedType(Group, BindingFlags.Public | BindingFlags.Static);
+            if (groupType == default)
+            {
+                throw new InvalidOperationException($"'{stringsType.FullName}.{Group}' does not exist.");
+            }
+
+            var fieldInfo = groupType.GetField(Name);
+            if (fieldInfo == default)
+            {
+                throw new InvalidOperationException($"'{groupType.FullName}.{Name}' does not exist.");
+            }
+
+            return fieldInfo.GetValue(null)?.ToString();
+        }
     }
 }

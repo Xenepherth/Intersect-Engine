@@ -1,62 +1,67 @@
+using System;
+using System.Windows.Forms;
+
 using Intersect.Editor.Localization;
 using Intersect.GameObjects;
 using Intersect.GameObjects.Events.Commands;
 
-namespace Intersect.Editor.Forms.Editors.Events.Event_Commands;
-
-
-public partial class EventCommandOpenCraftingTable : UserControl
+namespace Intersect.Editor.Forms.Editors.Events.Event_Commands
 {
 
-    private readonly FrmEvent mEventEditor;
-
-    private OpenCraftingTableCommand mMyCommand;
-
-    public EventCommandOpenCraftingTable(OpenCraftingTableCommand refCommand, FrmEvent editor)
+    public partial class EventCommandOpenCraftingTable : UserControl
     {
-        InitializeComponent();
-        mMyCommand = refCommand;
-        mEventEditor = editor;
-        InitLocalization();
-        cmbTable.Items.Clear();
-        cmbTable.Items.AddRange(CraftingTableBase.Names);
-        cmbTable.SelectedIndex = CraftingTableBase.ListIndex(mMyCommand.CraftingTableId);
-        chkJournalMode.Checked = mMyCommand.JournalMode;
-    }
 
-    private void InitLocalization()
-    {
-        grpTable.Text = Strings.EventOpenCrafting.title;
-        lblTable.Text = Strings.EventOpenCrafting.label;
-        btnSave.Text = Strings.EventOpenCrafting.okay;
-        btnCancel.Text = Strings.EventOpenCrafting.cancel;
-        chkJournalMode.Text = Strings.EventOpenCrafting.JournalMode;
+        private readonly FrmEvent mEventEditor;
 
-        ToolTip toolTip1 = new ToolTip();
+        private OpenCraftingTableCommand mMyCommand;
 
-        toolTip1.AutoPopDelay = 5000;
-        toolTip1.InitialDelay = 1000;
-        toolTip1.ReshowDelay = 500;
-        toolTip1.ShowAlways = true;
-
-        toolTip1.SetToolTip(chkJournalMode, Strings.EventOpenCrafting.JournalModeTooltip);
-    }
-
-    private void btnSave_Click(object sender, EventArgs e)
-    {
-        if (cmbTable.SelectedIndex > -1)
+        public EventCommandOpenCraftingTable(OpenCraftingTableCommand refCommand, FrmEvent editor)
         {
-            mMyCommand.CraftingTableId = CraftingTableBase.IdFromList(cmbTable.SelectedIndex);
+            InitializeComponent();
+            mMyCommand = refCommand;
+            mEventEditor = editor;
+            InitLocalization();
+            cmbTable.Items.Clear();
+            cmbTable.Items.AddRange(CraftingTableBase.Names);
+            cmbTable.SelectedIndex = CraftingTableBase.ListIndex(mMyCommand.CraftingTableId);
+            chkJournalMode.Checked = mMyCommand.JournalMode;
         }
 
-        mMyCommand.JournalMode = chkJournalMode.Checked;
+        private void InitLocalization()
+        {
+            grpTable.Text = Strings.EventOpenCrafting.title;
+            lblTable.Text = Strings.EventOpenCrafting.label;
+            btnSave.Text = Strings.EventOpenCrafting.okay;
+            btnCancel.Text = Strings.EventOpenCrafting.cancel;
+            chkJournalMode.Text = Strings.EventOpenCrafting.JournalMode;
 
-        mEventEditor.FinishCommandEdit();
-    }
+            ToolTip toolTip1 = new ToolTip();
 
-    private void btnCancel_Click(object sender, EventArgs e)
-    {
-        mEventEditor.CancelCommandEdit();
+            toolTip1.AutoPopDelay = 5000;
+            toolTip1.InitialDelay = 1000;
+            toolTip1.ReshowDelay = 500;
+            toolTip1.ShowAlways = true;
+
+            toolTip1.SetToolTip(chkJournalMode, Strings.EventOpenCrafting.JournalModeTooltip);
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (cmbTable.SelectedIndex > -1)
+            {
+                mMyCommand.CraftingTableId = CraftingTableBase.IdFromList(cmbTable.SelectedIndex);
+            }
+
+            mMyCommand.JournalMode = chkJournalMode.Checked;
+
+            mEventEditor.FinishCommandEdit();
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            mEventEditor.CancelCommandEdit();
+        }
+
     }
 
 }

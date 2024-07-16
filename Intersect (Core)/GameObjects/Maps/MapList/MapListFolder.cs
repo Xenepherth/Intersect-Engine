@@ -1,21 +1,24 @@
-﻿using Intersect.Collections;
+﻿using System;
 
-namespace Intersect.GameObjects.Maps.MapList;
+using Intersect.Collections;
 
-public partial class MapListFolder : MapListItem
+namespace Intersect.GameObjects.Maps.MapList
 {
-    public MapList Children = new MapList();
-
-    public Guid FolderId = Guid.Empty;
-
-    public MapListFolder() : base()
+    public partial class MapListFolder : MapListItem
     {
-        Name = "New Folder";
-        Type = 0;
-    }
+        public MapList Children = new MapList();
 
-    public void PostLoad(DatabaseObjectLookup gameMaps, bool isServer = true)
-    {
-        Children.PostLoad(gameMaps, isServer, false);
+        public Guid FolderId = Guid.Empty;
+
+        public MapListFolder() : base()
+        {
+            Name = "New Folder";
+            Type = 0;
+        }
+
+        public void PostLoad(DatabaseObjectLookup gameMaps, bool isServer = true)
+        {
+            Children.PostLoad(gameMaps, isServer, false);
+        }
     }
 }

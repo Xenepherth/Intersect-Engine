@@ -1,11 +1,13 @@
-﻿namespace Intersect.Client.Framework.Sys;
-
-
-public abstract partial class GameSystem
+﻿namespace Intersect.Client.Framework.Sys
 {
 
-    public abstract void Log(string msg);
+    public abstract partial class GameSystem
+    {
 
-    public abstract void LogError(string error);
+        public abstract void Log(string msg);
+
+        public abstract void LogError(string error);
+
+    }
 
 }

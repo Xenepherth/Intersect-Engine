@@ -1,14 +1,15 @@
 ﻿using Intersect.Core;
 
-namespace Intersect.Client.Core;
-
-/// <summary>
-/// Declares the API surface of client contexts.
-/// </summary>
-internal interface IClientContext : IApplicationContext<ClientCommandLineOptions>
+namespace Intersect.Client.Core
 {
     /// <summary>
-    /// The platform-specific runner that initializes the actual user-visible client.
+    /// Declares the API surface of client contexts.
     /// </summary>
-    IPlatformRunner PlatformRunner { get; }
+    internal interface IClientContext : IApplicationContext<ClientCommandLineOptions>
+    {
+        /// <summary>
+        /// The platform-specific runner that initializes the actual user-visible client.
+        /// </summary>
+        IPlatformRunner PlatformRunner { get; }
+    }
 }

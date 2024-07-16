@@ -1,17 +1,20 @@
-namespace Intersect.GameObjects.Annotations;
+using System;
 
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public class EditorEnumAttribute : EditorDisplayAttribute
+namespace Intersect.GameObjects.Annotations
 {
-    public EditorEnumAttribute(Type enumType)
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class EditorEnumAttribute : EditorDisplayAttribute
     {
-        EnumType = enumType ?? throw new ArgumentNullException(nameof(enumType));
-
-        if (!enumType.IsEnum)
+        public EditorEnumAttribute(Type enumType)
         {
-            throw new ArgumentException($"{enumType.FullName} is not a enum type.", nameof(enumType));
-        }
-    }
+            EnumType = enumType ?? throw new ArgumentNullException(nameof(enumType));
 
-    public Type EnumType { get; }
+            if (!enumType.IsEnum)
+            {
+                throw new ArgumentException($"{enumType.FullName} is not a enum type.", nameof(enumType));
+            }
+        }
+
+        public Type EnumType { get; }
+    }
 }

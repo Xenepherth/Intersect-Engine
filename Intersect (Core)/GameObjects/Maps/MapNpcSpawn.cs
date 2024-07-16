@@ -1,26 +1,29 @@
-﻿using Intersect.Enums;
+﻿using System;
 
-namespace Intersect.GameObjects.Maps;
+using Intersect.Enums;
 
-public partial class NpcSpawn
+namespace Intersect.GameObjects.Maps
 {
-    public NpcSpawnDirection Direction;
-
-    public Guid NpcId;
-
-    public int X;
-
-    public int Y;
-
-    public NpcSpawn()
+    public partial class NpcSpawn
     {
-    }
+        public NpcSpawnDirection Direction;
 
-    public NpcSpawn(NpcSpawn copy)
-    {
-        NpcId = copy.NpcId;
-        X = copy.X;
-        Y = copy.Y;
-        Direction = copy.Direction;
+        public Guid NpcId;
+
+        public int X;
+
+        public int Y;
+
+        public NpcSpawn()
+        {
+        }
+
+        public NpcSpawn(NpcSpawn copy)
+        {
+            NpcId = copy.NpcId;
+            X = copy.X;
+            Y = copy.Y;
+            Direction = copy.Direction;
+        }
     }
 }

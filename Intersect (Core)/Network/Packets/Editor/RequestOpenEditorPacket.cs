@@ -1,22 +1,24 @@
 ﻿using Intersect.Enums;
 using MessagePack;
 
-namespace Intersect.Network.Packets.Editor;
-
-[MessagePackObject]
-public partial class RequestOpenEditorPacket : EditorPacket
+namespace Intersect.Network.Packets.Editor
 {
-    //Parameterless Constructor for MessagePack
-    public RequestOpenEditorPacket()
+    [MessagePackObject]
+    public partial class RequestOpenEditorPacket : EditorPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public RequestOpenEditorPacket()
+        {
+        }
 
-    public RequestOpenEditorPacket(GameObjectType type)
-    {
-        Type = type;
-    }
+        public RequestOpenEditorPacket(GameObjectType type)
+        {
+            Type = type;
+        }
 
-    [Key(0)]
-    public GameObjectType Type { get; set; }
+        [Key(0)]
+        public GameObjectType Type { get; set; }
+
+    }
 
 }

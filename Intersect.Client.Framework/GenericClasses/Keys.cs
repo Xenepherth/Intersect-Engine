@@ -1,395 +1,397 @@
-﻿namespace Intersect.Client.Framework.GenericClasses;
-
-
-public enum Keys
+﻿namespace Intersect.Client.Framework.GenericClasses
 {
 
-    None = 0x00000000,
+    public enum Keys
+    {
 
-    LButton = 0x00000001,
+        None = 0x00000000,
 
-    RButton = 0x00000002,
+        LButton = 0x00000001,
 
-    Cancel = 0x00000003,
+        RButton = 0x00000002,
 
-    MButton = 0x00000004,
+        Cancel = 0x00000003,
 
-    XButton1 = 0x00000005,
+        MButton = 0x00000004,
 
-    XButton2 = 0x00000006,
+        XButton1 = 0x00000005,
 
-    Back = 0x00000008,
+        XButton2 = 0x00000006,
 
-    Tab = 0x00000009,
+        Back = 0x00000008,
 
-    LineFeed = 0x0000000A,
+        Tab = 0x00000009,
 
-    Clear = 0x0000000C,
+        LineFeed = 0x0000000A,
 
-    Return = 0x0000000D,
+        Clear = 0x0000000C,
 
-    Enter = 0x0000000D,
+        Return = 0x0000000D,
 
-    ShiftKey = 0x00000010,
+        Enter = 0x0000000D,
 
-    ControlKey = 0x00000011,
+        ShiftKey = 0x00000010,
 
-    Menu = 0x00000012,
+        ControlKey = 0x00000011,
 
-    Pause = 0x00000013,
+        Menu = 0x00000012,
 
-    CapsLock = 0x00000014,
+        Pause = 0x00000013,
 
-    Capital = 0x00000014,
+        CapsLock = 0x00000014,
 
-    KanaMode = 0x00000015,
+        Capital = 0x00000014,
 
-    HanguelMode = 0x00000015,
+        KanaMode = 0x00000015,
 
-    HangulMode = 0x00000015,
+        HanguelMode = 0x00000015,
 
-    JunjaMode = 0x00000017,
+        HangulMode = 0x00000015,
 
-    FinalMode = 0x00000018,
+        JunjaMode = 0x00000017,
 
-    KanjiMode = 0x00000019,
+        FinalMode = 0x00000018,
 
-    HanjaMode = 0x00000019,
+        KanjiMode = 0x00000019,
 
-    Escape = 0x0000001B,
+        HanjaMode = 0x00000019,
 
-    ImeConvert = 0x0000001C,
+        Escape = 0x0000001B,
 
-    ImeNonconvert = 0x0000001D,
+        ImeConvert = 0x0000001C,
 
-    ImeAceept = 0x0000001E,
+        ImeNonconvert = 0x0000001D,
 
-    ImeModeChange = 0x0000001F,
+        ImeAceept = 0x0000001E,
 
-    Space = 0x00000020,
+        ImeModeChange = 0x0000001F,
 
-    PageUp = 0x00000021,
+        Space = 0x00000020,
 
-    Prior = 0x00000021,
+        PageUp = 0x00000021,
 
-    PageDown = 0x00000022,
+        Prior = 0x00000021,
 
-    Next = 0x00000022,
+        PageDown = 0x00000022,
 
-    End = 0x00000023,
+        Next = 0x00000022,
 
-    Home = 0x00000024,
+        End = 0x00000023,
 
-    Left = 0x00000025,
+        Home = 0x00000024,
 
-    Up = 0x00000026,
+        Left = 0x00000025,
 
-    Right = 0x00000027,
+        Up = 0x00000026,
 
-    Down = 0x00000028,
+        Right = 0x00000027,
 
-    Select = 0x00000029,
+        Down = 0x00000028,
 
-    Print = 0x0000002A,
+        Select = 0x00000029,
 
-    Execute = 0x0000002B,
+        Print = 0x0000002A,
 
-    PrintScreen = 0x0000002C,
+        Execute = 0x0000002B,
 
-    Snapshot = 0x0000002C,
+        PrintScreen = 0x0000002C,
 
-    Insert = 0x0000002D,
+        Snapshot = 0x0000002C,
 
-    Delete = 0x0000002E,
+        Insert = 0x0000002D,
 
-    Help = 0x0000002F,
+        Delete = 0x0000002E,
 
-    D0 = 0x00000030,
+        Help = 0x0000002F,
 
-    D1 = 0x00000031,
+        D0 = 0x00000030,
 
-    D2 = 0x00000032,
+        D1 = 0x00000031,
 
-    D3 = 0x00000033,
+        D2 = 0x00000032,
 
-    D4 = 0x00000034,
+        D3 = 0x00000033,
 
-    D5 = 0x00000035,
+        D4 = 0x00000034,
 
-    D6 = 0x00000036,
+        D5 = 0x00000035,
 
-    D7 = 0x00000037,
+        D6 = 0x00000036,
 
-    D8 = 0x00000038,
+        D7 = 0x00000037,
 
-    D9 = 0x00000039,
+        D8 = 0x00000038,
 
-    A = 0x00000041,
+        D9 = 0x00000039,
 
-    B = 0x00000042,
+        A = 0x00000041,
 
-    C = 0x00000043,
+        B = 0x00000042,
 
-    D = 0x00000044,
+        C = 0x00000043,
 
-    E = 0x00000045,
+        D = 0x00000044,
 
-    F = 0x00000046,
+        E = 0x00000045,
 
-    G = 0x00000047,
+        F = 0x00000046,
 
-    H = 0x00000048,
+        G = 0x00000047,
 
-    I = 0x00000049,
+        H = 0x00000048,
 
-    J = 0x0000004A,
+        I = 0x00000049,
 
-    K = 0x0000004B,
+        J = 0x0000004A,
 
-    L = 0x0000004C,
+        K = 0x0000004B,
 
-    M = 0x0000004D,
+        L = 0x0000004C,
 
-    N = 0x0000004E,
+        M = 0x0000004D,
 
-    O = 0x0000004F,
+        N = 0x0000004E,
 
-    P = 0x00000050,
+        O = 0x0000004F,
 
-    Q = 0x00000051,
+        P = 0x00000050,
 
-    R = 0x00000052,
+        Q = 0x00000051,
 
-    S = 0x00000053,
+        R = 0x00000052,
 
-    T = 0x00000054,
+        S = 0x00000053,
 
-    U = 0x00000055,
+        T = 0x00000054,
 
-    V = 0x00000056,
+        U = 0x00000055,
 
-    W = 0x00000057,
+        V = 0x00000056,
 
-    X = 0x00000058,
+        W = 0x00000057,
 
-    Y = 0x00000059,
+        X = 0x00000058,
 
-    Z = 0x0000005A,
+        Y = 0x00000059,
 
-    LWin = 0x0000005B,
+        Z = 0x0000005A,
 
-    RWin = 0x0000005C,
+        LWin = 0x0000005B,
 
-    Apps = 0x0000005D,
+        RWin = 0x0000005C,
 
-    NumPad0 = 0x00000060,
+        Apps = 0x0000005D,
 
-    NumPad1 = 0x00000061,
+        NumPad0 = 0x00000060,
 
-    NumPad2 = 0x00000062,
+        NumPad1 = 0x00000061,
 
-    NumPad3 = 0x00000063,
+        NumPad2 = 0x00000062,
 
-    NumPad4 = 0x00000064,
+        NumPad3 = 0x00000063,
 
-    NumPad5 = 0x00000065,
+        NumPad4 = 0x00000064,
 
-    NumPad6 = 0x00000066,
+        NumPad5 = 0x00000065,
 
-    NumPad7 = 0x00000067,
+        NumPad6 = 0x00000066,
 
-    NumPad8 = 0x00000068,
+        NumPad7 = 0x00000067,
 
-    NumPad9 = 0x00000069,
+        NumPad8 = 0x00000068,
 
-    Multiply = 0x0000006A,
+        NumPad9 = 0x00000069,
 
-    Add = 0x0000006B,
+        Multiply = 0x0000006A,
 
-    Separator = 0x0000006C,
+        Add = 0x0000006B,
 
-    Subtract = 0x0000006D,
+        Separator = 0x0000006C,
 
-    Decimal = 0x0000006E,
+        Subtract = 0x0000006D,
 
-    Divide = 0x0000006F,
+        Decimal = 0x0000006E,
 
-    F1 = 0x00000070,
+        Divide = 0x0000006F,
 
-    F2 = 0x00000071,
+        F1 = 0x00000070,
 
-    F3 = 0x00000072,
+        F2 = 0x00000071,
 
-    F4 = 0x00000073,
+        F3 = 0x00000072,
 
-    F5 = 0x00000074,
+        F4 = 0x00000073,
 
-    F6 = 0x00000075,
+        F5 = 0x00000074,
 
-    F7 = 0x00000076,
+        F6 = 0x00000075,
 
-    F8 = 0x00000077,
+        F7 = 0x00000076,
 
-    F9 = 0x00000078,
+        F8 = 0x00000077,
 
-    F10 = 0x00000079,
+        F9 = 0x00000078,
 
-    F11 = 0x0000007A,
+        F10 = 0x00000079,
 
-    F12 = 0x0000007B,
+        F11 = 0x0000007A,
 
-    F13 = 0x0000007C,
+        F12 = 0x0000007B,
 
-    F14 = 0x0000007D,
+        F13 = 0x0000007C,
 
-    F15 = 0x0000007E,
+        F14 = 0x0000007D,
 
-    F16 = 0x0000007F,
+        F15 = 0x0000007E,
 
-    F17 = 0x00000080,
+        F16 = 0x0000007F,
 
-    F18 = 0x00000081,
+        F17 = 0x00000080,
 
-    F19 = 0x00000082,
+        F18 = 0x00000081,
 
-    F20 = 0x00000083,
+        F19 = 0x00000082,
 
-    F21 = 0x00000084,
+        F20 = 0x00000083,
 
-    F22 = 0x00000085,
+        F21 = 0x00000084,
 
-    F23 = 0x00000086,
+        F22 = 0x00000085,
 
-    F24 = 0x00000087,
+        F23 = 0x00000086,
 
-    NumLock = 0x00000090,
+        F24 = 0x00000087,
 
-    Scroll = 0x00000091,
+        NumLock = 0x00000090,
 
-    LShiftKey = 0x000000A0,
+        Scroll = 0x00000091,
 
-    RShiftKey = 0x000000A1,
+        LShiftKey = 0x000000A0,
 
-    LControlKey = 0x000000A2,
+        RShiftKey = 0x000000A1,
 
-    RControlKey = 0x000000A3,
+        LControlKey = 0x000000A2,
 
-    LMenu = 0x000000A4,
+        RControlKey = 0x000000A3,
 
-    RMenu = 0x000000A5,
+        LMenu = 0x000000A4,
 
-    BrowserBack = 0x000000A6,
+        RMenu = 0x000000A5,
 
-    BrowserForward = 0x000000A7,
+        BrowserBack = 0x000000A6,
 
-    BrowserRefresh = 0x000000A8,
+        BrowserForward = 0x000000A7,
 
-    BrowserStop = 0x000000A9,
+        BrowserRefresh = 0x000000A8,
 
-    BrowserSearch = 0x000000AA,
+        BrowserStop = 0x000000A9,
 
-    BrowserFavorites = 0x000000AB,
+        BrowserSearch = 0x000000AA,
 
-    BrowserHome = 0x000000AC,
+        BrowserFavorites = 0x000000AB,
 
-    VolumeMute = 0x000000AD,
+        BrowserHome = 0x000000AC,
 
-    VolumeDown = 0x000000AE,
+        VolumeMute = 0x000000AD,
 
-    VolumeUp = 0x000000AF,
+        VolumeDown = 0x000000AE,
 
-    MediaNextTrack = 0x000000B0,
+        VolumeUp = 0x000000AF,
 
-    MediaPreviousTrack = 0x000000B1,
+        MediaNextTrack = 0x000000B0,
 
-    MediaStop = 0x000000B2,
+        MediaPreviousTrack = 0x000000B1,
 
-    MediaPlayPause = 0x000000B3,
+        MediaStop = 0x000000B2,
 
-    LaunchMail = 0x000000B4,
+        MediaPlayPause = 0x000000B3,
 
-    SelectMedia = 0x000000B5,
+        LaunchMail = 0x000000B4,
 
-    LaunchApplication1 = 0x000000B6,
+        SelectMedia = 0x000000B5,
 
-    LaunchApplication2 = 0x000000B7,
+        LaunchApplication1 = 0x000000B6,
 
-    OemSemicolon = 0x000000BA,
+        LaunchApplication2 = 0x000000B7,
 
-    Oemplus = 0x000000BB,
+        OemSemicolon = 0x000000BA,
 
-    Oemcomma = 0x000000BC,
+        Oemplus = 0x000000BB,
 
-    OemMinus = 0x000000BD,
+        Oemcomma = 0x000000BC,
 
-    OemPeriod = 0x000000BE,
+        OemMinus = 0x000000BD,
 
-    OemQuestion = 0x000000BF,
+        OemPeriod = 0x000000BE,
 
-    Oemtilde = 0x000000C0,
+        OemQuestion = 0x000000BF,
 
-    OemOpenBrackets = 0x000000DB,
+        Oemtilde = 0x000000C0,
 
-    OemPipe = 0x000000DC,
+        OemOpenBrackets = 0x000000DB,
 
-    OemCloseBrackets = 0x000000DD,
+        OemPipe = 0x000000DC,
 
-    OemQuotes = 0x000000DE,
+        OemCloseBrackets = 0x000000DD,
 
-    Oem8 = 0x000000DF,
+        OemQuotes = 0x000000DE,
 
-    OemBackslash = 0x000000E2,
+        Oem8 = 0x000000DF,
 
-    ProcessKey = 0x000000E5,
+        OemBackslash = 0x000000E2,
 
-    Attn = 0x000000F6,
+        ProcessKey = 0x000000E5,
 
-    Crsel = 0x000000F7,
+        Attn = 0x000000F6,
 
-    Exsel = 0x000000F8,
+        Crsel = 0x000000F7,
 
-    EraseEof = 0x000000F9,
+        Exsel = 0x000000F8,
 
-    Play = 0x000000FA,
+        EraseEof = 0x000000F9,
 
-    Zoom = 0x000000FB,
+        Play = 0x000000FA,
 
-    NoName = 0x000000FC,
+        Zoom = 0x000000FB,
 
-    Pa1 = 0x000000FD,
+        NoName = 0x000000FC,
 
-    OemClear = 0x000000FE,
+        Pa1 = 0x000000FD,
 
-    KeyCode = 0x0000FFFF,
+        OemClear = 0x000000FE,
 
-    Shift = 0x00010000,
+        KeyCode = 0x0000FFFF,
 
-    Control = 0x00020000,
+        Shift = 0x00010000,
 
-    Alt = 0x00040000,
+        Control = 0x00020000,
 
-    Modifiers = unchecked((int) 0xFFFF0000),
+        Alt = 0x00040000,
 
-    ImeAccept = 0x0000001E,
+        Modifiers = unchecked((int) 0xFFFF0000),
 
-    Oem1 = 0x000000BA,
+        ImeAccept = 0x0000001E,
 
-    Oem102 = 0x000000E2,
+        Oem1 = 0x000000BA,
 
-    Oem2 = 0x000000BF,
+        Oem102 = 0x000000E2,
 
-    Oem3 = 0x000000C0,
+        Oem2 = 0x000000BF,
 
-    Oem4 = 0x000000DB,
+        Oem3 = 0x000000C0,
 
-    Oem5 = 0x000000DC,
+        Oem4 = 0x000000DB,
 
-    Oem6 = 0x000000DD,
+        Oem5 = 0x000000DC,
 
-    Oem7 = 0x000000DE,
+        Oem6 = 0x000000DD,
 
-    Packet = 0x000000E7,
+        Oem7 = 0x000000DE,
 
-    Sleep = 0x0000005F
+        Packet = 0x000000E7,
+
+        Sleep = 0x0000005F
+
+    }
 
 }

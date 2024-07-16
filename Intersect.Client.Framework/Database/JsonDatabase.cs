@@ -1,4 +1,6 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using Intersect.Configuration;
 using Intersect.Logging;

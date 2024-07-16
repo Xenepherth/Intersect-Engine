@@ -3,91 +3,93 @@
 using System.Net;
 using Intersect.Core;
 
-namespace Intersect.Network;
-
-
-public interface INetwork : IDisposable
+namespace Intersect.Network
 {
-    const long DefaultUnconnectedMessageTimeout = 10_000;
 
-    IApplicationContext ApplicationContext { get; }
+    public interface INetwork : IDisposable
+    {
+        const long DefaultUnconnectedMessageTimeout = 10_000;
 
-    NetworkConfiguration Configuration { get; }
+        IApplicationContext ApplicationContext { get; }
 
-    int ConnectionCount { get; }
+        NetworkConfiguration Configuration { get; }
 
-    IPacketHelper Helper { get; }
+        int ConnectionCount { get; }
 
-    bool IsConnected { get; }
+        IPacketHelper Helper { get; }
 
-    Guid Id { get; }
+        bool IsConnected { get; }
 
-    int Ping => default;
+        Guid Id { get; }
 
-    event HandleConnectionEvent? OnConnected;
+        int Ping => default;
 
-    event HandleConnectionEvent? OnConnectionApproved;
+        event HandleConnectionEvent? OnConnected;
 
-    event HandleConnectionEvent? OnConnectionDenied;
+        event HandleConnectionEvent? OnConnectionApproved;
 
-    event HandleConnectionRequest? OnConnectionRequested;
+        event HandleConnectionEvent? OnConnectionDenied;
 
-    event HandleConnectionEvent? OnDisconnected;
+        event HandleConnectionRequest? OnConnectionRequested;
 
-    event HandlePacketAvailable? OnPacketAvailable;
+        event HandleConnectionEvent? OnDisconnected;
 
-    event HandleUnconnectedMessage? OnUnconnectedMessage;
+        event HandlePacketAvailable? OnPacketAvailable;
 
-    void Close();
+        event HandleUnconnectedMessage? OnUnconnectedMessage;
 
-    bool Connect() => throw new NotSupportedException();
+        void Close();
 
-    bool Disconnect(string message = "");
+        bool Connect() => throw new NotSupportedException();
 
-    bool Disconnect(Guid guid, string message = "");
+        bool Disconnect(string message = "");
 
-    bool Disconnect(IConnection connection, string message = "");
+        bool Disconnect(Guid guid, string message = "");
 
-    bool Disconnect(ICollection<Guid> guids, string message = "");
+        bool Disconnect(IConnection connection, string message = "");
 
-    bool Disconnect(ICollection<IConnection> connections, string message = "");
+        bool Disconnect(ICollection<Guid> guids, string message = "");
 
-    bool Listen() => throw new NotSupportedException();
+        bool Disconnect(ICollection<IConnection> connections, string message = "");
 
-    bool SendUnconnected(
-        IPEndPoint endPoint,
-        UnconnectedPacket packet,
-        HandleUnconnectedMessage? responseCallback = default,
-        long timeout = DefaultUnconnectedMessageTimeout
-    );
+        bool Listen() => throw new NotSupportedException();
 
-    bool Send(IPacket packet, TransmissionMode mode = TransmissionMode.All);
+        bool SendUnconnected(
+            IPEndPoint endPoint,
+            UnconnectedPacket packet,
+            HandleUnconnectedMessage? responseCallback = default,
+            long timeout = DefaultUnconnectedMessageTimeout
+        );
 
-    bool Send(Guid guid, IPacket packet, TransmissionMode mode = TransmissionMode.All);
+        bool Send(IPacket packet, TransmissionMode mode = TransmissionMode.All);
 
-    bool Send(IConnection connection, IPacket packet, TransmissionMode mode = TransmissionMode.All);
+        bool Send(Guid guid, IPacket packet, TransmissionMode mode = TransmissionMode.All);
 
-    bool Send(ICollection<Guid> guids, IPacket packet, TransmissionMode mode = TransmissionMode.All);
+        bool Send(IConnection connection, IPacket packet, TransmissionMode mode = TransmissionMode.All);
 
-    bool Send(ICollection<IConnection> connections, IPacket packet, TransmissionMode mode = TransmissionMode.All);
+        bool Send(ICollection<Guid> guids, IPacket packet, TransmissionMode mode = TransmissionMode.All);
 
-    ICollection<IConnection> Connections { get; }
+        bool Send(ICollection<IConnection> connections, IPacket packet, TransmissionMode mode = TransmissionMode.All);
 
-    bool AddConnection(IConnection connection);
+        ICollection<IConnection> Connections { get; }
 
-    bool RemoveConnection(IConnection connection);
+        bool AddConnection(IConnection connection);
 
-    IConnection FindConnection(Guid guid);
+        bool RemoveConnection(IConnection connection);
 
-    TConnection FindConnection<TConnection>(Guid guid) where TConnection : class, IConnection;
+        IConnection FindConnection(Guid guid);
 
-    TConnection FindConnection<TConnection>(Func<TConnection, bool> selector)
-        where TConnection : class, IConnection;
+        TConnection FindConnection<TConnection>(Guid guid) where TConnection : class, IConnection;
 
-    ICollection<IConnection> FindConnections(ICollection<Guid> guids);
+        TConnection FindConnection<TConnection>(Func<TConnection, bool> selector)
+            where TConnection : class, IConnection;
 
-    ICollection<TConnection> FindConnections<TConnection>() where TConnection : class, IConnection;
+        ICollection<IConnection> FindConnections(ICollection<Guid> guids);
 
-    void Update();
+        ICollection<TConnection> FindConnections<TConnection>() where TConnection : class, IConnection;
+
+        void Update();
+
+    }
 
 }

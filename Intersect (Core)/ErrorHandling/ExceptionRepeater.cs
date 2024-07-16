@@ -1,62 +1,67 @@
-namespace Intersect.Async;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-public sealed partial class ExceptionRepeater
+namespace Intersect.Async
 {
-    private readonly int _delay;
-    private readonly List<Exception> _exceptions;
-    private readonly int _limit;
-
-    private ExceptionRepeater(int limit, int delay = 1000)
+    public sealed partial class ExceptionRepeater
     {
-        _delay = delay;
-        _exceptions = new List<Exception>();
-        _limit = limit;
-    }
+        private readonly int _delay;
+        private readonly List<Exception> _exceptions;
+        private readonly int _limit;
 
-    public void Run(Action action)
-    {
-        while (_exceptions.Count < _limit)
+        private ExceptionRepeater(int limit, int delay = 1000)
         {
-            try
-            {
-                action();
-                return;
-            }
-            catch (Exception exception)
-            {
-                _exceptions.Add(exception);
-                if (_delay > 0)
-                {
-                    Task.Delay(_delay).Wait();
-                }
-            }
+            _delay = delay;
+            _exceptions = new List<Exception>();
+            _limit = limit;
         }
 
-        throw new AggregateException(_exceptions.ToArray());
-    }
-
-    public T Run<T>(Func<T> func)
-    {
-        while (_exceptions.Count < _limit)
+        public void Run(Action action)
         {
-            try
+            while (_exceptions.Count < _limit)
             {
-                return func();
-            }
-            catch (Exception exception)
-            {
-                _exceptions.Add(exception);
-                if (_delay > 0)
+                try
                 {
-                    Task.Delay(_delay).Wait();
+                    action();
+                    return;
+                }
+                catch (Exception exception)
+                {
+                    _exceptions.Add(exception);
+                    if (_delay > 0)
+                    {
+                        Task.Delay(_delay).Wait();
+                    }
                 }
             }
+
+            throw new AggregateException(_exceptions.ToArray());
         }
 
-        throw new AggregateException(_exceptions.ToArray());
+        public T Run<T>(Func<T> func)
+        {
+            while (_exceptions.Count < _limit)
+            {
+                try
+                {
+                    return func();
+                }
+                catch (Exception exception)
+                {
+                    _exceptions.Add(exception);
+                    if (_delay > 0)
+                    {
+                        Task.Delay(_delay).Wait();
+                    }
+                }
+            }
+
+            throw new AggregateException(_exceptions.ToArray());
+        }
+
+        public static void Run(Action action, int limit, int delay = 1000) => new ExceptionRepeater(limit, delay).Run(action);
+
+        public static T Run<T>(Func<T> func, int limit, int delay = 1000) => new ExceptionRepeater(limit, delay).Run(func);
     }
-
-    public static void Run(Action action, int limit, int delay = 1000) => new ExceptionRepeater(limit, delay).Run(action);
-
-    public static T Run<T>(Func<T> func, int limit, int delay = 1000) => new ExceptionRepeater(limit, delay).Run(func);
 }

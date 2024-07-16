@@ -1,35 +1,39 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Intersect.GameObjects.Events;
+using Newtonsoft.Json;
 
-public partial class EventMoveRoute
+namespace Intersect.GameObjects.Events
 {
-    public List<MoveRouteAction> Actions { get; set; } = new List<MoveRouteAction>();
-
-    public bool IgnoreIfBlocked { get; set; }
-
-    public bool RepeatRoute { get; set; }
-
-    public Guid Target { get; set; }
-
-    //Temp Values
-    [JsonIgnore]
-    public bool Complete { get; set; }
-
-    [JsonIgnore]
-    public int ActionIndex { get; set; }
-
-    public void CopyFrom(EventMoveRoute route)
+    public partial class EventMoveRoute
     {
-        Target = route.Target;
-        Complete = false;
-        ActionIndex = 0;
-        IgnoreIfBlocked = route.IgnoreIfBlocked;
-        RepeatRoute = route.RepeatRoute;
-        Actions.Clear();
-        foreach (var action in route.Actions)
+        public List<MoveRouteAction> Actions { get; set; } = new List<MoveRouteAction>();
+
+        public bool IgnoreIfBlocked { get; set; }
+
+        public bool RepeatRoute { get; set; }
+
+        public Guid Target { get; set; }
+
+        //Temp Values
+        [JsonIgnore]
+        public bool Complete { get; set; }
+
+        [JsonIgnore]
+        public int ActionIndex { get; set; }
+
+        public void CopyFrom(EventMoveRoute route)
         {
-            Actions.Add(action.Copy());
+            Target = route.Target;
+            Complete = false;
+            ActionIndex = 0;
+            IgnoreIfBlocked = route.IgnoreIfBlocked;
+            RepeatRoute = route.RepeatRoute;
+            Actions.Clear();
+            foreach (var action in route.Actions)
+            {
+                Actions.Add(action.Copy());
+            }
         }
     }
 }

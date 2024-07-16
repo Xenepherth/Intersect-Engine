@@ -1,22 +1,25 @@
 ﻿using MessagePack;
+using System;
+using System.Collections.Generic;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class MapInstanceChangedPacket : IntersectPacket
+namespace Intersect.Network.Packets.Server
 {
-    // Empty for EF
-    public MapInstanceChangedPacket() { }
-
-    public MapInstanceChangedPacket(EntityPacket[] entitiesToDispose, List<Guid> mapIds)
+    [MessagePackObject]
+    public partial class MapInstanceChangedPacket : IntersectPacket
     {
-        EntitiesToDispose = entitiesToDispose;
-        MapIdsToRefresh = mapIds;
+        // Empty for EF
+        public MapInstanceChangedPacket() { }
+
+        public MapInstanceChangedPacket(EntityPacket[] entitiesToDispose, List<Guid> mapIds)
+        {
+            EntitiesToDispose = entitiesToDispose;
+            MapIdsToRefresh = mapIds;
+        }
+
+        [Key(0)]
+        public EntityPacket[] EntitiesToDispose { get; set; }
+
+        [Key(1)]
+        public List<Guid> MapIdsToRefresh { get; set; }
     }
-
-    [Key(0)]
-    public EntityPacket[] EntitiesToDispose { get; set; }
-
-    [Key(1)]
-    public List<Guid> MapIdsToRefresh { get; set; }
 }

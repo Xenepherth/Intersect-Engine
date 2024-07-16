@@ -1,14 +1,15 @@
-﻿namespace Intersect.Enums;
-
-public enum WarpDirection
+﻿namespace Intersect.Enums
 {
-    Retain = 0,
+    public enum WarpDirection
+    {
+        Retain = 0,
 
-    Up,
+        Up,
 
-    Down,
+        Down,
 
-    Left,
+        Left,
 
-    Right,
+        Right,
+    }
 }

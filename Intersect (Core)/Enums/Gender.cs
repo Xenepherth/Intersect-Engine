@@ -1,8 +1,9 @@
-﻿namespace Intersect.Enums;
-
-public enum Gender
+﻿namespace Intersect.Enums
 {
-    Male = 0,
+    public enum Gender
+    {
+        Male = 0,
 
-    Female,
+        Female,
+    }
 }

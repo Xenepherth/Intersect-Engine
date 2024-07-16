@@ -1,69 +1,72 @@
-namespace Intersect.Client.MonoGame.NativeInterop;
+using System;
 
-public sealed class FunctionLoader
+namespace Intersect.Client.MonoGame.NativeInterop
 {
-    private readonly IntPtr _libraryHandle;
-
-    private FunctionLoader(IntPtr libraryHandle)
+    public sealed class FunctionLoader
     {
-        _libraryHandle = libraryHandle;
-    }
+        private readonly IntPtr _libraryHandle;
 
-    public FunctionLoader(string name) : this(DllLoader.PlatformLoader.LoadLibrary(name))
-    {
-    }
-
-    public FunctionLoader(KnownLibrary knownLibrary) : this(ResolveKnownLibrary(knownLibrary))
-    {
-    }
-
-    public TDelegate LoadFunction<TDelegate>(string functionName)
-    {
-        return DllLoader.PlatformLoader.LoadFunction<TDelegate>(_libraryHandle, functionName);
-    }
-
-    private static string ResolveKnownLibrary(KnownLibrary knownLibrary)
-    {
-        switch (knownLibrary)
+        private FunctionLoader(IntPtr libraryHandle)
         {
-            case KnownLibrary.OpenAL:
-                switch (PlatformHelper.CurrentPlatform)
-                {
-                    /* Fall-back to Linux if the platform is unknown */
-                    case Platform.Unknown:
-                    case Platform.Linux:
-                        return "libopenal.so.1";
+            _libraryHandle = libraryHandle;
+        }
 
-                    case Platform.MacOS: return "libopenal.1.dylib";
-                    case Platform.Windows: return "soft_oal.dll";
-                    default: throw new IndexOutOfRangeException();
-                }
+        public FunctionLoader(string name) : this(DllLoader.PlatformLoader.LoadLibrary(name))
+        {
+        }
 
-            case KnownLibrary.SDL2:
-                switch (PlatformHelper.CurrentPlatform)
-                {
-                    /* Fall-back to Linux if the platform is unknown */
-                    case Platform.Unknown:
-                    case Platform.Linux:
-                        return "libSDL2-2.0.so.0";
+        public FunctionLoader(KnownLibrary knownLibrary) : this(ResolveKnownLibrary(knownLibrary))
+        {
+        }
 
-                    case Platform.MacOS: return "libSDL2.dylib";
-                    case Platform.Windows: return "SDL2.dll";
-                    default: throw new IndexOutOfRangeException();
-                }
+        public TDelegate LoadFunction<TDelegate>(string functionName)
+        {
+            return DllLoader.PlatformLoader.LoadFunction<TDelegate>(_libraryHandle, functionName);
+        }
 
-            case KnownLibrary.steam_api:
-                return PlatformHelper.CurrentPlatform switch
-                {
-                    Platform.Unknown => "libsteam_api.so",
-                    Platform.Linux => "libsteam_api.so",
-                    Platform.MacOS => "libsteam_api.dylib",
-                    Platform.Windows => "steam_api64.dll",
-                    _ => throw new IndexOutOfRangeException(),
-                };
+        private static string ResolveKnownLibrary(KnownLibrary knownLibrary)
+        {
+            switch (knownLibrary)
+            {
+                case KnownLibrary.OpenAL:
+                    switch (PlatformHelper.CurrentPlatform)
+                    {
+                        /* Fall-back to Linux if the platform is unknown */
+                        case Platform.Unknown:
+                        case Platform.Linux:
+                            return "libopenal.so.1";
 
-            default:
-                throw new ArgumentOutOfRangeException(nameof(knownLibrary), knownLibrary, null);
+                        case Platform.MacOS: return "libopenal.1.dylib";
+                        case Platform.Windows: return "soft_oal.dll";
+                        default: throw new IndexOutOfRangeException();
+                    }
+
+                case KnownLibrary.SDL2:
+                    switch (PlatformHelper.CurrentPlatform)
+                    {
+                        /* Fall-back to Linux if the platform is unknown */
+                        case Platform.Unknown:
+                        case Platform.Linux:
+                            return "libSDL2-2.0.so.0";
+
+                        case Platform.MacOS: return "libSDL2.dylib";
+                        case Platform.Windows: return "SDL2.dll";
+                        default: throw new IndexOutOfRangeException();
+                    }
+
+                case KnownLibrary.steam_api:
+                    return PlatformHelper.CurrentPlatform switch
+                    {
+                        Platform.Unknown => "libsteam_api.so",
+                        Platform.Linux => "libsteam_api.so",
+                        Platform.MacOS => "libsteam_api.dylib",
+                        Platform.Windows => "steam_api64.dll",
+                        _ => throw new IndexOutOfRangeException(),
+                    };
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(knownLibrary), knownLibrary, null);
+            }
         }
     }
 }

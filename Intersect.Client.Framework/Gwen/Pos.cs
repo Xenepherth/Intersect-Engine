@@ -1,29 +1,33 @@
-﻿namespace Intersect.Client.Framework.Gwen;
+﻿using System;
 
-
-/// <summary>
-///     Represents relative position.
-/// </summary>
-[Flags]
-public enum Pos
+namespace Intersect.Client.Framework.Gwen
 {
 
-    None = 0,
+    /// <summary>
+    ///     Represents relative position.
+    /// </summary>
+    [Flags]
+    public enum Pos
+    {
 
-    Left = 1 << 1,
+        None = 0,
 
-    Right = 1 << 2,
+        Left = 1 << 1,
 
-    Top = 1 << 3,
+        Right = 1 << 2,
 
-    Bottom = 1 << 4,
+        Top = 1 << 3,
 
-    CenterV = 1 << 5,
+        Bottom = 1 << 4,
 
-    CenterH = 1 << 6,
+        CenterV = 1 << 5,
 
-    Fill = 1 << 7,
+        CenterH = 1 << 6,
 
-    Center = CenterV | CenterH,
+        Fill = 1 << 7,
+
+        Center = CenterV | CenterH,
+
+    }
 
 }

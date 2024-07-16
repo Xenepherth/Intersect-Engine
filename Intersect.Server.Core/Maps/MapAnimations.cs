@@ -1,35 +1,37 @@
-using Intersect.Network.Packets.Server;
+﻿using Intersect.Network.Packets.Server;
 using Intersect.Server.Entities;
+using System.Collections.Generic;
 
-namespace Intersect.Server.Maps;
-
-public partial class MapAnimations
+namespace Intersect.Server.Maps
 {
-    public List<PlayAnimationPacket> mAnimations = new List<PlayAnimationPacket>();
-
-    public void Add(PlayAnimationPacket pkt)
+    public partial class MapAnimations
     {
-        lock (mAnimations)
-        {
-            mAnimations.Add(pkt);
-        }
-    }
+        public List<PlayAnimationPacket> mAnimations = new List<PlayAnimationPacket>();
 
-    public void SendPackets(HashSet<Player> nearbyPlayers)
-    {
-        if (mAnimations.Count > 0)
+        public void Add(PlayAnimationPacket pkt)
         {
             lock (mAnimations)
             {
-                var pkt = new PlayAnimationPackets()
+                mAnimations.Add(pkt);
+            }
+        }
+
+        public void SendPackets(HashSet<Player> nearbyPlayers)
+        {
+            if (mAnimations.Count > 0)
+            {
+                lock (mAnimations)
                 {
-                    Packets = mAnimations.ToArray()
-                };
-                foreach (var plyr in nearbyPlayers)
-                {
-                    plyr.SendPacket(pkt, Network.TransmissionMode.Any);
+                    var pkt = new PlayAnimationPackets()
+                    {
+                        Packets = mAnimations.ToArray()
+                    };
+                    foreach (var plyr in nearbyPlayers)
+                    {
+                        plyr.SendPacket(pkt, Network.TransmissionMode.Any);
+                    }
+                    mAnimations.Clear();
                 }
-                mAnimations.Clear();
             }
         }
     }

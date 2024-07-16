@@ -1,46 +1,49 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
 
-namespace Intersect.Config;
+using Newtonsoft.Json;
 
-public partial class SecurityOptions
+namespace Intersect.Config
 {
-    public List<string> IpBlacklist = new List<string>();
-
-    [JsonProperty("Packets")]
-    public PacketSecurityOptions PacketOpts = new PacketSecurityOptions();
-
-    public bool CheckIp(string ip)
+    public partial class SecurityOptions
     {
-        ip = ip.Trim();
-        var parts = ip.Split('.');
-        if (parts.Length != 4)
-        {
-            return false; //Bad IP
-        }
+        public List<string> IpBlacklist = new List<string>();
 
-        //Check if all 4 parts match any of the ips on our blacklist
-        foreach (var checkIp in IpBlacklist)
+        [JsonProperty("Packets")]
+        public PacketSecurityOptions PacketOpts = new PacketSecurityOptions();
+
+        public bool CheckIp(string ip)
         {
-            var chkIp = checkIp.Trim();
-            var chkParts = chkIp.Split('.');
-            if (chkParts.Length == 4) //Valid IP
+            ip = ip.Trim();
+            var parts = ip.Split('.');
+            if (parts.Length != 4)
             {
-                var match = true;
-                for (var i = 0; i < 4; i++)
+                return false; //Bad IP
+            }
+
+            //Check if all 4 parts match any of the ips on our blacklist
+            foreach (var checkIp in IpBlacklist)
+            {
+                var chkIp = checkIp.Trim();
+                var chkParts = chkIp.Split('.');
+                if (chkParts.Length == 4) //Valid IP
                 {
-                    if (chkParts[i] != "*" && chkParts[i] != parts[i])
+                    var match = true;
+                    for (var i = 0; i < 4; i++)
                     {
-                        match = false;
+                        if (chkParts[i] != "*" && chkParts[i] != parts[i])
+                        {
+                            match = false;
+                        }
+                    }
+
+                    if (match)
+                    {
+                        return false; //Bad Ip
                     }
                 }
-
-                if (match)
-                {
-                    return false; //Bad Ip
-                }
             }
-        }
 
-        return true; //Good Ip
+            return true; //Good Ip
+        }
     }
 }

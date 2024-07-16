@@ -1,3 +1,6 @@
+using System;
+
+using Intersect.Client.Core;
 using Intersect.Client.Framework.Gwen.Control;
 using Intersect.Client.General;
 using Intersect.Client.Interface.Game.Bag;
@@ -13,573 +16,575 @@ using Intersect.Client.Networking;
 using Intersect.Enums;
 using Intersect.GameObjects;
 
-namespace Intersect.Client.Interface.Game;
-
-
-public partial class GameInterface : MutableInterface
+namespace Intersect.Client.Interface.Game
 {
 
-    public bool FocusChat;
-
-    public bool UnfocusChat;
-
-    public bool ChatFocussed => mChatBox.HasFocus;
-
-    //Public Components - For clicking/dragging
-    public HotBarWindow Hotbar;
-
-    private AdminWindow? mAdminWindow;
-
-    private BagWindow mBagWindow;
-
-    private BankWindow mBankWindow;
-
-    private Chatbox mChatBox;
-
-    private CraftingWindow mCraftingWindow;
-
-    private EventWindow mEventWindow;
-
-    private PictureWindow mPictureWindow;
-
-    private QuestOfferWindow mQuestOfferWindow;
-
-    private ShopWindow mShopWindow;
-
-    private MapItemWindow mMapItemWindow;
-
-    private bool mShouldCloseBag;
-
-    private bool mShouldCloseBank;
-
-    private bool mShouldCloseCraftingTable;
-
-    private bool mShouldCloseShop;
-
-    private bool mShouldCloseTrading;
-
-    private bool mShouldOpenAdminWindow;
-
-    private bool mShouldOpenBag;
-
-    private bool mShouldOpenBank;
-
-    private bool mShouldOpenCraftingTable;
-
-    private bool mShouldOpenShop;
-
-    private bool mShouldOpenTrading;
-
-    private bool mShouldUpdateQuestLog = true;
-
-    private bool mShouldUpdateFriendsList;
-
-    private bool mShouldUpdateGuildList;
-
-    private bool mShouldHideGuildWindow;
-
-    private string mTradingTarget;
-
-    private bool mCraftJournal {  get; set; }
-
-    private TradingWindow? mTradingWindow;
-
-    public EntityBox PlayerBox;
-
-    public PlayerStatusWindow PlayerStatusWindow;
-
-    public GameInterface(Canvas canvas) : base(canvas)
+    public partial class GameInterface : MutableInterface
     {
-        GameCanvas = canvas;
-        EscapeMenu = new EscapeMenu(GameCanvas) {IsHidden = true};
-        AnnouncementWindow = new AnnouncementWindow(GameCanvas) { IsHidden = true };
 
-        InitGameGui();
-    }
+        public bool FocusChat;
 
-    public Canvas GameCanvas { get; }
+        public bool UnfocusChat;
 
-    public EscapeMenu EscapeMenu { get; }
+        public bool ChatFocussed => mChatBox.HasFocus;
 
-    public AnnouncementWindow AnnouncementWindow { get; }
+        //Public Components - For clicking/dragging
+        public HotBarWindow Hotbar;
 
-    public Menu GameMenu { get; private set; }
+        private AdminWindow? mAdminWindow;
 
-    public void InitGameGui()
-    {
-        mChatBox = new Chatbox(GameCanvas, this);
-        GameMenu = new Menu(GameCanvas);
-        Hotbar = new HotBarWindow(GameCanvas);
-        PlayerBox = new EntityBox(GameCanvas, EntityType.Player, Globals.Me, true);
-        PlayerBox.SetEntity(Globals.Me);
-        PlayerStatusWindow = new PlayerStatusWindow(GameCanvas);
-        if (mPictureWindow == null)
+        private BagWindow mBagWindow;
+
+        private BankWindow mBankWindow;
+
+        private Chatbox mChatBox;
+
+        private CraftingWindow mCraftingWindow;
+
+        private EventWindow mEventWindow;
+
+        private PictureWindow mPictureWindow;
+
+        private QuestOfferWindow mQuestOfferWindow;
+
+        private ShopWindow mShopWindow;
+
+        private MapItemWindow mMapItemWindow;
+
+        private bool mShouldCloseBag;
+
+        private bool mShouldCloseBank;
+
+        private bool mShouldCloseCraftingTable;
+
+        private bool mShouldCloseShop;
+
+        private bool mShouldCloseTrading;
+
+        private bool mShouldOpenAdminWindow;
+
+        private bool mShouldOpenBag;
+
+        private bool mShouldOpenBank;
+
+        private bool mShouldOpenCraftingTable;
+
+        private bool mShouldOpenShop;
+
+        private bool mShouldOpenTrading;
+
+        private bool mShouldUpdateQuestLog = true;
+
+        private bool mShouldUpdateFriendsList;
+
+        private bool mShouldUpdateGuildList;
+
+        private bool mShouldHideGuildWindow;
+
+        private string mTradingTarget;
+
+        private bool mCraftJournal {  get; set; }
+
+        private TradingWindow? mTradingWindow;
+
+        public EntityBox PlayerBox;
+
+        public PlayerStatusWindow PlayerStatusWindow;
+
+        public GameInterface(Canvas canvas) : base(canvas)
         {
-            mPictureWindow = new PictureWindow(GameCanvas);
+            GameCanvas = canvas;
+            EscapeMenu = new EscapeMenu(GameCanvas) {IsHidden = true};
+            AnnouncementWindow = new AnnouncementWindow(GameCanvas) { IsHidden = true };
+
+            InitGameGui();
         }
 
-        mEventWindow = new EventWindow(GameCanvas);
-        mQuestOfferWindow = new QuestOfferWindow(GameCanvas);
-        mMapItemWindow = new MapItemWindow(GameCanvas);
-        mBankWindow = new BankWindow(GameCanvas);
-    }
+        public Canvas GameCanvas { get; }
 
-    //Chatbox
-    public void SetChatboxText(string msg)
-    {
-        mChatBox.SetChatboxText(msg);
-    }
+        public EscapeMenu EscapeMenu { get; }
 
-    //Friends Window
-    public void NotifyUpdateFriendsList()
-    {
-        mShouldUpdateFriendsList = true;
-    }
+        public AnnouncementWindow AnnouncementWindow { get; }
 
-    //Guild Window
-    public void NotifyUpdateGuildList()
-    {
-        mShouldUpdateGuildList = true;
-    }
+        public Menu GameMenu { get; private set; }
 
-    public void HideGuildWindow()
-    {
-        mShouldHideGuildWindow = true;
-    }
-
-    //Admin Window
-    public void NotifyOpenAdminWindow()
-    {
-        mShouldOpenAdminWindow = true;
-    }
-
-    public void OpenAdminWindow()
-    {
-        if (mAdminWindow == null)
+        public void InitGameGui()
         {
-            mAdminWindow ??= new AdminWindow(GameCanvas);
-        }
-        else if (mAdminWindow.IsVisible())
-        {
-            mAdminWindow.Hide();
-        }
-        else
-        {
-            mAdminWindow.Show();
-        }
-
-        mShouldOpenAdminWindow = false;
-    }
-
-    //Shop
-    public void NotifyOpenShop()
-    {
-        mShouldOpenShop = true;
-    }
-
-    public void NotifyCloseShop()
-    {
-        mShouldCloseShop = true;
-    }
-
-    public void OpenShop()
-    {
-        mShopWindow?.Close();
-
-        mShopWindow = new ShopWindow(GameCanvas);
-        mShouldOpenShop = false;
-    }
-
-    //Bank
-    public void NotifyOpenBank()
-    {
-        mShouldOpenBank = true;
-    }
-
-    public void NotifyCloseBank()
-    {
-        mShouldCloseBank = true;
-    }
-
-    public void OpenBank()
-    {
-        mBankWindow.Open();
-        mShouldOpenBank = false;
-        Globals.InBank = true;
-    }
-
-    //Bag
-    public void NotifyOpenBag()
-    {
-        mShouldOpenBag = true;
-    }
-
-    public void NotifyCloseBag()
-    {
-        mShouldCloseBag = true;
-    }
-
-    public void OpenBag()
-    {
-        mBagWindow?.Close();
-
-        mBagWindow = new BagWindow(GameCanvas);
-        mShouldOpenBag = false;
-        Globals.InBag = true;
-    }
-
-    public BagWindow GetBagWindow()
-    {
-        return mBagWindow;
-    }
-
-    public BankWindow GetBankWindow()
-    {
-        return mBankWindow;
-    }
-
-    //Crafting
-    public void NotifyOpenCraftingTable(bool journalMode)
-    {
-        mShouldOpenCraftingTable = true;
-        mCraftJournal = journalMode;
-    }
-
-    public void NotifyCloseCraftingTable()
-    {
-        mShouldCloseCraftingTable = true;
-        mCraftJournal = false;
-    }
-
-    public void OpenCraftingTable()
-    {
-        if (mCraftingWindow != null)
-        {
-            mCraftingWindow.Close();
-        }
-
-        mCraftingWindow = new CraftingWindow(GameCanvas, mCraftJournal);
-        mShouldOpenCraftingTable = false;
-        Globals.InCraft = true;
-    }
-
-    //Quest Log
-    public void NotifyQuestsUpdated()
-    {
-        mShouldUpdateQuestLog = true;
-    }
-
-    //Trading
-    public void NotifyOpenTrading(string traderName)
-    {
-        mShouldOpenTrading = true;
-        mTradingTarget = traderName;
-    }
-
-    public void NotifyCloseTrading()
-    {
-        mShouldCloseTrading = true;
-    }
-
-    public void OpenTrading()
-    {
-        mTradingWindow?.Close();
-        mTradingWindow = new TradingWindow(GameCanvas, mTradingTarget);
-        mShouldOpenTrading = false;
-        Globals.InTrade = true;
-    }
-
-    public bool AdminWindowOpen()
-    {
-        return mAdminWindow?.IsVisible() ?? false;
-    }
-
-    public void AdminWindowSelectName(string name)
-    {
-        mAdminWindow?.SetName(name);
-    }
-
-    public void Update()
-    {
-        if (Globals.Me != null && PlayerBox?.MyEntity != Globals.Me)
-        {
-            PlayerBox?.SetEntity(Globals.Me);
-        }
-
-        mChatBox?.Update();
-        GameMenu?.Update(mShouldUpdateQuestLog);
-        mShouldUpdateQuestLog = false;
-        Hotbar?.Update();
-        EscapeMenu.Update();
-        PlayerBox?.Update();
-        PlayerStatusWindow?.Update();
-        mMapItemWindow.Update();
-        AnnouncementWindow?.Update();
-        mPictureWindow?.Update();
-
-        if (Globals.QuestOffers.Count > 0)
-        {
-            var quest = QuestBase.Get(Globals.QuestOffers[0]);
-            mQuestOfferWindow.Update(quest);
-        }
-        else
-        {
-            mQuestOfferWindow.Hide();
-        }
-
-        if (Globals.Picture != null)
-        {
-            if (mPictureWindow.Picture != Globals.Picture.Picture ||
-                mPictureWindow.Size != Globals.Picture.Size ||
-                mPictureWindow.Clickable != Globals.Picture.Clickable)
+            mChatBox = new Chatbox(GameCanvas, this);
+            GameMenu = new Menu(GameCanvas);
+            Hotbar = new HotBarWindow(GameCanvas);
+            PlayerBox = new EntityBox(GameCanvas, EntityType.Player, Globals.Me, true);
+            PlayerBox.SetEntity(Globals.Me);
+            PlayerStatusWindow = new PlayerStatusWindow(GameCanvas);
+            if (mPictureWindow == null)
             {
-                mPictureWindow.Setup(Globals.Picture.Picture, Globals.Picture.Size, Globals.Picture.Clickable);
+                mPictureWindow = new PictureWindow(GameCanvas);
             }
+
+            mEventWindow = new EventWindow(GameCanvas);
+            mQuestOfferWindow = new QuestOfferWindow(GameCanvas);
+            mMapItemWindow = new MapItemWindow(GameCanvas);
+            mBankWindow = new BankWindow(GameCanvas);
         }
-        else
+
+        //Chatbox
+        public void SetChatboxText(string msg)
         {
-            if (mPictureWindow != null)
+            mChatBox.SetChatboxText(msg);
+        }
+
+        //Friends Window
+        public void NotifyUpdateFriendsList()
+        {
+            mShouldUpdateFriendsList = true;
+        }
+
+        //Guild Window
+        public void NotifyUpdateGuildList()
+        {
+            mShouldUpdateGuildList = true;
+        }
+
+        public void HideGuildWindow()
+        {
+            mShouldHideGuildWindow = true;
+        }
+
+        //Admin Window
+        public void NotifyOpenAdminWindow()
+        {
+            mShouldOpenAdminWindow = true;
+        }
+
+        public void OpenAdminWindow()
+        {
+            if (mAdminWindow == null)
             {
-                mPictureWindow.Close();
+                mAdminWindow ??= new AdminWindow(GameCanvas);
             }
-        }
-
-        mEventWindow?.Update();
-
-        //Admin window update
-        if (mShouldOpenAdminWindow)
-        {
-            OpenAdminWindow();
-        }
-
-        //Shop Update
-        if (mShouldOpenShop)
-        {
-            OpenShop();
-            GameMenu.OpenInventory();
-        }
-
-        if (mShopWindow != null && (!mShopWindow.IsVisible() || mShouldCloseShop))
-        {
-            CloseShop();
-        }
-
-        mShouldCloseShop = false;
-
-        //Bank Update
-        if (mShouldOpenBank)
-        {
-            OpenBank();
-            GameMenu.OpenInventory();
-        }
-        else if (mShouldCloseBank)
-        {
-            CloseBank();
-        }
-        else
-        {
-            mBankWindow.Update();
-        }
-
-
-
-        //Bag Update
-        if (mShouldOpenBag)
-        {
-            OpenBag();
-        }
-
-        if (mBagWindow != null)
-        {
-            if (!mBagWindow.IsVisible() || mShouldCloseBag)
+            else if (mAdminWindow.IsVisible())
             {
-                CloseBagWindow();
+                mAdminWindow.Hide();
             }
             else
             {
-                mBagWindow.Update();
+                mAdminWindow.Show();
             }
+
+            mShouldOpenAdminWindow = false;
         }
 
-        mShouldCloseBag = false;
-
-        //Crafting station update
-        if (mShouldOpenCraftingTable)
+        //Shop
+        public void NotifyOpenShop()
         {
-            OpenCraftingTable();
-            GameMenu.OpenInventory();
+            mShouldOpenShop = true;
         }
 
-        if (mCraftingWindow != null)
+        public void NotifyCloseShop()
         {
-            if (!mCraftingWindow.IsVisible() || mShouldCloseCraftingTable)
+            mShouldCloseShop = true;
+        }
+
+        public void OpenShop()
+        {
+            mShopWindow?.Close();
+
+            mShopWindow = new ShopWindow(GameCanvas);
+            mShouldOpenShop = false;
+        }
+
+        //Bank
+        public void NotifyOpenBank()
+        {
+            mShouldOpenBank = true;
+        }
+
+        public void NotifyCloseBank()
+        {
+            mShouldCloseBank = true;
+        }
+
+        public void OpenBank()
+        {
+            mBankWindow.Open();
+            mShouldOpenBank = false;
+            Globals.InBank = true;
+        }
+
+        //Bag
+        public void NotifyOpenBag()
+        {
+            mShouldOpenBag = true;
+        }
+
+        public void NotifyCloseBag()
+        {
+            mShouldCloseBag = true;
+        }
+
+        public void OpenBag()
+        {
+            mBagWindow?.Close();
+
+            mBagWindow = new BagWindow(GameCanvas);
+            mShouldOpenBag = false;
+            Globals.InBag = true;
+        }
+
+        public BagWindow GetBagWindow()
+        {
+            return mBagWindow;
+        }
+
+        public BankWindow GetBankWindow()
+        {
+            return mBankWindow;
+        }
+
+        //Crafting
+        public void NotifyOpenCraftingTable(bool journalMode)
+        {
+            mShouldOpenCraftingTable = true;
+            mCraftJournal = journalMode;
+        }
+
+        public void NotifyCloseCraftingTable()
+        {
+            mShouldCloseCraftingTable = true;
+            mCraftJournal = false;
+        }
+
+        public void OpenCraftingTable()
+        {
+            if (mCraftingWindow != null)
             {
-                CloseCraftingTable();
+                mCraftingWindow.Close();
+            }
+
+            mCraftingWindow = new CraftingWindow(GameCanvas, mCraftJournal);
+            mShouldOpenCraftingTable = false;
+            Globals.InCraft = true;
+        }
+
+        //Quest Log
+        public void NotifyQuestsUpdated()
+        {
+            mShouldUpdateQuestLog = true;
+        }
+
+        //Trading
+        public void NotifyOpenTrading(string traderName)
+        {
+            mShouldOpenTrading = true;
+            mTradingTarget = traderName;
+        }
+
+        public void NotifyCloseTrading()
+        {
+            mShouldCloseTrading = true;
+        }
+
+        public void OpenTrading()
+        {
+            mTradingWindow?.Close();
+            mTradingWindow = new TradingWindow(GameCanvas, mTradingTarget);
+            mShouldOpenTrading = false;
+            Globals.InTrade = true;
+        }
+
+        public bool AdminWindowOpen()
+        {
+            return mAdminWindow?.IsVisible() ?? false;
+        }
+
+        public void AdminWindowSelectName(string name)
+        {
+            mAdminWindow?.SetName(name);
+        }
+
+        public void Update()
+        {
+            if (Globals.Me != null && PlayerBox?.MyEntity != Globals.Me)
+            {
+                PlayerBox?.SetEntity(Globals.Me);
+            }
+
+            mChatBox?.Update();
+            GameMenu?.Update(mShouldUpdateQuestLog);
+            mShouldUpdateQuestLog = false;
+            Hotbar?.Update();
+            EscapeMenu.Update();
+            PlayerBox?.Update();
+            PlayerStatusWindow?.Update();
+            mMapItemWindow.Update();
+            AnnouncementWindow?.Update();
+            mPictureWindow?.Update();
+
+            if (Globals.QuestOffers.Count > 0)
+            {
+                var quest = QuestBase.Get(Globals.QuestOffers[0]);
+                mQuestOfferWindow.Update(quest);
             }
             else
             {
-                mCraftingWindow.Update();
+                mQuestOfferWindow.Hide();
             }
-        }
 
-        mShouldCloseCraftingTable = false;
-
-        //Trading update
-        if (mShouldOpenTrading)
-        {
-            OpenTrading();
-            GameMenu.OpenInventory();
-        }
-
-        if (mTradingWindow != null)
-        {
-            if (mShouldCloseTrading)
+            if (Globals.Picture != null)
             {
-                CloseTrading();
-                mShouldCloseTrading = false;
-            }
-            else
-            {
-                if (!mTradingWindow.IsVisible())
+                if (mPictureWindow.Picture != Globals.Picture.Picture ||
+                    mPictureWindow.Size != Globals.Picture.Size ||
+                    mPictureWindow.Clickable != Globals.Picture.Clickable)
                 {
-                    CloseTrading();
+                    mPictureWindow.Setup(Globals.Picture.Picture, Globals.Picture.Size, Globals.Picture.Clickable);
+                }
+            }
+            else
+            {
+                if (mPictureWindow != null)
+                {
+                    mPictureWindow.Close();
+                }
+            }
+
+            mEventWindow?.Update();
+
+            //Admin window update
+            if (mShouldOpenAdminWindow)
+            {
+                OpenAdminWindow();
+            }
+
+            //Shop Update
+            if (mShouldOpenShop)
+            {
+                OpenShop();
+                GameMenu.OpenInventory();
+            }
+
+            if (mShopWindow != null && (!mShopWindow.IsVisible() || mShouldCloseShop))
+            {
+                CloseShop();
+            }
+
+            mShouldCloseShop = false;
+
+            //Bank Update
+            if (mShouldOpenBank)
+            {
+                OpenBank();
+                GameMenu.OpenInventory();
+            }
+            else if (mShouldCloseBank)
+            {
+                CloseBank();
+            }
+            else
+            {
+                mBankWindow.Update();
+            }
+
+
+
+            //Bag Update
+            if (mShouldOpenBag)
+            {
+                OpenBag();
+            }
+
+            if (mBagWindow != null)
+            {
+                if (!mBagWindow.IsVisible() || mShouldCloseBag)
+                {
+                    CloseBagWindow();
                 }
                 else
                 {
-                    mTradingWindow.Update();
+                    mBagWindow.Update();
                 }
+            }
+
+            mShouldCloseBag = false;
+
+            //Crafting station update
+            if (mShouldOpenCraftingTable)
+            {
+                OpenCraftingTable();
+                GameMenu.OpenInventory();
+            }
+
+            if (mCraftingWindow != null)
+            {
+                if (!mCraftingWindow.IsVisible() || mShouldCloseCraftingTable)
+                {
+                    CloseCraftingTable();
+                }
+                else
+                {
+                    mCraftingWindow.Update();
+                }
+            }
+
+            mShouldCloseCraftingTable = false;
+
+            //Trading update
+            if (mShouldOpenTrading)
+            {
+                OpenTrading();
+                GameMenu.OpenInventory();
+            }
+
+            if (mTradingWindow != null)
+            {
+                if (mShouldCloseTrading)
+                {
+                    CloseTrading();
+                    mShouldCloseTrading = false;
+                }
+                else
+                {
+                    if (!mTradingWindow.IsVisible())
+                    {
+                        CloseTrading();
+                    }
+                    else
+                    {
+                        mTradingWindow.Update();
+                    }
+                }
+            }
+
+            if (mShouldUpdateFriendsList)
+            {
+                GameMenu.UpdateFriendsList();
+                mShouldUpdateFriendsList = false;
+            }
+
+            if (mShouldUpdateGuildList)
+            {
+                GameMenu.UpdateGuildList();
+                mShouldUpdateGuildList = false;
+            }
+
+            if (mShouldHideGuildWindow)
+            {
+                GameMenu.HideGuildWindow();
+                mShouldHideGuildWindow = false;
+            }
+
+            mShouldCloseTrading = false;
+
+            if (FocusChat)
+            {
+                mChatBox.Focus();
+                FocusChat = false;
+            }
+
+            if (UnfocusChat)
+            {
+                mChatBox.UnFocus();
+                UnfocusChat = false;
             }
         }
 
-        if (mShouldUpdateFriendsList)
+        public void Draw()
         {
-            GameMenu.UpdateFriendsList();
-            mShouldUpdateFriendsList = false;
+            GameCanvas.RenderCanvas();
         }
 
-        if (mShouldUpdateGuildList)
+        private void CloseShop()
         {
-            GameMenu.UpdateGuildList();
-            mShouldUpdateGuildList = false;
+            Globals.GameShop = null;
+            mShopWindow?.Close();
+            mShopWindow = null;
+            PacketSender.SendCloseShop();
         }
 
-        if (mShouldHideGuildWindow)
+        private void CloseBank()
         {
-            GameMenu.HideGuildWindow();
-            mShouldHideGuildWindow = false;
+            mBankWindow.Close();
+            Globals.InBank = false;
+            PacketSender.SendCloseBank();
+            mShouldCloseBank = false;
         }
 
-        mShouldCloseTrading = false;
-
-        if (FocusChat)
+        private void CloseBagWindow()
         {
-            mChatBox.Focus();
-            FocusChat = false;
+            mBagWindow?.Close();
+            mBagWindow = null;
+            Globals.InBag = false;
+            PacketSender.SendCloseBag();
         }
 
-        if (UnfocusChat)
+        private void CloseCraftingTable()
         {
-            mChatBox.UnFocus();
-            UnfocusChat = false;
+            mCraftingWindow?.Close();
+            mCraftingWindow = null;
+            Globals.InCraft = false;
+            PacketSender.SendCloseCrafting();
         }
-    }
 
-    public void Draw()
-    {
-        GameCanvas.RenderCanvas();
-    }
+        private void CloseTrading()
+        {
+            mTradingWindow?.Close();
+            mTradingWindow = null;
+            Globals.InTrade = false;
+            PacketSender.SendDeclineTrade();
+        }
 
-    private void CloseShop()
-    {
-        Globals.GameShop = null;
-        mShopWindow?.Close();
-        mShopWindow = null;
-        PacketSender.SendCloseShop();
-    }
+        public bool CloseAllWindows()
+        {
+            var closedWindows = false;
+            if (mBagWindow != null && mBagWindow.IsVisible())
+            {
+                CloseBagWindow();
+                closedWindows = true;
+            }
 
-    private void CloseBank()
-    {
-        mBankWindow.Close();
-        Globals.InBank = false;
-        PacketSender.SendCloseBank();
-        mShouldCloseBank = false;
-    }
+            if (mTradingWindow != null && mTradingWindow.IsVisible())
+            {
+                CloseTrading();
+                closedWindows = true;
+            }
 
-    private void CloseBagWindow()
-    {
-        mBagWindow?.Close();
-        mBagWindow = null;
-        Globals.InBag = false;
-        PacketSender.SendCloseBag();
-    }
+            if (mBankWindow != null && mBankWindow.IsVisible())
+            {
+                CloseBank();
+                closedWindows = true;
+            }
 
-    private void CloseCraftingTable()
-    {
-        mCraftingWindow?.Close();
-        mCraftingWindow = null;
-        Globals.InCraft = false;
-        PacketSender.SendCloseCrafting();
-    }
+            if (mCraftingWindow != null && mCraftingWindow.IsVisible() && !mCraftingWindow.IsCrafting)
+            {
+                CloseCraftingTable();
+                closedWindows = true;
+            }
 
-    private void CloseTrading()
-    {
-        mTradingWindow?.Close();
-        mTradingWindow = null;
-        Globals.InTrade = false;
-        PacketSender.SendDeclineTrade();
-    }
+            if (mShopWindow != null && mShopWindow.IsVisible())
+            {
+                CloseShop();
+                closedWindows = true;
+            }
 
-    public bool CloseAllWindows()
-    {
-        var closedWindows = false;
-        if (mBagWindow != null && mBagWindow.IsVisible())
+            if (GameMenu != null && GameMenu.HasWindowsOpen())
+            {
+                GameMenu.CloseAllWindows();
+                closedWindows = true;
+            }
+
+            return closedWindows;
+        }
+
+        //Dispose
+        public void Dispose()
         {
             CloseBagWindow();
-            closedWindows = true;
-        }
-
-        if (mTradingWindow != null && mTradingWindow.IsVisible())
-        {
-            CloseTrading();
-            closedWindows = true;
-        }
-
-        if (mBankWindow != null && mBankWindow.IsVisible())
-        {
             CloseBank();
-            closedWindows = true;
-        }
-
-        if (mCraftingWindow != null && mCraftingWindow.IsVisible() && !mCraftingWindow.IsCrafting)
-        {
             CloseCraftingTable();
-            closedWindows = true;
-        }
-
-        if (mShopWindow != null && mShopWindow.IsVisible())
-        {
             CloseShop();
-            closedWindows = true;
+            CloseTrading();
+            GameCanvas.Dispose();
         }
 
-        if (GameMenu != null && GameMenu.HasWindowsOpen())
-        {
-            GameMenu.CloseAllWindows();
-            closedWindows = true;
-        }
-
-        return closedWindows;
-    }
-
-    //Dispose
-    public void Dispose()
-    {
-        CloseBagWindow();
-        CloseBank();
-        CloseCraftingTable();
-        CloseShop();
-        CloseTrading();
-        GameCanvas.Dispose();
     }
 
 }

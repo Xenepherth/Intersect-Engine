@@ -1,25 +1,29 @@
-﻿namespace Intersect.Client.Entities.Events;
+﻿using System;
 
-
-public partial class Dialog
+namespace Intersect.Client.Entities.Events
 {
 
-    public Guid EventId;
+    public partial class Dialog
+    {
 
-    public string Face = "";
+        public Guid EventId;
 
-    public string Opt1 = "";
+        public string Face = "";
 
-    public string Opt2 = "";
+        public string Opt1 = "";
 
-    public string Opt3 = "";
+        public string Opt2 = "";
 
-    public string Opt4 = "";
+        public string Opt3 = "";
 
-    public string Prompt = "";
+        public string Opt4 = "";
 
-    public int ResponseSent;
+        public string Prompt = "";
 
-    public int Type;
+        public int ResponseSent;
+
+        public int Type;
+
+    }
 
 }

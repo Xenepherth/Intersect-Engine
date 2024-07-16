@@ -1,95 +1,99 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 
-namespace Intersect.Logging;
-
-
-public static partial class MemoryDump
+namespace Intersect.Logging
 {
 
-    private static string sDumpDirectory;
-
-    static MemoryDump()
+    public static partial class MemoryDump
     {
-        DumpDirectory = "logs/dumps";
-    }
 
-    public static string DumpDirectory
-    {
-        get => Path.Combine(Environment.CurrentDirectory, sDumpDirectory ?? "");
-        set => sDumpDirectory = value;
-    }
+        private static string sDumpDirectory;
 
-    private static void EnsureDirectory()
-    {
-        if (!Directory.Exists(DumpDirectory))
+        static MemoryDump()
         {
-            Directory.CreateDirectory(DumpDirectory);
-        }
-    }
-
-    private static string GetDumpFilename()
-    {
-        return Path.Combine(DumpDirectory, $"{DateTime.Now:yyyy_MM_dd-HH_mm_ss_fff}.log");
-    }
-
-    public static bool Dump(byte[] data)
-    {
-        if (data == null)
-        {
-            throw new ArgumentNullException();
+            DumpDirectory = "logs/dumps";
         }
 
-        var written = false;
-        using (var writeStream = new FileStream(GetDumpFilename(), FileMode.CreateNew, FileAccess.Write))
+        public static string DumpDirectory
         {
-            if (data.Length > 0)
+            get => Path.Combine(Environment.CurrentDirectory, sDumpDirectory ?? "");
+            set => sDumpDirectory = value;
+        }
+
+        private static void EnsureDirectory()
+        {
+            if (!Directory.Exists(DumpDirectory))
             {
-                writeStream.Write(data, 0, data.Length);
-                written = true;
+                Directory.CreateDirectory(DumpDirectory);
             }
-            else
+        }
+
+        private static string GetDumpFilename()
+        {
+            return Path.Combine(DumpDirectory, $"{DateTime.Now:yyyy_MM_dd-HH_mm_ss_fff}.log");
+        }
+
+        public static bool Dump(byte[] data)
+        {
+            if (data == null)
             {
-                var bytes = Encoding.UTF8.GetBytes("There was no data to dump.");
-                writeStream.Write(bytes, 0, bytes.Length);
+                throw new ArgumentNullException();
             }
 
-            writeStream.Close();
-        }
-
-        return written;
-    }
-
-    public static bool Dump(Stream stream)
-    {
-        if (stream == null)
-        {
-            throw new ArgumentNullException();
-        }
-
-        var written = false;
-        using (var writeStream = new FileStream(GetDumpFilename(), FileMode.CreateNew, FileAccess.Write))
-        {
-            if (stream.Length > 0)
+            var written = false;
+            using (var writeStream = new FileStream(GetDumpFilename(), FileMode.CreateNew, FileAccess.Write))
             {
-                int read;
-                var buffer = new byte[4096];
-                while (0 < (read = stream.Read(buffer, 0, 4096)))
+                if (data.Length > 0)
                 {
-                    writeStream.Write(buffer, 0, read);
+                    writeStream.Write(data, 0, data.Length);
+                    written = true;
+                }
+                else
+                {
+                    var bytes = Encoding.UTF8.GetBytes("There was no data to dump.");
+                    writeStream.Write(bytes, 0, bytes.Length);
                 }
 
-                written = true;
-            }
-            else
-            {
-                var bytes = Encoding.UTF8.GetBytes("There was no data to dump.");
-                writeStream.Write(bytes, 0, bytes.Length);
+                writeStream.Close();
             }
 
-            writeStream.Close();
+            return written;
         }
 
-        return written;
+        public static bool Dump(Stream stream)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var written = false;
+            using (var writeStream = new FileStream(GetDumpFilename(), FileMode.CreateNew, FileAccess.Write))
+            {
+                if (stream.Length > 0)
+                {
+                    int read;
+                    var buffer = new byte[4096];
+                    while (0 < (read = stream.Read(buffer, 0, 4096)))
+                    {
+                        writeStream.Write(buffer, 0, read);
+                    }
+
+                    written = true;
+                }
+                else
+                {
+                    var bytes = Encoding.UTF8.GetBytes("There was no data to dump.");
+                    writeStream.Write(bytes, 0, bytes.Length);
+                }
+
+                writeStream.Close();
+            }
+
+            return written;
+        }
+
     }
 
 }

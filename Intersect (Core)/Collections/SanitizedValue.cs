@@ -1,17 +1,19 @@
-﻿namespace Intersect.Collections;
-
-
-public partial struct SanitizedValue<T>
+﻿namespace Intersect.Collections
 {
 
-    public T Before { get; }
-
-    public T After { get; }
-
-    public SanitizedValue(T before, T after)
+    public partial struct SanitizedValue<T>
     {
-        Before = before;
-        After = after;
+
+        public T Before { get; }
+
+        public T After { get; }
+
+        public SanitizedValue(T before, T after)
+        {
+            Before = before;
+            After = after;
+        }
+
     }
 
 }

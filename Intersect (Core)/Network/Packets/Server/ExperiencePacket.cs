@@ -1,25 +1,27 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class ExperiencePacket : IntersectPacket
+namespace Intersect.Network.Packets.Server
 {
-    //Parameterless Constructor for MessagePack
-    public ExperiencePacket()
+    [MessagePackObject]
+    public partial class ExperiencePacket : IntersectPacket
     {
+        //Parameterless Constructor for MessagePack
+        public ExperiencePacket()
+        {
+        }
+
+        public ExperiencePacket(long exp, long tnl)
+        {
+            Experience = exp;
+            ExperienceToNextLevel = tnl;
+        }
+
+        [Key(0)]
+        public long Experience { get; set; }
+
+        [Key(1)]
+        public long ExperienceToNextLevel { get; set; }
+
     }
-
-    public ExperiencePacket(long exp, long tnl)
-    {
-        Experience = exp;
-        ExperienceToNextLevel = tnl;
-    }
-
-    [Key(0)]
-    public long Experience { get; set; }
-
-    [Key(1)]
-    public long ExperienceToNextLevel { get; set; }
 
 }

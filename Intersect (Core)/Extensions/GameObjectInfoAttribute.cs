@@ -1,18 +1,22 @@
-﻿namespace Intersect.Extensions;
+﻿using System;
 
-
-[AttributeUsage(AttributeTargets.Field, Inherited = false)]
-public sealed partial class GameObjectInfoAttribute : Attribute
+namespace Intersect.Extensions
 {
 
-    public GameObjectInfoAttribute(Type type, string table)
+    [AttributeUsage(AttributeTargets.Field, Inherited = false)]
+    public sealed partial class GameObjectInfoAttribute : Attribute
     {
-        Type = type;
-        Table = table;
+
+        public GameObjectInfoAttribute(Type type, string table)
+        {
+            Type = type;
+            Table = table;
+        }
+
+        public Type Type { get; }
+
+        public string Table { get; }
+
     }
-
-    public Type Type { get; }
-
-    public string Table { get; }
 
 }

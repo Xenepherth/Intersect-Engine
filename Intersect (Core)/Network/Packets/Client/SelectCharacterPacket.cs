@@ -1,21 +1,24 @@
 ﻿using MessagePack;
+using System;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class SelectCharacterPacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    //Parameterless Constructor for MessagePack
-    public SelectCharacterPacket()
+    [MessagePackObject]
+    public partial class SelectCharacterPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public SelectCharacterPacket()
+        {
+        }
 
-    public SelectCharacterPacket(Guid charId)
-    {
-        CharacterId = charId;
-    }
+        public SelectCharacterPacket(Guid charId)
+        {
+            CharacterId = charId;
+        }
 
-    [Key(0)]
-    public Guid CharacterId { get; set; }
+        [Key(0)]
+        public Guid CharacterId { get; set; }
+
+    }
 
 }

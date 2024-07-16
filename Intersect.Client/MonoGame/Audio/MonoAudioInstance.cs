@@ -1,16 +1,20 @@
-﻿using Intersect.Client.Framework.Audio;
+﻿using System;
 
-namespace Intersect.Client.MonoGame.Audio;
+using Intersect.Client.Framework.Audio;
 
-
-public abstract partial class MonoAudioInstance<TSource> : GameAudioInstance where TSource : GameAudioSource
+namespace Intersect.Client.MonoGame.Audio
 {
 
-    /// <inheritdoc />
-    protected MonoAudioInstance(GameAudioSource source) : base(source)
+    public abstract partial class MonoAudioInstance<TSource> : GameAudioInstance where TSource : GameAudioSource
     {
-    }
 
-    public new TSource Source => base.Source as TSource ?? throw new InvalidOperationException();
+        /// <inheritdoc />
+        protected MonoAudioInstance(GameAudioSource source) : base(source)
+        {
+        }
+
+        public new TSource Source => base.Source as TSource ?? throw new InvalidOperationException();
+
+    }
 
 }

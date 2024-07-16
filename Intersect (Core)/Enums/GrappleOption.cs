@@ -1,12 +1,13 @@
-namespace Intersect.Enums;
-
-public enum GrappleOption
+namespace Intersect.Enums
 {
-    MapAttribute = 0,
+    public enum GrappleOption
+    {
+        MapAttribute = 0,
 
-    Player,
+        Player,
 
-    NPC,
+        NPC,
 
-    Resource,
+        Resource,
+    }
 }

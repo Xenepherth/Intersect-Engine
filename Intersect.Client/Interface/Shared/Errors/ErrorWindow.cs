@@ -1,50 +1,56 @@
-﻿using Intersect.Client.Core;
+﻿using System;
+using System.Collections.Generic;
+
+using Intersect.Client.Core;
 using Intersect.Client.Framework.File_Management;
+using Intersect.Client.Framework.Graphics;
 using Intersect.Client.Framework.Gwen.Control;
 using Intersect.Client.Interface.Game;
 
-namespace Intersect.Client.Interface.Shared.Errors;
-
-
-partial class ErrorWindow
+namespace Intersect.Client.Interface.Shared.Errors
 {
 
-    List<InputBox> mErrorWindows = new List<InputBox>();
-
-    public ErrorWindow(Canvas gameCanvas, Canvas menuCanvas, string error, string header)
+    partial class ErrorWindow
     {
-        CreateErrorWindow(gameCanvas, error, header, GameContentManager.UI.InGame);
-        CreateErrorWindow(menuCanvas, error, header, GameContentManager.UI.Menu);
-    }
 
-    private void CreateErrorWindow(Canvas canvas, string error, string header, GameContentManager.UI stage)
-    {
-        var window = new InputBox(
-            header, error, false, InputBox.InputType.OkayOnly, OkayClicked, null, -1, 0, 0, canvas, stage
-        );
+        List<InputBox> mErrorWindows = new List<InputBox>();
 
-        mErrorWindows.Add(window);
-    }
-
-    private void OkayClicked(Object sender, EventArgs args)
-    {
-        foreach (var window in mErrorWindows)
+        public ErrorWindow(Canvas gameCanvas, Canvas menuCanvas, string error, string header)
         {
-            window.Dispose();
+            CreateErrorWindow(gameCanvas, error, header, GameContentManager.UI.InGame);
+            CreateErrorWindow(menuCanvas, error, header, GameContentManager.UI.Menu);
         }
-    }
 
-    public bool Update()
-    {
-        return true;
-    }
+        private void CreateErrorWindow(Canvas canvas, string error, string header, GameContentManager.UI stage)
+        {
+            var window = new InputBox(
+                header, error, false, InputBox.InputType.OkayOnly, OkayClicked, null, -1, 0, 0, canvas, stage
+            );
 
-    protected virtual void ErrorBox_Resized(Base sender, EventArgs arguments)
-    {
-        sender.SetPosition(
-            Graphics.Renderer.GetScreenWidth() / 2 - sender.Width / 2,
-            Graphics.Renderer.GetScreenHeight() / 2 - sender.Height / 2
-        );
+            mErrorWindows.Add(window);
+        }
+
+        private void OkayClicked(Object sender, EventArgs args)
+        {
+            foreach (var window in mErrorWindows)
+            {
+                window.Dispose();
+            }
+        }
+
+        public bool Update()
+        {
+            return true;
+        }
+
+        protected virtual void ErrorBox_Resized(Base sender, EventArgs arguments)
+        {
+            sender.SetPosition(
+                Graphics.Renderer.GetScreenWidth() / 2 - sender.Width / 2,
+                Graphics.Renderer.GetScreenHeight() / 2 - sender.Height / 2
+            );
+        }
+
     }
 
 }

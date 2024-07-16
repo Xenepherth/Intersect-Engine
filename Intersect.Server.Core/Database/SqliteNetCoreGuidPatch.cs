@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Dapper;
 using Intersect.Config;
 using Intersect.Logging;

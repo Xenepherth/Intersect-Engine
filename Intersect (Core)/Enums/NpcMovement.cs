@@ -1,12 +1,13 @@
-﻿namespace Intersect.Enums;
-
-public enum NpcMovement
+﻿namespace Intersect.Enums
 {
-    MoveRandomly = 0,
+    public enum NpcMovement
+    {
+        MoveRandomly = 0,
 
-    TurnRandomly,
+        TurnRandomly,
 
-    StandStill,
+        StandStill,
 
-    Static,
+        Static,
+    }
 }

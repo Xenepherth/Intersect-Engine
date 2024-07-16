@@ -1,45 +1,48 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 using Newtonsoft.Json;
 
-namespace Intersect.Localization;
-
-
-[Serializable]
-public partial class LocaleArgument : LocaleDescribableToken
+namespace Intersect.Localization
 {
 
-    [JsonProperty(
-        nameof(ShortName), NullValueHandling = NullValueHandling.Ignore,
-        DefaultValueHandling = DefaultValueHandling.Ignore
-    )]
-    [DefaultValue(char.MinValue)]
-    private char mShortName;
-
-    public LocaleArgument()
+    [Serializable]
+    public partial class LocaleArgument : LocaleDescribableToken
     {
-    }
 
-    public LocaleArgument(
-        string name,
-        char shortName = char.MinValue,
-        string description = null
-    ) : base(name, description)
-    {
-        mShortName = shortName;
-    }
+        [JsonProperty(
+            nameof(ShortName), NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore
+        )]
+        [DefaultValue(char.MinValue)]
+        private char mShortName;
 
-    [JsonIgnore]
-    public virtual char ShortName
-    {
-        get => mShortName;
-        set
+        public LocaleArgument()
         {
-            if (mShortName == char.MinValue)
+        }
+
+        public LocaleArgument(
+            string name,
+            char shortName = char.MinValue,
+            string description = null
+        ) : base(name, description)
+        {
+            mShortName = shortName;
+        }
+
+        [JsonIgnore]
+        public virtual char ShortName
+        {
+            get => mShortName;
+            set
             {
-                mShortName = value;
+                if (mShortName == char.MinValue)
+                {
+                    mShortName = value;
+                }
             }
         }
+
     }
 
 }

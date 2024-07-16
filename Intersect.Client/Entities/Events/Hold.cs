@@ -1,17 +1,21 @@
-﻿namespace Intersect.Client.Entities.Events;
+﻿using System;
 
-
-public partial class Hold
+namespace Intersect.Client.Entities.Events
 {
 
-    public Guid EventId;
-
-    public Guid MapId;
-
-    public Hold(Guid eventId, Guid mapId)
+    public partial class Hold
     {
-        EventId = eventId;
-        MapId = mapId;
+
+        public Guid EventId;
+
+        public Guid MapId;
+
+        public Hold(Guid eventId, Guid mapId)
+        {
+            EventId = eventId;
+            MapId = mapId;
+        }
+
     }
 
 }

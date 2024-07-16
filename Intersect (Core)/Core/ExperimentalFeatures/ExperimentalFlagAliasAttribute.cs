@@ -1,20 +1,24 @@
-﻿namespace Intersect.Core.ExperimentalFeatures;
+﻿using System;
 
-
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public partial class ExperimentalFlagAliasAttribute : Attribute
+namespace Intersect.Core.ExperimentalFeatures
 {
 
-    public ExperimentalFlagAliasAttribute(string of)
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public partial class ExperimentalFlagAliasAttribute : Attribute
     {
-        if (string.IsNullOrWhiteSpace(of))
+
+        public ExperimentalFlagAliasAttribute(string of)
         {
-            throw new ArgumentNullException(nameof(of));
+            if (string.IsNullOrWhiteSpace(of))
+            {
+                throw new ArgumentNullException(nameof(of));
+            }
+
+            Of = of;
         }
 
-        Of = of;
-    }
+        public string Of { get; }
 
-    public string Of { get; }
+    }
 
 }

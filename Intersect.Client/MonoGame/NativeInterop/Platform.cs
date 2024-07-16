@@ -1,9 +1,10 @@
-namespace Intersect.Client.MonoGame.NativeInterop;
-
-public enum Platform
+namespace Intersect.Client.MonoGame.NativeInterop
 {
-    Unknown,
-    Linux,
-    MacOS,
-    Windows
+    public enum Platform
+    {
+        Unknown,
+        Linux,
+        MacOS,
+        Windows
+    }
 }

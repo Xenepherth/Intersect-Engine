@@ -1,57 +1,115 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Intersect.Utilities;
-
-
-public static partial class FieldChecking
+namespace Intersect.Utilities
 {
 
-    //Field Checking
-    public const string PATTERN_EMAIL_ADDRESS =
-        @"^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$";
-
-    public const string PATTERN_PASSWORD = @"^[-_=\+`~!@#\$%\^&\*()\[\]{}\\|;\:'"",<\.>/\?a-zA-Z0-9]{4,64}$";
-
-    public const string PATTERN_USERNAME = @"^[a-zA-Z0-9]{2,24}$";
-
-    public const string PATTERN_GUILDNAME = @"^[a-zA-Z0-9 ]{3,20}$";
-
-    //Field Checking
-    public const string PATTERN_EMAIL_ADDRESS =
-    @"^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$";
-
-    public const string PATTERN_PASSWORD = @"^[-_=\+`~!@#\$%\^&\*()\[\]{}\\|;\:'"",<\.>/\?a-zA-Z0-9]{4,64}$";
-
-    public const string PATTERN_USERNAME = @"^[a-zA-Z0-9]{2,24}$";
-
-    public const string PATTERN_GUILDNAME = @"^[a-zA-Z0-9 ]{3,20}$";
-
-    public const string PATTERN_NATIONNAME = @"^[a-zA-Z0-9 ]{3,20}$";
-
-    public static bool IsWellformedEmailAddress(string email, string emailRegex)
+    public static partial class FieldChecking
     {
-        if (email == null)
 
-        {
-            return false;
-        }
+        //Field Checking
+        public const string PATTERN_EMAIL_ADDRESS =
+            @"^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$";
 
-        try
+        public const string PATTERN_PASSWORD = @"^[-_=\+`~!@#\$%\^&\*()\[\]{}\\|;\:'"",<\.>/\?a-zA-Z0-9]{4,64}$";
+
+        public const string PATTERN_USERNAME = @"^[a-zA-Z0-9]{2,24}$";
+
+        public const string PATTERN_GUILDNAME = @"^[a-zA-Z0-9 ]{3,20}$";
+
+        public const string PATTERN_NATIONNAME = @"^[a-zA-Z0-9 ]{3,20}$";
+
+        public static bool IsWellformedEmailAddress(string email, string emailRegex)
         {
-            var customPattern = emailRegex;
-            if (string.IsNullOrEmpty(customPattern))
+            if (email == null)
             {
-                customPattern = PATTERN_EMAIL_ADDRESS;
+                return false;
             }
 
-            return Regex.IsMatch(email, customPattern);
+            try
+            {
+                var customPattern = emailRegex;
+                if (string.IsNullOrEmpty(customPattern))
+                {
+                    customPattern = PATTERN_EMAIL_ADDRESS;
+                }
+
+                return Regex.IsMatch(email, customPattern);
+            }
+            catch (ArgumentException)
+            {
+                return Regex.IsMatch(email, PATTERN_EMAIL_ADDRESS);
+            }
         }
-        catch (ArgumentException)
+
+        public static bool IsValidUsername(string username, string usernameRegex)
         {
-            return Regex.IsMatch(email, PATTERN_EMAIL_ADDRESS);
+            if (username == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var customPattern = usernameRegex;
+                if (string.IsNullOrEmpty(customPattern))
+                {
+                    customPattern = PATTERN_USERNAME;
+                }
+
+                return Regex.IsMatch(username.Trim(), customPattern);
+            }
+            catch (ArgumentException)
+            {
+                return Regex.IsMatch(username.Trim(), PATTERN_USERNAME);
+            }
         }
-    }
+
+        public static bool IsValidPassword(string password, string passwordRegex)
+        {
+            if (password == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var customPattern = passwordRegex;
+                if (string.IsNullOrEmpty(customPattern))
+                {
+                    customPattern = PATTERN_PASSWORD;
+                }
+
+                return Regex.IsMatch(password.Trim(), customPattern);
+            }
+            catch (ArgumentException)
+            {
+                return Regex.IsMatch(password.Trim(), PATTERN_PASSWORD);
+            }
+        }
+
+        public static bool IsValidGuildName(string guildName, string guildNameRegex)
+        {
+            if (guildName == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                var customPattern = guildNameRegex;
+                if (string.IsNullOrEmpty(customPattern))
+                {
+                    customPattern = PATTERN_GUILDNAME;
+                }
+
+                return Regex.IsMatch(guildName.Trim(), customPattern);
+            }
+            catch (ArgumentException)
+            {
+                return Regex.IsMatch(guildName.Trim(), PATTERN_GUILDNAME);
+            }
+        }
 
         public static bool IsValidNationName(string nationName, string nationNameRegex)
         {
@@ -72,76 +130,9 @@ public static partial class FieldChecking
             }
             catch (ArgumentException)
             {
-                return Regex.IsMatch(nationName.Trim(), PATTERN_NATIONNAME);
+                return Regex.IsMatch(nationName.Trim(), PATTERN_GUILDNAME);
             }
-        }
-
-    public static bool IsValidUsername(string username, string usernameRegex)
-    {
-        if (username == null)
-        {
-            return false;
-        }
-
-        try
-        {
-            var customPattern = usernameRegex;
-            if (string.IsNullOrEmpty(customPattern))
-            {
-                customPattern = PATTERN_USERNAME;
-            }
-
-            return Regex.IsMatch(username.Trim(), customPattern);
-        }
-        catch (ArgumentException)
-        {
-            return Regex.IsMatch(username.Trim(), PATTERN_USERNAME);
         }
     }
 
-    public static bool IsValidPassword(string password, string passwordRegex)
-    {
-        if (password == null)
-        {
-            return false;
-        }
-
-        try
-        {
-            var customPattern = passwordRegex;
-            if (string.IsNullOrEmpty(customPattern))
-            {
-                customPattern = PATTERN_PASSWORD;
-            }
-
-            return Regex.IsMatch(password.Trim(), customPattern);
-        }
-        catch (ArgumentException)
-        {
-            return Regex.IsMatch(password.Trim(), PATTERN_PASSWORD);
-        }
-    }
-
-    public static bool IsValidGuildName(string guildName, string guildNameRegex)
-    {
-        if (guildName == null)
-        {
-            return false;
-        }
-
-        try
-        {
-            var customPattern = guildNameRegex;
-            if (string.IsNullOrEmpty(customPattern))
-            {
-                customPattern = PATTERN_GUILDNAME;
-            }
-
-            return Regex.IsMatch(guildName.Trim(), customPattern);
-        }
-        catch (ArgumentException)
-        {
-            return Regex.IsMatch(guildName.Trim(), PATTERN_GUILDNAME);
-        }
-    }
 }

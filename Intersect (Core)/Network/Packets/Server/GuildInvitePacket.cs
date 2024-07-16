@@ -1,28 +1,29 @@
 ﻿
 using MessagePack;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class GuildInvitePacket : IntersectPacket
+namespace Intersect.Network.Packets.Server
 {
-    /// <summary>
-    /// Parameterless Constructor for MessagePack
-    /// </summary>
-    public GuildInvitePacket()
+    [MessagePackObject]
+    public partial class GuildInvitePacket : IntersectPacket
     {
+        /// <summary>
+        /// Parameterless Constructor for MessagePack
+        /// </summary>
+        public GuildInvitePacket()
+        {
 
+        }
+
+        public GuildInvitePacket(string inviter, string guildName)
+        {
+            Inviter = inviter;
+            GuildName = guildName;
+        }
+
+        [Key(0)]
+        public string Inviter { get; set; }
+
+        [Key(1)]
+        public string GuildName { get; set; }
     }
-
-    public GuildInvitePacket(string inviter, string guildName)
-    {
-        Inviter = inviter;
-        GuildName = guildName;
-    }
-
-    [Key(0)]
-    public string Inviter { get; set; }
-
-    [Key(1)]
-    public string GuildName { get; set; }
 }

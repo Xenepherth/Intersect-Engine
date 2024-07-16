@@ -1,21 +1,25 @@
-﻿namespace Intersect.Security;
+﻿using System;
 
-
-[AttributeUsage(
-    AttributeTargets.Class |
-    AttributeTargets.Interface |
-    AttributeTargets.Struct |
-    AttributeTargets.Field |
-    AttributeTargets.Property
-)]
-public partial class ApiVisibilityAttribute : Attribute
+namespace Intersect.Security
 {
 
-    public ApiVisibilityAttribute(ApiVisibility visibility)
+    [AttributeUsage(
+        AttributeTargets.Class |
+        AttributeTargets.Interface |
+        AttributeTargets.Struct |
+        AttributeTargets.Field |
+        AttributeTargets.Property
+    )]
+    public partial class ApiVisibilityAttribute : Attribute
     {
-        Visibility = visibility;
-    }
 
-    public ApiVisibility Visibility { get; }
+        public ApiVisibilityAttribute(ApiVisibility visibility)
+        {
+            Visibility = visibility;
+        }
+
+        public ApiVisibility Visibility { get; }
+
+    }
 
 }

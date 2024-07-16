@@ -1,21 +1,24 @@
-namespace Intersect.Client.Framework.Gwen.Control.Data;
+using System;
 
-public partial class CellDataChangedEventArgs : EventArgs
+namespace Intersect.Client.Framework.Gwen.Control.Data
 {
-    public CellDataChangedEventArgs(object oldValue, object newValue)
+    public partial class CellDataChangedEventArgs : EventArgs
     {
-        OldValue = oldValue;
-        NewValue = newValue;
+        public CellDataChangedEventArgs(object oldValue, object newValue)
+        {
+            OldValue = oldValue;
+            NewValue = newValue;
+        }
+
+        public object OldValue { get; }
+
+        public object NewValue { get; }
     }
 
-    public object OldValue { get; }
+    public delegate void TableCellDataChangedEventHandler(object sender, CellDataChangedEventArgs args);
 
-    public object NewValue { get; }
-}
-
-public delegate void TableCellDataChangedEventHandler(object sender, CellDataChangedEventArgs args);
-
-public interface ITableCellDataProvider
-{
-    event TableCellDataChangedEventHandler DataChanged;
+    public interface ITableCellDataProvider
+    {
+        event TableCellDataChangedEventHandler DataChanged;
+    }
 }

@@ -1,77 +1,81 @@
-﻿namespace Intersect.Core.ExperimentalFeatures;
+﻿using System;
 
-
-public partial struct ExperimentalFlagAlias : IExperimentalFlag
+namespace Intersect.Core.ExperimentalFeatures
 {
 
-    private readonly IFlagProvider mFlagProvider;
-
-    private readonly string mTargetName;
-
-    private Guid mCachedGuid;
-
-    public string Name { get; }
-
-    public ExperimentalFlagAlias(
-        IFlagProvider flagProvider,
-        string targetName,
-        string aliasName
-    )
+    public partial struct ExperimentalFlagAlias : IExperimentalFlag
     {
-        if (string.IsNullOrWhiteSpace(targetName))
+
+        private readonly IFlagProvider mFlagProvider;
+
+        private readonly string mTargetName;
+
+        private Guid mCachedGuid;
+
+        public string Name { get; }
+
+        public ExperimentalFlagAlias(
+            IFlagProvider flagProvider,
+            string targetName,
+            string aliasName
+        )
         {
-            throw new ArgumentNullException(nameof(targetName));
-        }
-
-        if (string.IsNullOrWhiteSpace(aliasName))
-        {
-            throw new ArgumentNullException(nameof(aliasName));
-        }
-
-        mFlagProvider = flagProvider;
-        mTargetName = targetName;
-        mCachedGuid = default(Guid);
-
-        Name = aliasName;
-    }
-
-    /// <inheritdoc />
-    public Guid Guid
-    {
-        get
-        {
-            if (mCachedGuid != default(Guid))
+            if (string.IsNullOrWhiteSpace(targetName))
             {
-                return mCachedGuid;
+                throw new ArgumentNullException(nameof(targetName));
             }
 
-            if (!mFlagProvider.TryGet(mTargetName, out var flag))
+            if (string.IsNullOrWhiteSpace(aliasName))
             {
-                throw new ArgumentException(nameof(mTargetName));
+                throw new ArgumentNullException(nameof(aliasName));
             }
 
-            return mCachedGuid = flag.Guid;
+            mFlagProvider = flagProvider;
+            mTargetName = targetName;
+            mCachedGuid = default(Guid);
+
+            Name = aliasName;
         }
-    }
 
-    /// <inheritdoc />
-    public bool Enabled => mFlagProvider.IsEnabled(Guid);
-
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(IExperimentalFlag other)
-    {
-        return Guid == other?.Guid && Enabled == other.Enabled;
-    }
-
-    /// <inheritdoc />
-    public IExperimentalFlag With(bool enabled)
-    {
-        if (!mFlagProvider.TryGet(Guid, out var flag))
+        /// <inheritdoc />
+        public Guid Guid
         {
-            throw new InvalidOperationException();
+            get
+            {
+                if (mCachedGuid != default(Guid))
+                {
+                    return mCachedGuid;
+                }
+
+                if (!mFlagProvider.TryGet(mTargetName, out var flag))
+                {
+                    throw new ArgumentException(nameof(mTargetName));
+                }
+
+                return mCachedGuid = flag.Guid;
+            }
         }
 
-        return flag.With(enabled);
+        /// <inheritdoc />
+        public bool Enabled => mFlagProvider.IsEnabled(Guid);
+
+        /// <inheritdoc cref="IEquatable{T}" />
+        public bool Equals(IExperimentalFlag other)
+        {
+            return Guid == other?.Guid && Enabled == other.Enabled;
+        }
+
+        /// <inheritdoc />
+        public IExperimentalFlag With(bool enabled)
+        {
+            if (!mFlagProvider.TryGet(Guid, out var flag))
+            {
+                throw new InvalidOperationException();
+            }
+
+            return flag.With(enabled);
+        }
+
     }
 
 }

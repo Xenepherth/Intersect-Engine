@@ -1,17 +1,20 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 
-namespace Intersect.GameObjects.Maps;
+using Newtonsoft.Json;
 
-public partial struct Tile
+namespace Intersect.GameObjects.Maps
 {
-    public Guid TilesetId;
+    public partial struct Tile
+    {
+        public Guid TilesetId;
 
-    public int X;
+        public int X;
 
-    public int Y;
+        public int Y;
 
-    public byte Autotile;
+        public byte Autotile;
 
-    [JsonIgnore]
-    public object TilesetTex;
+        [JsonIgnore]
+        public object TilesetTex;
+    }
 }

@@ -1,21 +1,24 @@
 ﻿using MessagePack;
+using System;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class DeleteCharacterPacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    //Parameterless Constructor for MessagePack
-    public DeleteCharacterPacket()
+    [MessagePackObject]
+    public partial class DeleteCharacterPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public DeleteCharacterPacket()
+        {
+        }
 
-    public DeleteCharacterPacket(Guid charId)
-    {
-        CharacterId = charId;
-    }
+        public DeleteCharacterPacket(Guid charId)
+        {
+            CharacterId = charId;
+        }
 
-    [Key(0)]
-    public Guid CharacterId { get; set; }
+        [Key(0)]
+        public Guid CharacterId { get; set; }
+
+    }
 
 }

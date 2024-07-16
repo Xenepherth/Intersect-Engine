@@ -1,34 +1,35 @@
-namespace Intersect.Enums;
-
-public enum AdminAction
+namespace Intersect.Enums
 {
-    None = 0,
+    public enum AdminAction
+    {
+        None = 0,
 
-    WarpTo,
+        WarpTo,
 
-    WarpMeTo,
+        WarpMeTo,
 
-    WarpToMe,
+        WarpToMe,
 
-    WarpToLoc,
+        WarpToLoc,
 
-    Kick,
+        Kick,
 
-    Kill,
+        Kill,
 
-    Ban,
+        Ban,
 
-    UnBan,
+        UnBan,
 
-    Mute,
+        Mute,
 
-    UnMute,
+        UnMute,
 
-    SetSprite,
+        SetSprite,
 
-    SetFace,
+        SetFace,
 
-    SetAccess,
+        SetAccess,
 
-    ReturnToOverworld,
+        ReturnToOverworld,
+    }
 }

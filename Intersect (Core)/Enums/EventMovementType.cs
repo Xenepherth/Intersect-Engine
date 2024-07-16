@@ -1,10 +1,11 @@
-﻿namespace Intersect.Enums;
-
-public enum EventMovementType
+﻿namespace Intersect.Enums
 {
-    None = 0,
+    public enum EventMovementType
+    {
+        None = 0,
 
-    Random,
+        Random,
 
-    MoveRoute,
+        MoveRoute,
+    }
 }

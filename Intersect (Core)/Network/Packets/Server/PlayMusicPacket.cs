@@ -1,21 +1,23 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class PlayMusicPacket : IntersectPacket
+namespace Intersect.Network.Packets.Server
 {
-    //Parameterless Constructor for MessagePack
-    public PlayMusicPacket()
+    [MessagePackObject]
+    public partial class PlayMusicPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public PlayMusicPacket()
+        {
+        }
 
-    public PlayMusicPacket(string bgm)
-    {
-        BGM = bgm;
-    }
+        public PlayMusicPacket(string bgm)
+        {
+            BGM = bgm;
+        }
 
-    [Key(0)]
-    public string BGM { get; set; }
+        [Key(0)]
+        public string BGM { get; set; }
+
+    }
 
 }

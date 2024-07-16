@@ -1,15 +1,19 @@
-﻿namespace Intersect.Core.ExperimentalFeatures;
+﻿using System;
 
-
-public interface IFlagProvider
+namespace Intersect.Core.ExperimentalFeatures
 {
 
-    bool IsEnabled(Guid flagId);
+    public interface IFlagProvider
+    {
 
-    bool IsEnabled(string flagName);
+        bool IsEnabled(Guid flagId);
 
-    bool TryGet(Guid flagId, out IExperimentalFlag flag);
+        bool IsEnabled(string flagName);
 
-    bool TryGet(string flagName, out IExperimentalFlag flag);
+        bool TryGet(Guid flagId, out IExperimentalFlag flag);
+
+        bool TryGet(string flagName, out IExperimentalFlag flag);
+
+    }
 
 }

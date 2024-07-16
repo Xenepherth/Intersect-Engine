@@ -1,17 +1,21 @@
-﻿namespace Intersect.Client.Framework.Gwen.Control.EventArguments;
+﻿using System;
 
-
-public partial class ItemSelectedEventArgs : EventArgs
+namespace Intersect.Client.Framework.Gwen.Control.EventArguments
 {
 
-    internal ItemSelectedEventArgs(Base selecteditem, bool automated = false)
+    public partial class ItemSelectedEventArgs : EventArgs
     {
-        this.SelectedItem = selecteditem;
-        this.Automated = automated;
+
+        internal ItemSelectedEventArgs(Base selecteditem, bool automated = false)
+        {
+            this.SelectedItem = selecteditem;
+            this.Automated = automated;
+        }
+
+        public Base SelectedItem { get; private set; }
+
+        public bool Automated { get; private set; }
+
     }
-
-    public Base SelectedItem { get; private set; }
-
-    public bool Automated { get; private set; }
 
 }

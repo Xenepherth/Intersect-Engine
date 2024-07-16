@@ -1,6 +1,9 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
+using System.IO.Hashing;
+using System.Numerics;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;

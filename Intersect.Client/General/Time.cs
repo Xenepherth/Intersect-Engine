@@ -1,87 +1,91 @@
-﻿using Intersect.Utilities;
+﻿using System;
 
-namespace Intersect.Client.General;
+using Intersect.Utilities;
 
-
-public static partial class Time
+namespace Intersect.Client.General
 {
 
-    private static long sColorUpdate;
-
-    private static ColorF sCurrentColor = ColorF.White;
-
-    private static float sRate = 1f;
-
-    private static DateTime sServerTime = DateTime.Now;
-
-    private static Color sTargetColor = Color.Transparent;
-
-    private static long sUpdateTime;
-
-    public static void LoadTime(DateTime timeUpdate, Color clr, float rate)
+    public static partial class Time
     {
-        sServerTime = timeUpdate;
-        sTargetColor = clr;
-        sUpdateTime = 0;
-        sRate = rate;
-    }
 
-    public static void Update()
-    {
-        if (sUpdateTime < Timing.Global.Milliseconds)
+        private static long sColorUpdate;
+
+        private static ColorF sCurrentColor = ColorF.White;
+
+        private static float sRate = 1f;
+
+        private static DateTime sServerTime = DateTime.Now;
+
+        private static Color sTargetColor = Color.Transparent;
+
+        private static long sUpdateTime;
+
+        public static void LoadTime(DateTime timeUpdate, Color clr, float rate)
         {
-            var ts = new TimeSpan(0, 0, 0, 0, (int) (1000 * sRate));
-            sServerTime = sServerTime.Add(ts);
-            sUpdateTime = Timing.Global.Milliseconds + 1000;
+            sServerTime = timeUpdate;
+            sTargetColor = clr;
+            sUpdateTime = 0;
+            sRate = rate;
         }
 
-        float ecTime = Timing.Global.MillisecondsUtc - sColorUpdate;
-        var valChange = 255 * ecTime / 10000f;
-        sCurrentColor.A = LerpVal(sCurrentColor.A, sTargetColor.A, valChange);
-        sCurrentColor.R = LerpVal(sCurrentColor.R, sTargetColor.R, valChange);
-        sCurrentColor.G = LerpVal(sCurrentColor.G, sTargetColor.G, valChange);
-        sCurrentColor.B = LerpVal(sCurrentColor.B, sTargetColor.B, valChange);
-
-        sColorUpdate = Timing.Global.MillisecondsUtc;
-    }
-
-    private static float LerpVal(float val, float target, float amt)
-    {
-        if (val < target)
+        public static void Update()
         {
-            if (val + amt > target)
+            if (sUpdateTime < Timing.Global.Milliseconds)
             {
-                val = target;
+                var ts = new TimeSpan(0, 0, 0, 0, (int) (1000 * sRate));
+                sServerTime = sServerTime.Add(ts);
+                sUpdateTime = Timing.Global.Milliseconds + 1000;
             }
-            else
-            {
-                val += amt;
-            }
+
+            float ecTime = Timing.Global.MillisecondsUtc - sColorUpdate;
+            var valChange = 255 * ecTime / 10000f;
+            sCurrentColor.A = LerpVal(sCurrentColor.A, sTargetColor.A, valChange);
+            sCurrentColor.R = LerpVal(sCurrentColor.R, sTargetColor.R, valChange);
+            sCurrentColor.G = LerpVal(sCurrentColor.G, sTargetColor.G, valChange);
+            sCurrentColor.B = LerpVal(sCurrentColor.B, sTargetColor.B, valChange);
+
+            sColorUpdate = Timing.Global.MillisecondsUtc;
         }
 
-        if (val > target)
+        private static float LerpVal(float val, float target, float amt)
         {
-            if (val - amt < target)
+            if (val < target)
             {
-                val = target;
+                if (val + amt > target)
+                {
+                    val = target;
+                }
+                else
+                {
+                    val += amt;
+                }
             }
-            else
+
+            if (val > target)
             {
-                val -= amt;
+                if (val - amt < target)
+                {
+                    val = target;
+                }
+                else
+                {
+                    val -= amt;
+                }
             }
+
+            return val;
         }
 
-        return val;
-    }
+        public static string GetTime()
+        {
+            return sServerTime.ToString("h:mm:ss tt");
+        }
 
-    public static string GetTime()
-    {
-        return sServerTime.ToString("h:mm:ss tt");
-    }
+        public static ColorF GetTintColor()
+        {
+            return sCurrentColor;
+        }
 
-    public static ColorF GetTintColor()
-    {
-        return sCurrentColor;
     }
 
 }

@@ -1,15 +1,16 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class GuildLeavePacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    /// <summary>
-    /// Parameterless Constructor for MessagePack
-    /// </summary>
-    public GuildLeavePacket()
+    [MessagePackObject]
+    public partial class GuildLeavePacket : IntersectPacket
     {
+        /// <summary>
+        /// Parameterless Constructor for MessagePack
+        /// </summary>
+        public GuildLeavePacket()
+        {
 
+        }
     }
 }

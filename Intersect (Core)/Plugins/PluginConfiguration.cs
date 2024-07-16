@@ -1,15 +1,16 @@
 ﻿using Newtonsoft.Json;
 
-namespace Intersect.Plugins;
-
-/// <summary>
-/// The basic plugin configuration class.
-/// </summary>
-public partial class PluginConfiguration
+namespace Intersect.Plugins
 {
     /// <summary>
-    /// If this plugin is enabled or not.
+    /// The basic plugin configuration class.
     /// </summary>
-    [JsonProperty]
-    public bool IsEnabled { get; internal set; }
+    public partial class PluginConfiguration
+    {
+        /// <summary>
+        /// If this plugin is enabled or not.
+        /// </summary>
+        [JsonProperty]
+        public bool IsEnabled { get; internal set; }
+    }
 }

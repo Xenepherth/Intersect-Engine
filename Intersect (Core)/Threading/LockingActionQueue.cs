@@ -1,42 +1,47 @@
-﻿namespace Intersect.Threading;
+﻿using System;
+using System.Threading;
 
-
-public partial class LockingActionQueue
+namespace Intersect.Threading
 {
 
-    private readonly object mLockObject;
-
-    private Action mNextAction;
-
-    public LockingActionQueue() : this(new object())
+    public partial class LockingActionQueue
     {
-    }
 
-    public LockingActionQueue(object lockObjectObject)
-    {
-        mLockObject = lockObjectObject;
-    }
+        private readonly object mLockObject;
 
-    public Action NextAction
-    {
-        get
+        private Action mNextAction;
+
+        public LockingActionQueue() : this(new object())
         {
-            lock (mLockObject)
-            {
-                Monitor.Wait(mLockObject);
+        }
 
-                return mNextAction;
+        public LockingActionQueue(object lockObjectObject)
+        {
+            mLockObject = lockObjectObject;
+        }
+
+        public Action NextAction
+        {
+            get
+            {
+                lock (mLockObject)
+                {
+                    Monitor.Wait(mLockObject);
+
+                    return mNextAction;
+                }
+            }
+
+            set
+            {
+                lock (mLockObject)
+                {
+                    mNextAction = value;
+                    Monitor.PulseAll(mLockObject);
+                }
             }
         }
 
-        set
-        {
-            lock (mLockObject)
-            {
-                mNextAction = value;
-                Monitor.PulseAll(mLockObject);
-            }
-        }
     }
 
 }

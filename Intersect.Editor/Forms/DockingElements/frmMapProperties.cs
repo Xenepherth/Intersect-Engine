@@ -1,54 +1,57 @@
-﻿using Intersect.Editor.Core;
+﻿using System.Windows.Forms;
+
 using Intersect.Editor.Localization;
 using Intersect.Editor.Maps;
 
 using WeifenLuo.WinFormsUI.Docking;
 
-namespace Intersect.Editor.Forms.DockingElements;
-
-
-public partial class FrmMapProperties : DockContent
+namespace Intersect.Editor.Forms.DockingElements
 {
 
-    //Cross Thread Delegates
-    public delegate void UpdateProperties();
-
-    public UpdateProperties UpdatePropertiesDelegate;
-
-    public FrmMapProperties()
+    public partial class FrmMapProperties : DockContent
     {
-        InitializeComponent();
-        Icon = Program.Icon;
 
-        UpdatePropertiesDelegate = Update;
-    }
+        //Cross Thread Delegates
+        public delegate void UpdateProperties();
 
-    public void Init(MapInstance map)
-    {
-        if (gridMapProperties.InvokeRequired)
+        public UpdateProperties UpdatePropertiesDelegate;
+
+        public FrmMapProperties()
         {
-            gridMapProperties.Invoke((MethodInvoker) delegate { Init(map); });
+            InitializeComponent();
+            Icon = Program.Icon;
 
-            return;
+            UpdatePropertiesDelegate = Update;
         }
 
-        gridMapProperties.SelectedObject = new MapProperties(map);
-        InitLocalization();
-    }
+        public void Init(MapInstance map)
+        {
+            if (gridMapProperties.InvokeRequired)
+            {
+                gridMapProperties.Invoke((MethodInvoker) delegate { Init(map); });
 
-    private void InitLocalization()
-    {
-        Text = Strings.MapProperties.title;
-    }
+                return;
+            }
 
-    public void Update()
-    {
-        gridMapProperties.Refresh();
-    }
+            gridMapProperties.SelectedObject = new MapProperties(map);
+            InitLocalization();
+        }
 
-    public GridItem Selection()
-    {
-        return gridMapProperties.SelectedGridItem;
+        private void InitLocalization()
+        {
+            Text = Strings.MapProperties.title;
+        }
+
+        public void Update()
+        {
+            gridMapProperties.Refresh();
+        }
+
+        public GridItem Selection()
+        {
+            return gridMapProperties.SelectedGridItem;
+        }
+
     }
 
 }

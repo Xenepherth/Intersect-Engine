@@ -1,21 +1,23 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Editor;
-
-[MessagePackObject]
-public partial class SaveTimeDataPacket : EditorPacket
+namespace Intersect.Network.Packets.Editor
 {
-    //Parameterless Constructor for MessagePack
-    public SaveTimeDataPacket()
+    [MessagePackObject]
+    public partial class SaveTimeDataPacket : EditorPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public SaveTimeDataPacket()
+        {
+        }
 
-    public SaveTimeDataPacket(string timeJson)
-    {
-        TimeJson = timeJson;
-    }
+        public SaveTimeDataPacket(string timeJson)
+        {
+            TimeJson = timeJson;
+        }
 
-    [Key(0)]
-    public string TimeJson { get; set; }
+        [Key(0)]
+        public string TimeJson { get; set; }
+
+    }
 
 }

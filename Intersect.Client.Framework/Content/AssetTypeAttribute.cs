@@ -1,25 +1,30 @@
-﻿namespace Intersect.Client.Framework.Content;
+﻿
+using System;
 
-
-[AttributeUsage(AttributeTargets.Field)]
-public partial class AssetTypeAttribute : Attribute
+namespace Intersect.Client.Framework.Content
 {
 
-    public AssetTypeAttribute(Type type)
+    [AttributeUsage(AttributeTargets.Field)]
+    public partial class AssetTypeAttribute : Attribute
     {
-        if (!typeof(IAsset).IsAssignableFrom(type))
+
+        public AssetTypeAttribute(Type type)
         {
-            throw new ArgumentException($@"Invalid asset type {type.FullName}. Must inherit from {nameof(IAsset)}.", nameof(type));
+            if (!typeof(IAsset).IsAssignableFrom(type))
+            {
+                throw new ArgumentException($@"Invalid asset type {type.FullName}. Must inherit from {nameof(IAsset)}.", nameof(type));
+            }
+
+            if (!type.IsClass)
+            {
+                throw new ArgumentException($@"Invalid asset type {type.FullName}. Must be a class (abstract is acceptable).", nameof(type));
+            }
+
+            Type = type;
         }
 
-        if (!type.IsClass)
-        {
-            throw new ArgumentException($@"Invalid asset type {type.FullName}. Must be a class (abstract is acceptable).", nameof(type));
-        }
+        public Type Type { get; }
 
-        Type = type;
     }
-
-    public Type Type { get; }
 
 }

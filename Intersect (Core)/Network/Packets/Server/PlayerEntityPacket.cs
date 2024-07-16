@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using Intersect.Enums;
 using MessagePack;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class PlayerEntityPacket : EntityPacket
+namespace Intersect.Network.Packets.Server
 {
-    //Parameterless Constructor for MessagePack
-    public PlayerEntityPacket()
+    [MessagePackObject]
+    public partial class PlayerEntityPacket : EntityPacket
     {
+        //Parameterless Constructor for MessagePack
+        public PlayerEntityPacket()
+        {
+        }
+
+
         [Key(24)]
         public Access AccessLevel { get; set; }
 
@@ -26,7 +29,7 @@ public partial class PlayerEntityPacket : EntityPacket
         [Key(27)]
         public EquipmentPacket Equipment { get; set; }
 
-
+    
         [Key(28)]
         public long CombatTimeRemaining { get; set; }
 

@@ -1,10 +1,11 @@
-﻿namespace Intersect.Enums;
-
-public enum ConsumableType : byte
+﻿namespace Intersect.Enums
 {
-    Health = 0,
+    public enum ConsumableType : byte
+    {
+        Health = 0,
 
-    Mana = 1,
+        Mana = 1,
 
-    Experience = 2,
+        Experience = 2,
+    }
 }

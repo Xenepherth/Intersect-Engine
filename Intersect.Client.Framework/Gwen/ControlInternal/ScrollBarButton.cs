@@ -1,57 +1,59 @@
 ﻿using Intersect.Client.Framework.Gwen.Control;
 
-namespace Intersect.Client.Framework.Gwen.ControlInternal;
-
-
-/// <summary>
-///     Scrollbar button.
-/// </summary>
-public partial class ScrollBarButton : Button
+namespace Intersect.Client.Framework.Gwen.ControlInternal
 {
 
-    private Pos mDirection;
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="ScrollBarButton" /> class.
+    ///     Scrollbar button.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    public ScrollBarButton(Base parent) : base(parent)
+    public partial class ScrollBarButton : Button
     {
-        SetDirectionUp();
-    }
 
-    public virtual void SetDirectionUp()
-    {
-        mDirection = Pos.Top;
-    }
+        private Pos mDirection;
 
-    public virtual void SetDirectionDown()
-    {
-        mDirection = Pos.Bottom;
-    }
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ScrollBarButton" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        public ScrollBarButton(Base parent) : base(parent)
+        {
+            SetDirectionUp();
+        }
 
-    public virtual void SetDirectionLeft()
-    {
-        mDirection = Pos.Left;
-    }
+        public virtual void SetDirectionUp()
+        {
+            mDirection = Pos.Top;
+        }
 
-    public virtual void SetDirectionRight()
-    {
-        mDirection = Pos.Right;
-    }
+        public virtual void SetDirectionDown()
+        {
+            mDirection = Pos.Bottom;
+        }
 
-    public virtual Pos GetDirection()
-    {
-        return mDirection;
-    }
+        public virtual void SetDirectionLeft()
+        {
+            mDirection = Pos.Left;
+        }
 
-    /// <summary>
-    ///     Renders the control using specified skin.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void Render(Skin.Base skin)
-    {
-        skin.DrawScrollButton(this, mDirection, IsDepressed, IsHovered, IsDisabled);
+        public virtual void SetDirectionRight()
+        {
+            mDirection = Pos.Right;
+        }
+
+        public virtual Pos GetDirection()
+        {
+            return mDirection;
+        }
+
+        /// <summary>
+        ///     Renders the control using specified skin.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void Render(Skin.Base skin)
+        {
+            skin.DrawScrollButton(this, mDirection, IsDepressed, IsHovered, IsDisabled);
+        }
+
     }
 
 }

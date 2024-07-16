@@ -1,533 +1,539 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Intersect.Client.Framework.GenericClasses;
 using Intersect.Client.Framework.Gwen.Control.EventArguments;
 using Intersect.Client.Framework.Gwen.ControlInternal;
 
 using Newtonsoft.Json.Linq;
 
-namespace Intersect.Client.Framework.Gwen.Control;
-
-
-/// <summary>
-///     ComboBox control.
-/// </summary>
-public partial class ComboBox : Button
+namespace Intersect.Client.Framework.Gwen.Control
 {
 
-    private readonly Base mButton;
-
-    private string mCloseMenuSound;
-
-    private string mHoverItemSound;
-
-    private string mHoverMenuSound;
-
-    private Menu mMenu;
-
-    private bool mMenuAbove;
-
-    //Sound Effects
-    private string mOpenMenuSound;
-
-    private MenuItem mSelectedItem;
-
-    private string mSelectItemSound;
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="ComboBox" /> class.
+    ///     ComboBox control.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    /// <param name="name"></param>
-    public ComboBox(Base parent, string name = default) : base(parent, name)
+    public partial class ComboBox : Button
     {
-        SetSize(100, 20);
-        mMenu = new Menu(this)
+
+        private readonly Base mButton;
+
+        private string mCloseMenuSound;
+
+        private string mHoverItemSound;
+
+        private string mHoverMenuSound;
+
+        private Menu mMenu;
+
+        private bool mMenuAbove;
+
+        //Sound Effects
+        private string mOpenMenuSound;
+
+        private MenuItem mSelectedItem;
+
+        private string mSelectItemSound;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ComboBox" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        /// <param name="name"></param>
+        public ComboBox(Base parent, string name = default) : base(parent, name)
         {
-            IsHidden = true,
-            IconMarginDisabled = true,
-            IsTabable = false
-        };
-
-        var arrow = new DownArrow(this);
-        mButton = arrow;
-
-        Alignment = Pos.Left | Pos.CenterV;
-        Text = string.Empty;
-        Margin = new Margin(3, 0, 0, 0);
-
-        IsTabable = true;
-        KeyboardInputEnabled = true;
-    }
-
-    /// <summary>
-    ///     Indicates whether the combo menu is open.
-    /// </summary>
-    public bool IsOpen => mMenu != null && !mMenu.IsHidden;
-
-    /// <summary>
-    ///     Selected item.
-    /// </summary>
-    /// <remarks>Not just String property, because items also have internal names.</remarks>
-    public MenuItem SelectedItem
-    {
-        get => mSelectedItem;
-        set
-        {
-            if (value == null || value.Parent != mMenu)
+            SetSize(100, 20);
+            mMenu = new Menu(this)
             {
-                return;
+                IsHidden = true,
+                IconMarginDisabled = true,
+                IsTabable = false
+            };
+
+            var arrow = new DownArrow(this);
+            mButton = arrow;
+
+            Alignment = Pos.Left | Pos.CenterV;
+            Text = string.Empty;
+            Margin = new Margin(3, 0, 0, 0);
+
+            IsTabable = true;
+            KeyboardInputEnabled = true;
+        }
+
+        /// <summary>
+        ///     Indicates whether the combo menu is open.
+        /// </summary>
+        public bool IsOpen => mMenu != null && !mMenu.IsHidden;
+
+        /// <summary>
+        ///     Selected item.
+        /// </summary>
+        /// <remarks>Not just String property, because items also have internal names.</remarks>
+        public MenuItem SelectedItem
+        {
+            get => mSelectedItem;
+            set
+            {
+                if (value == null || value.Parent != mMenu)
+                {
+                    return;
+                }
+
+                mSelectedItem = value;
+                OnItemSelected(mSelectedItem, new ItemSelectedEventArgs(value, true));
+            }
+        }
+
+        internal override bool IsMenuComponent => true;
+
+        /// <summary>
+        ///     Invoked when the selected item has changed.
+        /// </summary>
+        public event GwenEventHandler<ItemSelectedEventArgs> ItemSelected;
+
+        public void SetMenuAbove()
+        {
+            mMenuAbove = true;
+            if (IsOpen)
+            {
+                Open();
+            }
+        }
+
+        public void SetMenuBelow()
+        {
+            mMenuAbove = false;
+            if (IsOpen)
+            {
+                Open();
+            }
+        }
+
+        public override JObject GetJson(bool isRoot = default)
+        {
+            var obj = base.GetJson(isRoot);
+            obj.Add("MenuAbove", mMenuAbove);
+            obj.Add("Menu", mMenu.GetJson());
+            obj.Add("DropDownButton", mButton.GetJson());
+            obj.Add("OpenMenuSound", mOpenMenuSound);
+            obj.Add("CloseMenuSound", mCloseMenuSound);
+            obj.Add("HoverMenuSound", mHoverMenuSound);
+            obj.Add("ItemHoverSound", mHoverItemSound);
+            obj.Add("SelectItemSound", mSelectItemSound);
+
+            return base.FixJson(obj);
+        }
+
+        public override void LoadJson(JToken obj, bool isRoot = default)
+        {
+            base.LoadJson(obj);
+            if (obj["MenuAbove"] != null)
+            {
+                mMenuAbove = (bool)obj["MenuAbove"];
             }
 
-            mSelectedItem = value;
-            OnItemSelected(mSelectedItem, new ItemSelectedEventArgs(value, true));
-        }
-    }
-
-    internal override bool IsMenuComponent => true;
-
-    /// <summary>
-    ///     Invoked when the selected item has changed.
-    /// </summary>
-    public event GwenEventHandler<ItemSelectedEventArgs> ItemSelected;
-
-    public void SetMenuAbove()
-    {
-        mMenuAbove = true;
-        if (IsOpen)
-        {
-            Open();
-        }
-    }
-
-    public void SetMenuBelow()
-    {
-        mMenuAbove = false;
-        if (IsOpen)
-        {
-            Open();
-        }
-    }
-
-    public override JObject GetJson(bool isRoot = default)
-    {
-        var obj = base.GetJson(isRoot);
-        obj.Add("MenuAbove", mMenuAbove);
-        obj.Add("Menu", mMenu.GetJson());
-        obj.Add("DropDownButton", mButton.GetJson());
-        obj.Add("OpenMenuSound", mOpenMenuSound);
-        obj.Add("CloseMenuSound", mCloseMenuSound);
-        obj.Add("HoverMenuSound", mHoverMenuSound);
-        obj.Add("ItemHoverSound", mHoverItemSound);
-        obj.Add("SelectItemSound", mSelectItemSound);
-
-        return base.FixJson(obj);
-    }
-
-    public override void LoadJson(JToken obj, bool isRoot = default)
-    {
-        base.LoadJson(obj);
-        if (obj["MenuAbove"] != null)
-        {
-            mMenuAbove = (bool)obj["MenuAbove"];
-        }
-
-        if (obj["Menu"] != null)
-        {
-            mMenu.LoadJson(obj["Menu"]);
-        }
-
-        if (obj["DropDownButton"] != null)
-        {
-            mButton.LoadJson(obj["DropDownButton"]);
-        }
-
-        if (obj["OpenMenuSound"] != null)
-        {
-            mOpenMenuSound = (string)obj["OpenMenuSound"];
-        }
-
-        if (obj["CloseMenuSound"] != null)
-        {
-            mCloseMenuSound = (string)obj["CloseMenuSound"];
-        }
-
-        if (obj["HoverMenuSound"] != null)
-        {
-            mHoverMenuSound = (string)obj["HoverMenuSound"];
-        }
-
-        if (obj["ItemHoverSound"] != null)
-        {
-            mHoverItemSound = (string)obj["ItemHoverSound"];
-        }
-
-        if (obj["SelectItemSound"] != null)
-        {
-            mSelectItemSound = (string)obj["SelectItemSound"];
-        }
-
-        foreach (var child in Children)
-        {
-            if (child is Menu menu)
+            if (obj["Menu"] != null)
             {
-                foreach (var menuChild in menu.Children)
+                mMenu.LoadJson(obj["Menu"]);
+            }
+
+            if (obj["DropDownButton"] != null)
+            {
+                mButton.LoadJson(obj["DropDownButton"]);
+            }
+
+            if (obj["OpenMenuSound"] != null)
+            {
+                mOpenMenuSound = (string)obj["OpenMenuSound"];
+            }
+
+            if (obj["CloseMenuSound"] != null)
+            {
+                mCloseMenuSound = (string)obj["CloseMenuSound"];
+            }
+
+            if (obj["HoverMenuSound"] != null)
+            {
+                mHoverMenuSound = (string)obj["HoverMenuSound"];
+            }
+
+            if (obj["ItemHoverSound"] != null)
+            {
+                mHoverItemSound = (string)obj["ItemHoverSound"];
+            }
+
+            if (obj["SelectItemSound"] != null)
+            {
+                mSelectItemSound = (string)obj["SelectItemSound"];
+            }
+
+            foreach (var child in Children)
+            {
+                if (child is Menu menu)
                 {
-                    if (menuChild is MenuItem menuItem)
+                    foreach (var menuChild in menu.Children)
                     {
-                        menuItem.SetHoverSound(mHoverItemSound);
+                        if (menuChild is MenuItem menuItem)
+                        {
+                            menuItem.SetHoverSound(mHoverItemSound);
+                        }
                     }
                 }
             }
         }
-    }
 
-    /// <summary>
-    ///     Adds a new item.
-    /// </summary>
-    /// <param name="label">Item label (displayed).</param>
-    /// <param name="name">Item name.</param>
-    /// <returns>Newly created control.</returns>
-    public virtual MenuItem AddItem(string label, string name = "", object userData = null)
-    {
-        var item = mMenu.AddItem(label, null, "", "", this.Font);
-        item.Name = name;
-        item.Selected += OnItemSelected;
-        item.UserData = userData;
-        item.SetTextColor(GetTextColor(Label.ControlState.Normal), Label.ControlState.Normal);
-        item.SetTextColor(GetTextColor(Label.ControlState.Hovered), Label.ControlState.Hovered);
-        item.SetTextColor(GetTextColor(Label.ControlState.Clicked), Label.ControlState.Clicked);
-        item.SetTextColor(GetTextColor(Label.ControlState.Disabled), Label.ControlState.Disabled);
-        item.SetHoverSound(mHoverItemSound);
-
-        if (mSelectedItem == null)
+        /// <summary>
+        ///     Adds a new item.
+        /// </summary>
+        /// <param name="label">Item label (displayed).</param>
+        /// <param name="name">Item name.</param>
+        /// <returns>Newly created control.</returns>
+        public virtual MenuItem AddItem(string label, string name = "", object userData = null)
         {
-            OnItemSelected(item, new ItemSelectedEventArgs(null, true));
+            var item = mMenu.AddItem(label, null, "", "", this.Font);
+            item.Name = name;
+            item.Selected += OnItemSelected;
+            item.UserData = userData;
+            item.SetTextColor(GetTextColor(Label.ControlState.Normal), Label.ControlState.Normal);
+            item.SetTextColor(GetTextColor(Label.ControlState.Hovered), Label.ControlState.Hovered);
+            item.SetTextColor(GetTextColor(Label.ControlState.Clicked), Label.ControlState.Clicked);
+            item.SetTextColor(GetTextColor(Label.ControlState.Disabled), Label.ControlState.Disabled);
+            item.SetHoverSound(mHoverItemSound);
+
+            if (mSelectedItem == null)
+            {
+                OnItemSelected(item, new ItemSelectedEventArgs(null, true));
+            }
+
+            return item;
         }
 
-        return item;
-    }
-
-    /// <summary>
-    ///     Renders the control using specified skin.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void Render(Skin.Base skin)
-    {
-        skin.DrawComboBox(this, IsDepressed, IsOpen);
-    }
-
-    public override void Disable()
-    {
-        base.Disable();
-        GetCanvas().CloseMenus();
-    }
-
-    /// <summary>
-    ///     Internal Pressed implementation.
-    /// </summary>
-    protected override void OnClicked(int x, int y)
-    {
-        if (IsOpen)
+        /// <summary>
+        ///     Renders the control using specified skin.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void Render(Skin.Base skin)
         {
+            skin.DrawComboBox(this, IsDepressed, IsOpen);
+        }
+
+        public override void Disable()
+        {
+            base.Disable();
+            GetCanvas().CloseMenus();
+        }
+
+        /// <summary>
+        ///     Internal Pressed implementation.
+        /// </summary>
+        protected override void OnClicked(int x, int y)
+        {
+            if (IsOpen)
+            {
+                GetCanvas().CloseMenus();
+
+                return;
+            }
+
+            var wasMenuHidden = mMenu.IsHidden;
+
             GetCanvas().CloseMenus();
 
-            return;
+            if (wasMenuHidden)
+            {
+                Open();
+            }
+
+            base.OnClicked(x, y);
         }
 
-        var wasMenuHidden = mMenu.IsHidden;
-
-        GetCanvas().CloseMenus();
-
-        if (wasMenuHidden)
+        /// <summary>
+        ///     Removes all items.
+        /// </summary>
+        public virtual void DeleteAll()
         {
-            Open();
+            if (mMenu != null)
+            {
+                mMenu.DeleteAll();
+            }
         }
 
-        base.OnClicked(x, y);
-    }
-
-    /// <summary>
-    ///     Removes all items.
-    /// </summary>
-    public virtual void DeleteAll()
-    {
-        if (mMenu != null)
+        /// <summary>
+        ///     Internal handler for item selected event.
+        /// </summary>
+        /// <param name="control">Event source.</param>
+        protected virtual void OnItemSelected(Base control, ItemSelectedEventArgs args)
         {
-            mMenu.DeleteAll();
+            if (!IsDisabled)
+            {
+                //Convert selected to a menu item
+                var item = control as MenuItem;
+                if (null == item)
+                {
+                    return;
+                }
+
+                mSelectedItem = item;
+                Text = mSelectedItem.Text;
+                mMenu.IsHidden = true;
+
+                if (ItemSelected != null)
+                {
+                    ItemSelected.Invoke(this, args);
+                }
+
+                if (!args.Automated)
+                {
+                    base.PlaySound(mSelectItemSound);
+                }
+
+                Focus();
+                Invalidate();
+            }
         }
-    }
 
-    /// <summary>
-    ///     Internal handler for item selected event.
-    /// </summary>
-    /// <param name="control">Event source.</param>
-    protected virtual void OnItemSelected(Base control, ItemSelectedEventArgs args)
-    {
-        if (!IsDisabled)
+        /// <summary>
+        ///     Lays out the control's interior according to alignment, padding, dock etc.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void Layout(Skin.Base skin)
         {
-            //Convert selected to a menu item
-            var item = control as MenuItem;
-            if (null == item)
+            mButton.Position(Pos.Right | Pos.CenterV, 4, 0);
+            base.Layout(skin);
+        }
+
+        /// <summary>
+        ///     Handler for losing keyboard focus.
+        /// </summary>
+        protected override void OnLostKeyboardFocus()
+        {
+            if (GetTextColor(Label.ControlState.Normal) != null)
+            {
+                TextColor = GetTextColor(Label.ControlState.Normal);
+
+                return;
+            }
+
+            TextColor = Color.Black;
+        }
+
+        /// <summary>
+        ///     Handler for gaining keyboard focus.
+        /// </summary>
+        protected override void OnKeyboardFocus()
+        {
+            //Until we add the blue highlighting again
+            if (GetTextColor(Label.ControlState.Normal) != null)
+            {
+                TextColor = GetTextColor(Label.ControlState.Normal);
+
+                return;
+            }
+
+            TextColor = Color.Black;
+        }
+
+        /// <summary>
+        ///     Opens the combo.
+        /// </summary>
+        public virtual void Open()
+        {
+            if (!IsDisabled)
+            {
+                if (null == mMenu)
+                {
+                    return;
+                }
+
+                mMenu.Parent = GetCanvas();
+                mMenu.IsHidden = false;
+                mMenu.BringToFront();
+
+                var p = LocalPosToCanvas(Point.Empty);
+                if (mMenuAbove)
+                {
+                    mMenu.RestrictToParent = false;
+                    mMenu.Height = mMenu.Children.Sum(child => child != null ? child.Height : 0);
+                    mMenu.SetBounds(new Rectangle(p.X, p.Y - mMenu.Height, Width, mMenu.Height));
+                    mMenu.RestrictToParent = true;
+                }
+                else
+                {
+                    mMenu.SetBounds(new Rectangle(p.X, p.Y + Height, Width, mMenu.Height));
+                }
+
+                base.PlaySound(mOpenMenuSound);
+            }
+        }
+
+        /// <summary>
+        ///     Closes the combo.
+        /// </summary>
+        public virtual void Close()
+        {
+            if (mMenu == null)
             {
                 return;
             }
 
-            mSelectedItem = item;
-            Text = mSelectedItem.Text;
-            mMenu.IsHidden = true;
+            mMenu.Hide();
 
-            if (ItemSelected != null)
-            {
-                ItemSelected.Invoke(this, args);
-            }
-
-            if (!args.Automated)
-            {
-                base.PlaySound(mSelectItemSound);
-            }
-
-            Focus();
-            Invalidate();
-        }
-    }
-
-    /// <summary>
-    ///     Lays out the control's interior according to alignment, padding, dock etc.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void Layout(Skin.Base skin)
-    {
-        mButton.Position(Pos.Right | Pos.CenterV, 4, 0);
-        base.Layout(skin);
-    }
-
-    /// <summary>
-    ///     Handler for losing keyboard focus.
-    /// </summary>
-    protected override void OnLostKeyboardFocus()
-    {
-        if (GetTextColor(Label.ControlState.Normal) != null)
-        {
-            TextColor = GetTextColor(Label.ControlState.Normal);
-
-            return;
+            base.PlaySound(mCloseMenuSound);
         }
 
-        TextColor = Color.Black;
-    }
-
-    /// <summary>
-    ///     Handler for gaining keyboard focus.
-    /// </summary>
-    protected override void OnKeyboardFocus()
-    {
-        //Until we add the blue highlighting again
-        if (GetTextColor(Label.ControlState.Normal) != null)
+        /// <summary>
+        ///     Handler for Down Arrow keyboard event.
+        /// </summary>
+        /// <param name="down">Indicates whether the key was pressed or released.</param>
+        /// <returns>
+        ///     True if handled.
+        /// </returns>
+        protected override bool OnKeyDown(bool down)
         {
-            TextColor = GetTextColor(Label.ControlState.Normal);
-
-            return;
-        }
-
-        TextColor = Color.Black;
-    }
-
-    /// <summary>
-    ///     Opens the combo.
-    /// </summary>
-    public virtual void Open()
-    {
-        if (!IsDisabled)
-        {
-            if (null == mMenu)
+            if (down)
             {
-                return;
+                var it = mMenu.Children.FindIndex(x => x == mSelectedItem);
+                if (it + 1 < mMenu.Children.Count)
+                {
+                    OnItemSelected(this, new ItemSelectedEventArgs(mMenu.Children[it + 1]));
+                }
             }
 
-            mMenu.Parent = GetCanvas();
-            mMenu.IsHidden = false;
-            mMenu.BringToFront();
-
-            var p = LocalPosToCanvas(Point.Empty);
-            if (mMenuAbove)
-            {
-                mMenu.RestrictToParent = false;
-                mMenu.Height = mMenu.Children.Sum(child => child != null ? child.Height : 0);
-                mMenu.SetBounds(new Rectangle(p.X, p.Y - mMenu.Height, Width, mMenu.Height));
-                mMenu.RestrictToParent = true;
-            }
-            else
-            {
-                mMenu.SetBounds(new Rectangle(p.X, p.Y + Height, Width, mMenu.Height));
-            }
-
-            base.PlaySound(mOpenMenuSound);
-        }
-    }
-
-    /// <summary>
-    ///     Closes the combo.
-    /// </summary>
-    public virtual void Close()
-    {
-        if (mMenu == null)
-        {
-            return;
+            return true;
         }
 
-        mMenu.Hide();
-
-        base.PlaySound(mCloseMenuSound);
-    }
-
-    /// <summary>
-    ///     Handler for Down Arrow keyboard event.
-    /// </summary>
-    /// <param name="down">Indicates whether the key was pressed or released.</param>
-    /// <returns>
-    ///     True if handled.
-    /// </returns>
-    protected override bool OnKeyDown(bool down)
-    {
-        if (down)
+        /// <summary>
+        ///     Handler for Up Arrow keyboard event.
+        /// </summary>
+        /// <param name="down">Indicates whether the key was pressed or released.</param>
+        /// <returns>
+        ///     True if handled.
+        /// </returns>
+        protected override bool OnKeyUp(bool down)
         {
-            var it = mMenu.Children.FindIndex(x => x == mSelectedItem);
-            if (it + 1 < mMenu.Children.Count)
+            if (down)
             {
-                OnItemSelected(this, new ItemSelectedEventArgs(mMenu.Children[it + 1]));
+                var it = mMenu.Children.FindLastIndex(x => x == mSelectedItem);
+                if (it - 1 >= 0)
+                {
+                    OnItemSelected(this, new ItemSelectedEventArgs(mMenu.Children[it - 1]));
+                }
             }
+
+            return true;
         }
 
-        return true;
-    }
-
-    /// <summary>
-    ///     Handler for Up Arrow keyboard event.
-    /// </summary>
-    /// <param name="down">Indicates whether the key was pressed or released.</param>
-    /// <returns>
-    ///     True if handled.
-    /// </returns>
-    protected override bool OnKeyUp(bool down)
-    {
-        if (down)
+        /// <summary>
+        ///     Renders the focus overlay.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void RenderFocus(Skin.Base skin)
         {
-            var it = mMenu.Children.FindLastIndex(x => x == mSelectedItem);
-            if (it - 1 >= 0)
-            {
-                OnItemSelected(this, new ItemSelectedEventArgs(mMenu.Children[it - 1]));
-            }
         }
 
-        return true;
-    }
-
-    /// <summary>
-    ///     Renders the focus overlay.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void RenderFocus(Skin.Base skin)
-    {
-    }
-
-    /// <summary>
-    ///     Selects the first menu item with the given text it finds.
-    ///     If a menu item can not be found that matches input, nothing happens.
-    /// </summary>
-    /// <param name="label">The label to look for, this is what is shown to the user.</param>
-    public void SelectByText(string text)
-    {
-        foreach (MenuItem item in mMenu.Children)
+        /// <summary>
+        ///     Selects the first menu item with the given text it finds.
+        ///     If a menu item can not be found that matches input, nothing happens.
+        /// </summary>
+        /// <param name="label">The label to look for, this is what is shown to the user.</param>
+        public void SelectByText(string text)
         {
-            if (item.Text == text)
+            foreach (MenuItem item in mMenu.Children)
             {
-                SelectedItem = item;
-
-                return;
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Selects the first menu item with the given internal name it finds.
-    ///     If a menu item can not be found that matches input, nothing happens.
-    /// </summary>
-    /// <param name="name">The internal name to look for. To select by what is displayed to the user, use "SelectByText".</param>
-    public void SelectByName(string name)
-    {
-        foreach (MenuItem item in mMenu.Children)
-        {
-            if (item.Name == name)
-            {
-                SelectedItem = item;
-
-                return;
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Selects the first menu item with the given user data it finds.
-    ///     If a menu item can not be found that matches input, nothing happens.
-    /// </summary>
-    /// <param name="userdata">
-    ///     The UserData to look for. The equivalency check uses "param.Equals(item.UserData)".
-    ///     If null is passed in, it will look for null/unset UserData.
-    /// </param>
-    public void SelectByUserData(object userdata)
-    {
-        foreach (MenuItem item in mMenu.Children)
-        {
-            if (userdata == null)
-            {
-                if (item.UserData == null)
+                if (item.Text == text)
                 {
                     SelectedItem = item;
 
                     return;
                 }
             }
-            else if (userdata.Equals(item.UserData))
-            {
-                SelectedItem = item;
+        }
 
-                return;
+        /// <summary>
+        ///     Selects the first menu item with the given internal name it finds.
+        ///     If a menu item can not be found that matches input, nothing happens.
+        /// </summary>
+        /// <param name="name">The internal name to look for. To select by what is displayed to the user, use "SelectByText".</param>
+        public void SelectByName(string name)
+        {
+            foreach (MenuItem item in mMenu.Children)
+            {
+                if (item.Name == name)
+                {
+                    SelectedItem = item;
+
+                    return;
+                }
             }
         }
-    }
 
-    public void SetMenuBackgroundColor(Color clr)
-    {
-        mMenu.RenderColor = clr;
-    }
-
-    public void SetMenuMaxSize(int w, int h)
-    {
-        mMenu.MaximumSize = new Point(w, h);
-    }
-
-    public override void SetTextColor(Color clr, Label.ControlState state)
-    {
-        base.SetTextColor(clr, state);
-        foreach (MenuItem itm in mMenu.Children)
+        /// <summary>
+        ///     Selects the first menu item with the given user data it finds.
+        ///     If a menu item can not be found that matches input, nothing happens.
+        /// </summary>
+        /// <param name="userdata">
+        ///     The UserData to look for. The equivalency check uses "param.Equals(item.UserData)".
+        ///     If null is passed in, it will look for null/unset UserData.
+        /// </param>
+        public void SelectByUserData(object userdata)
         {
-            itm.SetTextColor(clr, state);
+            foreach (MenuItem item in mMenu.Children)
+            {
+                if (userdata == null)
+                {
+                    if (item.UserData == null)
+                    {
+                        SelectedItem = item;
+
+                        return;
+                    }
+                }
+                else if (userdata.Equals(item.UserData))
+                {
+                    SelectedItem = item;
+
+                    return;
+                }
+            }
         }
-    }
 
-    public void SetMenu(Menu menu)
-    {
-        mMenu = menu;
-    }
-
-    protected override void OnMouseEntered()
-    {
-        base.OnMouseEntered();
-
-        //Play Mouse Entered Sound
-        if (!IsOpen && ShouldDrawHover)
+        public void SetMenuBackgroundColor(Color clr)
         {
-            base.PlaySound(mHoverMenuSound);
+            mMenu.RenderColor = clr;
         }
+
+        public void SetMenuMaxSize(int w, int h)
+        {
+            mMenu.MaximumSize = new Point(w, h);
+        }
+
+        public override void SetTextColor(Color clr, Label.ControlState state)
+        {
+            base.SetTextColor(clr, state);
+            foreach (MenuItem itm in mMenu.Children)
+            {
+                itm.SetTextColor(clr, state);
+            }
+        }
+
+        public void SetMenu(Menu menu)
+        {
+            mMenu = menu;
+        }
+
+        protected override void OnMouseEntered()
+        {
+            base.OnMouseEntered();
+
+            //Play Mouse Entered Sound
+            if (!IsOpen && ShouldDrawHover)
+            {
+                base.PlaySound(mHoverMenuSound);
+            }
+        }
+
     }
 
 }

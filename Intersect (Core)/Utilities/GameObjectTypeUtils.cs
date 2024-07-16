@@ -1,71 +1,75 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 
 using Intersect.Enums;
 
-namespace Intersect.Utilities;
-
-
-public partial class GameObjectTypeException : Exception
+namespace Intersect.Utilities
 {
 
-    public GameObjectTypeException() : base()
+    public partial class GameObjectTypeException : Exception
     {
-    }
 
-    public GameObjectTypeException(string message) : base(message)
-    {
-    }
-
-}
-
-public static partial class GameObjectTypeUtils
-{
-
-    private static readonly IDictionary<string, GameObjectType> mNameToTypeCache;
-
-    static GameObjectTypeUtils()
-    {
-        mNameToTypeCache = new Dictionary<string, GameObjectType>();
-        var enumGameObjectType = typeof(GameObjectType);
-        var types = Enum.GetValues(enumGameObjectType);
-        foreach (GameObjectType type in types)
+        public GameObjectTypeException() : base()
         {
-            var typeName = Enum.GetName(enumGameObjectType, type);
-            if (typeName == null)
+        }
+
+        public GameObjectTypeException(string message) : base(message)
+        {
+        }
+
+    }
+
+    public static partial class GameObjectTypeUtils
+    {
+
+        private static readonly IDictionary<string, GameObjectType> mNameToTypeCache;
+
+        static GameObjectTypeUtils()
+        {
+            mNameToTypeCache = new Dictionary<string, GameObjectType>();
+            var enumGameObjectType = typeof(GameObjectType);
+            var types = Enum.GetValues(enumGameObjectType);
+            foreach (GameObjectType type in types)
             {
-                throw new NoNullAllowedException();
+                var typeName = Enum.GetName(enumGameObjectType, type);
+                if (typeName == null)
+                {
+                    throw new NoNullAllowedException();
+                }
+
+                mNameToTypeCache[typeName] = type;
+                mNameToTypeCache[typeName.ToLower()] = type;
+                mNameToTypeCache[typeName.ToUpper()] = type;
+            }
+        }
+
+        public static GameObjectType TypeFromName(string name)
+        {
+            var type = GameObjectType.Animation;
+            if (mNameToTypeCache.TryGetValue(name, out type))
+            {
+                return type;
             }
 
-            mNameToTypeCache[typeName] = type;
-            mNameToTypeCache[typeName.ToLower()] = type;
-            mNameToTypeCache[typeName.ToUpper()] = type;
-        }
-    }
+            if (mNameToTypeCache.TryGetValue(name.ToLower(), out type))
+            {
+                mNameToTypeCache[name.ToLower()] = type;
 
-    public static GameObjectType TypeFromName(string name)
-    {
-        var type = GameObjectType.Animation;
-        if (mNameToTypeCache.TryGetValue(name, out type))
-        {
-            return type;
-        }
+                return type;
+            }
 
-        if (mNameToTypeCache.TryGetValue(name.ToLower(), out type))
-        {
-            mNameToTypeCache[name.ToLower()] = type;
+            // ReSharper disable once InvertIf
+            if (mNameToTypeCache.TryGetValue(name.ToUpper(), out type))
+            {
+                mNameToTypeCache[name.ToUpper()] = type;
 
-            return type;
+                return type;
+            }
+
+            throw new GameObjectTypeException($"GameObjectType with name '{name}' not found.");
         }
 
-        // ReSharper disable once InvertIf
-        if (mNameToTypeCache.TryGetValue(name.ToUpper(), out type))
-        {
-            mNameToTypeCache[name.ToUpper()] = type;
-
-            return type;
-        }
-
-        throw new GameObjectTypeException($"GameObjectType with name '{name}' not found.");
     }
 
 }

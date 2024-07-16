@@ -1,31 +1,35 @@
-﻿namespace Intersect.Editor.Classes.Maps;
+﻿using System.Linq;
 
-
-public partial class MapSaveState
+namespace Intersect.Editor.Classes.Maps
 {
 
-    public MapSaveState(string metadata, byte[] tiles, byte[] attributes, string eventData)
+    public partial class MapSaveState
     {
-        Metadata = metadata;
-        Tiles = tiles;
-        Attributes = attributes;
-        EventData = eventData;
-    }
 
-    public string Metadata { get; set; }
+        public MapSaveState(string metadata, byte[] tiles, byte[] attributes, string eventData)
+        {
+            Metadata = metadata;
+            Tiles = tiles;
+            Attributes = attributes;
+            EventData = eventData;
+        }
 
-    public byte[] Tiles { get; set; }
+        public string Metadata { get; set; }
 
-    public byte[] Attributes { get; set; }
+        public byte[] Tiles { get; set; }
 
-    public string EventData { get; set; }
+        public byte[] Attributes { get; set; }
 
-    public bool Matches(MapSaveState otherState)
-    {
-        return Metadata == otherState.Metadata &&
-               Tiles.SequenceEqual(otherState.Tiles) &&
-               Attributes.SequenceEqual(otherState.Attributes) &&
-               EventData.SequenceEqual(otherState.EventData);
+        public string EventData { get; set; }
+
+        public bool Matches(MapSaveState otherState)
+        {
+            return Metadata == otherState.Metadata &&
+                   Tiles.SequenceEqual(otherState.Tiles) &&
+                   Attributes.SequenceEqual(otherState.Attributes) &&
+                   EventData.SequenceEqual(otherState.EventData);
+        }
+
     }
 
 }

@@ -1,56 +1,61 @@
-﻿using Intersect.Client.Framework.Gwen.Control;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Intersect.Client.Framework.Gwen.Anim;
+using Intersect.Client.Framework.Gwen.Control;
 
-
-public partial class Animation
+namespace Intersect.Client.Framework.Gwen.Anim
 {
 
-    //private static List<Animation> g_AnimationsListed = new List<Animation>(); // unused
-    private static readonly Dictionary<Base, List<Animation>> Animations = new Dictionary<Base, List<Animation>>();
-
-    protected Base mControl;
-
-    public virtual bool Finished => throw new InvalidOperationException("Pure virtual function call");
-
-    protected virtual void Think()
+    public partial class Animation
     {
-    }
 
-    public static void Add(Base control, Animation animation)
-    {
-        animation.mControl = control;
-        if (!Animations.ContainsKey(control))
+        //private static List<Animation> g_AnimationsListed = new List<Animation>(); // unused
+        private static readonly Dictionary<Base, List<Animation>> Animations = new Dictionary<Base, List<Animation>>();
+
+        protected Base mControl;
+
+        public virtual bool Finished => throw new InvalidOperationException("Pure virtual function call");
+
+        protected virtual void Think()
         {
-            Animations[control] = new List<Animation>();
         }
 
-        Animations[control].Add(animation);
-    }
-
-    public static void Cancel(Base control)
-    {
-        if (Animations.ContainsKey(control))
+        public static void Add(Base control, Animation animation)
         {
-            Animations[control].Clear();
-            Animations.Remove(control);
-        }
-    }
-
-    internal static void GlobalThink()
-    {
-        foreach (var pair in Animations)
-        {
-            var valCopy = pair.Value.FindAll(x => true); // list copy so foreach won't break when we remove elements
-            foreach (var animation in valCopy)
+            animation.mControl = control;
+            if (!Animations.ContainsKey(control))
             {
-                animation.Think();
-                if (animation.Finished)
+                Animations[control] = new List<Animation>();
+            }
+
+            Animations[control].Add(animation);
+        }
+
+        public static void Cancel(Base control)
+        {
+            if (Animations.ContainsKey(control))
+            {
+                Animations[control].Clear();
+                Animations.Remove(control);
+            }
+        }
+
+        internal static void GlobalThink()
+        {
+            foreach (var pair in Animations)
+            {
+                var valCopy = pair.Value.FindAll(x => true); // list copy so foreach won't break when we remove elements
+                foreach (var animation in valCopy)
                 {
-                    pair.Value.Remove(animation);
+                    animation.Think();
+                    if (animation.Finished)
+                    {
+                        pair.Value.Remove(animation);
+                    }
                 }
             }
         }
+
     }
 
 }

@@ -1,14 +1,15 @@
-namespace Intersect.Enums;
-
-public enum Stat
+namespace Intersect.Enums
 {
-    Attack = 0,
+    public enum Stat
+    {
+        Attack = 0,
 
-    AbilityPower,
+        AbilityPower,
 
-    Defense,
+        Defense,
 
-    MagicResist,
+        MagicResist,
 
-    Speed,
+        Speed,
+    }
 }

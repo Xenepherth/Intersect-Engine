@@ -2,44 +2,46 @@ using Intersect.Configuration;
 
 using Microsoft.Win32;
 
-namespace Intersect.Editor.Core;
-
-
-public static partial class Preferences
+namespace Intersect.Editor
 {
 
-    public static void SavePreference(string key, string value)
+    public static partial class Preferences
     {
-        var regkey = Registry.CurrentUser.OpenSubKey("Software", true);
 
-        regkey = regkey.CreateSubKey("IntersectEditor");
-        regkey = regkey.CreateSubKey($"{ClientConfiguration.Instance.Host}:{ClientConfiguration.Instance.Port}");
-
-        regkey.SetValue(key, value);
-    }
-
-    public static string LoadPreference(string key)
-    {
-        var regkey = Registry.CurrentUser.OpenSubKey("Software", false);
-        regkey = regkey.OpenSubKey("IntersectEditor", false);
-        if (regkey == null)
+        public static void SavePreference(string key, string value)
         {
-            return string.Empty;
+            var regkey = Registry.CurrentUser.OpenSubKey("Software", true);
+
+            regkey = regkey.CreateSubKey("IntersectEditor");
+            regkey = regkey.CreateSubKey($"{ClientConfiguration.Instance.Host}:{ClientConfiguration.Instance.Port}");
+
+            regkey.SetValue(key, value);
         }
 
-        regkey = regkey.OpenSubKey($"{ClientConfiguration.Instance.Host}:{ClientConfiguration.Instance.Port}");
-        if (regkey == null)
+        public static string LoadPreference(string key)
         {
-            return string.Empty;
+            var regkey = Registry.CurrentUser.OpenSubKey("Software", false);
+            regkey = regkey.OpenSubKey("IntersectEditor", false);
+            if (regkey == null)
+            {
+                return string.Empty;
+            }
+
+            regkey = regkey.OpenSubKey($"{ClientConfiguration.Instance.Host}:{ClientConfiguration.Instance.Port}");
+            if (regkey == null)
+            {
+                return string.Empty;
+            }
+
+            var value = (string) regkey.GetValue(key);
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+
+            return value;
         }
 
-        var value = (string) regkey.GetValue(key);
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
-
-        return value;
     }
 
 }

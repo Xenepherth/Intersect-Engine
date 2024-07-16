@@ -6,32 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 using System.Data.Common;
 
-namespace Intersect.Server.Database.Logging;
-
-public abstract partial class LoggingContext : IntersectDbContext<LoggingContext>, ILoggingContext
+namespace Intersect.Server.Database.Logging
 {
-    /// <inheritdoc />
-    protected LoggingContext(DatabaseContextOptions databaseContextOptions) : base(databaseContextOptions) { }
-
-    public static DbConnectionStringBuilder DefaultConnectionStringBuilder =>
-        new SqliteConnectionStringBuilder(@"Data Source=resources/logging.db");
-
-    public DbSet<RequestLog> RequestLogs { get; set; }
-
-    public DbSet<UserActivityHistory> UserActivityHistory { get; set; }
-
-    public DbSet<ChatHistory> ChatHistory { get; set; }
-
-    public DbSet<TradeHistory> TradeHistory { get; set; }
-
-    public DbSet<GuildHistory> GuildHistory { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public abstract partial class LoggingContext : IntersectDbContext<LoggingContext>, ILoggingContext
     {
-        base.OnModelCreating(modelBuilder);
+        /// <inheritdoc />
+        protected LoggingContext(DatabaseContextOptions databaseContextOptions) : base(databaseContextOptions) { }
 
-        modelBuilder.ApplyConfiguration(new RequestLog.Mapper());
-    }
+        public static DbConnectionStringBuilder DefaultConnectionStringBuilder =>
+            new SqliteConnectionStringBuilder(@"Data Source=resources/logging.db");
 
         public DbSet<RequestLog> RequestLogs { get; set; }
 
@@ -52,12 +35,13 @@ public abstract partial class LoggingContext : IntersectDbContext<LoggingContext
             modelBuilder.ApplyConfiguration(new RequestLog.Mapper());
         }
 
-    public void Seed()
-    {
+        public void Seed()
+        {
 #if DEBUG
-        new SeedTrades().SeedIfEmpty(this);
-        ChangeTracker.DetectChanges();
-        SaveChanges();
+            new SeedTrades().SeedIfEmpty(this);
+            ChangeTracker.DetectChanges();
+            SaveChanges();
 #endif
+        }
     }
 }

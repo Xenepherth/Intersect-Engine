@@ -1,36 +1,40 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
-namespace Intersect.Collections;
-
-
-public sealed partial class NamedInstanceStore<TInstance>
+namespace Intersect.Collections
 {
 
-    private Func<TInstance> mFactory;
-
-    private IDictionary<string, TInstance> mInstances;
-
-    public NamedInstanceStore(Func<TInstance> factory)
+    public sealed partial class NamedInstanceStore<TInstance>
     {
-        mFactory = factory;
-        mInstances = new ConcurrentDictionary<string, TInstance>();
-    }
 
-    public bool TryGetValue(string name, out TInstance instance)
-    {
-        if (!mInstances.TryGetValue(name, out instance))
+        private Func<TInstance> mFactory;
+
+        private IDictionary<string, TInstance> mInstances;
+
+        public NamedInstanceStore(Func<TInstance> factory)
         {
-            instance = mFactory();
+            mFactory = factory;
+            mInstances = new ConcurrentDictionary<string, TInstance>();
         }
 
-        return instance != null;
-    }
+        public bool TryGetValue(string name, out TInstance instance)
+        {
+            if (!mInstances.TryGetValue(name, out instance))
+            {
+                instance = mFactory();
+            }
 
-    public TInstance GetInstance(string name)
-    {
-        TryGetValue(name, out var instance);
+            return instance != null;
+        }
 
-        return instance;
+        public TInstance GetInstance(string name)
+        {
+            TryGetValue(name, out var instance);
+
+            return instance;
+        }
+
     }
 
 }

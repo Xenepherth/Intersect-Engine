@@ -1,58 +1,60 @@
-﻿namespace Intersect.Client.Framework.GenericClasses;
-
-
-public partial class Cursor
+﻿namespace Intersect.Client.Framework.GenericClasses
 {
 
-    private int mType = 0;
-
-    public Cursor()
-    {
-    }
-
-    public Cursor(Cursors.CursorTypes t)
-    {
-        mType = (int) t;
-    }
-
-    public static Cursor Current { get; set; }
-
-}
-
-public static partial class Cursors
-{
-
-    public enum CursorTypes
+    public partial class Cursor
     {
 
-        Default = 0, //default
+        private int mType = 0;
 
-        SizeAll,
+        public Cursor()
+        {
+        }
 
-        SizeNs,
+        public Cursor(Cursors.CursorTypes t)
+        {
+            mType = (int) t;
+        }
 
-        SizeWe,
-
-        SizeNwse,
-
-        SizeNesw,
-
-        No
+        public static Cursor Current { get; set; }
 
     }
 
-    public static Cursor Default => new Cursor(CursorTypes.Default);
+    public static partial class Cursors
+    {
 
-    public static Cursor SizeNs => new Cursor(CursorTypes.SizeNs);
+        public enum CursorTypes
+        {
 
-    public static Cursor SizeWe => new Cursor(CursorTypes.SizeWe);
+            Default = 0, //default
 
-    public static Cursor SizeAll => new Cursor(CursorTypes.SizeAll);
+            SizeAll,
 
-    public static Cursor SizeNwse => new Cursor(CursorTypes.SizeNwse);
+            SizeNs,
 
-    public static Cursor SizeNesw => new Cursor(CursorTypes.SizeNesw);
+            SizeWe,
 
-    public static Cursor No => new Cursor(CursorTypes.No);
+            SizeNwse,
+
+            SizeNesw,
+
+            No
+
+        }
+
+        public static Cursor Default => new Cursor(CursorTypes.Default);
+
+        public static Cursor SizeNs => new Cursor(CursorTypes.SizeNs);
+
+        public static Cursor SizeWe => new Cursor(CursorTypes.SizeWe);
+
+        public static Cursor SizeAll => new Cursor(CursorTypes.SizeAll);
+
+        public static Cursor SizeNwse => new Cursor(CursorTypes.SizeNwse);
+
+        public static Cursor SizeNesw => new Cursor(CursorTypes.SizeNesw);
+
+        public static Cursor No => new Cursor(CursorTypes.No);
+
+    }
 
 }

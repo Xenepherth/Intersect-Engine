@@ -1,19 +1,21 @@
 ﻿using Newtonsoft.Json;
 
-namespace Intersect.Client.Framework.Entities;
-
-
-public partial class Label
+namespace Intersect.Client.Framework.Entities
 {
 
-    [JsonProperty("Label")] public string Text { get; set; }
-
-    public Color Color { get; set; }
-
-    public Label(string label, Color color)
+    public partial class Label
     {
-        Text = label;
-        Color = color;
+
+        [JsonProperty("Label")] public string Text { get; set; }
+
+        public Color Color { get; set; }
+
+        public Label(string label, Color color)
+        {
+            Text = label;
+            Color = color;
+        }
+
     }
 
 }

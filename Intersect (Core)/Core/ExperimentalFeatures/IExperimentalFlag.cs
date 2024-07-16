@@ -1,20 +1,24 @@
-﻿namespace Intersect.Core.ExperimentalFeatures;
+﻿using System;
 
-
-public interface IExperimentalFlag : IEquatable<IExperimentalFlag>
+namespace Intersect.Core.ExperimentalFeatures
 {
 
-    Guid Guid { get; }
+    public interface IExperimentalFlag : IEquatable<IExperimentalFlag>
+    {
 
-    string Name { get; }
+        Guid Guid { get; }
 
-    bool Enabled { get; }
+        string Name { get; }
 
-    /// <summary>
-    /// Creates a clone of this <see cref="IExperimentalFlag"/> with the given enablement.
-    /// </summary>
-    /// <param name="enabled">the new enablement state</param>
-    /// <returns>a clone of this flag with the new enablement state</returns>
-    IExperimentalFlag With(bool enabled);
+        bool Enabled { get; }
+
+        /// <summary>
+        /// Creates a clone of this <see cref="IExperimentalFlag"/> with the given enablement.
+        /// </summary>
+        /// <param name="enabled">the new enablement state</param>
+        /// <returns>a clone of this flag with the new enablement state</returns>
+        IExperimentalFlag With(bool enabled);
+
+    }
 
 }

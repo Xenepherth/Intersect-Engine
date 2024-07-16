@@ -1,48 +1,53 @@
-﻿using Intersect.Enums;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Intersect.Models;
+using Intersect.Enums;
 
-
-public interface IDatabaseObject : INamedObject
+namespace Intersect.Models
 {
 
-    GameObjectType Type { get; }
-
-    string DatabaseTable { get; }
-
-    long TimeCreated { get; set; }
-
-    string JsonData { get; }
-
-    void Load(string json, bool keepCreationTime = false);
-
-    void MakeBackup();
-
-    void RestoreBackup();
-
-    void DeleteBackup();
-
-    void Delete();
-
-}
-
-public partial class DbList<T> : List<Guid>
-{
-
-    public List<T> GetAll()
+    public interface IDatabaseObject : INamedObject
     {
-        var list = new List<T>();
-        foreach (var l in ToArray())
-        {
-            list.Add((T) LookupUtils.LookupMap[typeof(T)].Get(l));
-        }
 
-        return list;
+        GameObjectType Type { get; }
+
+        string DatabaseTable { get; }
+
+        long TimeCreated { get; set; }
+
+        string JsonData { get; }
+
+        void Load(string json, bool keepCreationTime = false);
+
+        void MakeBackup();
+
+        void RestoreBackup();
+
+        void DeleteBackup();
+
+        void Delete();
+
     }
 
-    public T Get(Guid id)
+    public partial class DbList<T> : List<Guid>
     {
-        return (T) LookupUtils.LookupMap[typeof(T)].Get(id);
+
+        public List<T> GetAll()
+        {
+            var list = new List<T>();
+            foreach (var l in ToArray())
+            {
+                list.Add((T) LookupUtils.LookupMap[typeof(T)].Get(l));
+            }
+
+            return list;
+        }
+
+        public T Get(Guid id)
+        {
+            return (T) LookupUtils.LookupMap[typeof(T)].Get(id);
+        }
+
     }
 
 }

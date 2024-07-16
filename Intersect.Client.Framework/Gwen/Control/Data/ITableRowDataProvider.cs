@@ -1,19 +1,20 @@
-namespace Intersect.Client.Framework.Gwen.Control.Data;
-
-public partial class RowDataChangedEventArgs : CellDataChangedEventArgs
+namespace Intersect.Client.Framework.Gwen.Control.Data
 {
-    public RowDataChangedEventArgs(int column, object oldValue, object newValue)
-        : base(oldValue, newValue)
+    public partial class RowDataChangedEventArgs : CellDataChangedEventArgs
     {
-        Column = column;
+        public RowDataChangedEventArgs(int column, object oldValue, object newValue)
+            : base(oldValue, newValue)
+        {
+            Column = column;
+        }
+
+        public int Column { get; }
     }
 
-    public int Column { get; }
-}
+    public delegate void TableRowDataChangedEventHandler(object sender, RowDataChangedEventArgs args);
 
-public delegate void TableRowDataChangedEventHandler(object sender, RowDataChangedEventArgs args);
-
-public interface ITableRowDataProvider
-{
-    event TableRowDataChangedEventHandler DataChanged;
+    public interface ITableRowDataProvider
+    {
+        event TableRowDataChangedEventHandler DataChanged;
+    }
 }

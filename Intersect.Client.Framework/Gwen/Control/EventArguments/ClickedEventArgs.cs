@@ -1,20 +1,24 @@
-﻿namespace Intersect.Client.Framework.Gwen.Control.EventArguments;
+﻿using System;
 
-
-public partial class ClickedEventArgs : EventArgs
+namespace Intersect.Client.Framework.Gwen.Control.EventArguments
 {
 
-    internal ClickedEventArgs(int x, int y, bool down)
+    public partial class ClickedEventArgs : EventArgs
     {
-        this.X = x;
-        this.Y = y;
-        this.MouseDown = down;
+
+        internal ClickedEventArgs(int x, int y, bool down)
+        {
+            this.X = x;
+            this.Y = y;
+            this.MouseDown = down;
+        }
+
+        public int X { get; private set; }
+
+        public int Y { get; private set; }
+
+        public bool MouseDown { get; private set; }
+
     }
-
-    public int X { get; private set; }
-
-    public int Y { get; private set; }
-
-    public bool MouseDown { get; private set; }
 
 }

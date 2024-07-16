@@ -1,59 +1,61 @@
-﻿namespace Intersect.Client.Framework.Gwen.Control.Layout;
-
-
-/// <summary>
-///     Helper control that positions its children in a specific way.
-/// </summary>
-public partial class Positioner : Base
+﻿namespace Intersect.Client.Framework.Gwen.Control.Layout
 {
 
-    private Pos mPos;
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Positioner" /> class.
+    ///     Helper control that positions its children in a specific way.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    public Positioner(Base parent) : base(parent)
+    public partial class Positioner : Base
     {
-        Pos = Pos.Left | Pos.Top;
-    }
 
-    /// <summary>
-    ///     Children position.
-    /// </summary>
-    public Pos Pos
-    {
-        get => mPos;
-        set => mPos = value;
-    }
+        private Pos mPos;
 
-    /// <summary>
-    ///     Function invoked after layout.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void PostLayout(Skin.Base skin)
-    {
-        foreach (var child in Children) // ok?
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Positioner" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        public Positioner(Base parent) : base(parent)
         {
-            child.Position(mPos);
+            Pos = Pos.Left | Pos.Top;
         }
+
+        /// <summary>
+        ///     Children position.
+        /// </summary>
+        public Pos Pos
+        {
+            get => mPos;
+            set => mPos = value;
+        }
+
+        /// <summary>
+        ///     Function invoked after layout.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void PostLayout(Skin.Base skin)
+        {
+            foreach (var child in Children) // ok?
+            {
+                child.Position(mPos);
+            }
+        }
+
     }
 
-}
-
-/// <summary>
-///     Helper class that centers all its children.
-/// </summary>
-public partial class Center : Positioner
-{
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Center" /> class.
+    ///     Helper class that centers all its children.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    public Center(Base parent) : base(parent)
+    public partial class Center : Positioner
     {
-        Pos = Pos.Center;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Center" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        public Center(Base parent) : base(parent)
+        {
+            Pos = Pos.Center;
+        }
+
     }
 
 }

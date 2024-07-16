@@ -1,19 +1,23 @@
-﻿using Intersect.Client.Framework.Gwen.Control;
+﻿using System.Collections.Generic;
 
-namespace Intersect.Client.Interface;
+using Intersect.Client.Framework.Gwen.Control;
 
-
-public interface IMutableInterface
+namespace Intersect.Client.Interface
 {
 
-    List<Base> Children { get; }
+    public interface IMutableInterface
+    {
 
-    TElement Create<TElement>(params object[] parameters) where TElement : Base;
+        List<Base> Children { get; }
 
-    TElement Find<TElement>(string name = null, bool recurse = false) where TElement : Base;
+        TElement Create<TElement>(params object[] parameters) where TElement : Base;
 
-    IEnumerable<TElement> FindAll<TElement>(bool recurse = false) where TElement : Base;
+        TElement Find<TElement>(string name = null, bool recurse = false) where TElement : Base;
 
-    void Remove<TElement>(TElement element, bool dispose = false) where TElement : Base;
+        IEnumerable<TElement> FindAll<TElement>(bool recurse = false) where TElement : Base;
+
+        void Remove<TElement>(TElement element, bool dispose = false) where TElement : Base;
+
+    }
 
 }

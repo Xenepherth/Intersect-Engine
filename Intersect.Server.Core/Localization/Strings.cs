@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Intersect.Config;
 using Intersect.Localization;
@@ -6,246 +9,247 @@ using Intersect.Server.Core;
 using Intersect.Server.Networking.Helpers;
 using Newtonsoft.Json;
 
-namespace Intersect.Server.Localization;
-
-
-public static partial class Strings
+namespace Intersect.Server.Localization
 {
 
-    public sealed partial class AccountNamespace : LocaleNamespace
+    public static partial class Strings
     {
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString adminonly =
-            @"The server is currently allowing only admins to connect. Come back later!";
+        public sealed partial class AccountNamespace : LocaleNamespace
+        {
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString alreadybanned = @"{00} has already been banned!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString adminonly =
+                @"The server is currently allowing only admins to connect. Come back later!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString alreadymuted = @"{00} has already been muted!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString alreadybanned = @"{00} has already been banned!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString badaccess = @"Access denied! Invalid power level!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString alreadymuted = @"{00} has already been muted!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString badlogin = @"Username or password incorrect.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString badaccess = @"Access denied! Invalid power level!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString banned = @"{00} has been banned!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString badlogin = @"Username or password incorrect.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString UnbanSuccess = @"{00} has been unbanned!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString banned = @"{00} has been banned!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString UnbanFail = @"Failed to unban {00}. The user is not banned!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString UnbanSuccess = @"{00} has been unbanned!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString NotAllowed = @"You do not have the permission to do this.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString UnbanFail = @"Failed to unban {00}. The user is not banned!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString banstatus =
-            @"Your account has been banned since: {00} (UTC) by {01}. Ban expires: {02} (UTC). Reason for ban: {03}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString NotAllowed = @"You do not have the permission to do this.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString characterexists =
-            @"An account with this character name exists. Please choose another.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString banstatus =
+                @"Your account has been banned since: {00} (UTC) by {01}. Ban expires: {02} (UTC). Reason for ban: {03}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deletechar = @"The character has been deleted.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString characterexists =
+                @"An account with this character name exists. Please choose another.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deleted = @"Delete Character";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deletechar = @"The character has been deleted.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deletecharerror = @"This character cannot be deleted, they may be stuck online in combat.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deleted = @"Delete Character";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deletederror = @"Error Deleting Character";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deletecharerror = @"This character cannot be deleted, they may be stuck online in combat.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString doesnotexist = @"Account does not exist.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString deletederror = @"Error Deleting Character";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString emailexists = @"An account with this email address already exists.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString doesnotexist = @"Account does not exist.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString exists = @"Account already exists!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString emailexists = @"An account with this email address already exists.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString invalidclass = @"Invalid class selected. Try again.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString exists = @"Account already exists!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString invalidemail =
-            @"The chosen email does not meet requirements set by the server.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString invalidclass = @"Invalid class selected. Try again.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString invalidname =
-            @"The chosen name does not meet requirements set by the server.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString invalidemail =
+                @"The chosen email does not meet requirements set by the server.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString loadfail = @"Failed to load account. Please try logging in again.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString invalidname =
+                @"The chosen name does not meet requirements set by the server.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString maxchars =
-            @"You have already created the maximum number of characters. Delete one before creating a new one.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString loadfail = @"Failed to load account. Please try logging in again.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString muted = @"{00} has been muted!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString maxchars =
+                @"You have already created the maximum number of characters. Delete one before creating a new one.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString UnmuteSuccess = @"{00} has been unmuted!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString muted = @"{00} has been muted!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString UnmuteFail = @"Failed to unmute {00}. The user is not muted!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString UnmuteSuccess = @"{00} has been unmuted!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString mutestatus =
-            @"Your account has been muted since: {00} by {01}. Mute expires: {02}. Reason for mute: {03}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString UnmuteFail = @"Failed to unmute {00}. The user is not muted!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString notfound = @"Error: Account {00} was not found!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString mutestatus =
+                @"Your account has been muted since: {00} by {01}. Mute expires: {02}. Reason for mute: {03}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString registrationsblocked =
-            @"Account registrations are currently blocked by the server.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString notfound = @"Error: Account {00} was not found!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString emailfail = @"Failed to send your password reset email at this time. Please try again later.";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString registrationsblocked =
+                @"Account registrations are currently blocked by the server.";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString UnknownError = @"An unknown error occurred while saving the user.";
-    }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] public readonly LocalizedString emailfail = @"Failed to send your password reset email at this time. Please try again later.";
 
-    public sealed partial class BagsNamespace : LocaleNamespace
-    {
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString UnknownError = @"An unknown error occurred while saving the user.";
+        }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString baginbag = @"You cannot store a bag inside another bag!";
+        public sealed partial class BagsNamespace : LocaleNamespace
+        {
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString baginself = @"You cannot store a bag in within itself!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString baginbag = @"You cannot store a bag inside another bag!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString bagnospace = @"There is no space left in your bag for that item!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString baginself = @"You cannot store a bag in within itself!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString depositinvalid = @"Invalid item selected to store!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString bagnospace = @"There is no space left in your bag for that item!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString dropnotempty = @"You cannot drop a bag unless it's empty!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString depositinvalid = @"Invalid item selected to store!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString inventorynospace =
-            @"There is no space left in your inventory for that item!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString dropnotempty = @"You cannot drop a bag unless it's empty!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString onlysellempty = @"Cannot sell bag unless it's empty!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString inventorynospace =
+                @"There is no space left in your inventory for that item!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString onlytradeempty = @"Cannot trade bag unless it's empty!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString onlysellempty = @"Cannot sell bag unless it's empty!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString SlotOccupied = @"That slot is occupied by another item!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString onlytradeempty = @"Cannot trade bag unless it's empty!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString tradebound = @"Cannot trade bound items!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString SlotOccupied = @"That slot is occupied by another item!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString withdrawinvalid = @"Invalid item selected to retreive!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString tradebound = @"Cannot trade bound items!";
 
-    }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString withdrawinvalid = @"Invalid item selected to retreive!";
 
-    public sealed partial class BanksNamespace : LocaleNamespace
-    {
+        }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString banknospace = @"There is no space left in your bank for that item!";
+        public sealed partial class BanksNamespace : LocaleNamespace
+        {
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString depositinvalid = @"Invalid item selected to deposit!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString banknospace = @"There is no space left in your bank for that item!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString DepositSuccessStackable =
-            @"You have stored: {00} {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString depositinvalid = @"Invalid item selected to deposit!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString DepositSuccessNonStackable =
-            @"You have stored: {00}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString DepositSuccessStackable =
+                @"You have stored: {00} {01}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString InvalidSlotToSwap = @"Invalid slots to swap!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString DepositSuccessNonStackable =
+                @"You have stored: {00}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString inventorynospace =
-            @"There is no space left in your inventory for that item!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString InvalidSlotToSwap = @"Invalid slots to swap!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString withdrawinvalid = @"Invalid item selected to withdraw!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString inventorynospace =
+                @"There is no space left in your inventory for that item!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString WithdrawSuccessStackable =
-            @"You have withdrawn: {00} {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString withdrawinvalid = @"Invalid item selected to withdraw!";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString WithdrawSuccessNonStackable =
-            @"You have withdrawn: {00}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString WithdrawSuccessStackable =
+                @"You have withdrawn: {00} {01}";
 
-    }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString WithdrawSuccessNonStackable =
+                @"You have withdrawn: {00}";
 
-    public sealed partial class ChatNamespace : LocaleNamespace
-    {
+        }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString admin = @"[ADMIN] {00}: {01}";
+        public sealed partial class ChatNamespace : LocaleNamespace
+        {
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString admincmd = @"/admin";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString admin = @"[ADMIN] {00}: {01}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString allcmd = @"/all";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString admincmd = @"/admin";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString announcement = @"[ANNOUNCEMENT] {00}: {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString allcmd = @"/all";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString announcementcmd = @"/announcement";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString announcement = @"[ANNOUNCEMENT] {00}: {01}";
 
-        [JsonProperty("global", NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString Global = @"[GLOBAL] {00}: {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString announcementcmd = @"/announcement";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString globalcmd = @"/global";
+            [JsonProperty("global", NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString Global = @"[GLOBAL] {00}: {01}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString local = @"{00}: {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString globalcmd = @"/global";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString localcmd = @"/local";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString local = @"{00}: {01}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString messagecmd = @"/message";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString localcmd = @"/local";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString party = @"[PARTY] {00}: {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString messagecmd = @"/message";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString partycmd = @"/party";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString party = @"[PARTY] {00}: {01}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString pmcmd = @"/pm";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString partycmd = @"/party";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString PrivateTo = @"[PM] To {00}: {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString pmcmd = @"/pm";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString PrivateFrom = @"[PM] From {00}: {01}";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString PrivateTo = @"[PM] To {00}: {01}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString rcmd = @"/r";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString PrivateFrom = @"[PM] From {00}: {01}";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString replycmd = @"/reply";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString rcmd = @"/r";
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString toofast = @"You are chatting too fast!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString replycmd = @"/reply";
 
-    }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString toofast = @"You are chatting too fast!";
 
-    public sealed partial class ClassesNamespace : LocaleNamespace
-    {
+        }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString lastclass = @"Last Class";
+        public sealed partial class ClassesNamespace : LocaleNamespace
+        {
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public readonly LocalizedString lastclasserror =
-            @"Failed to delete class, you must have at least one class at all times!";
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString lastclass = @"Last Class";
 
-    }
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public readonly LocalizedString lastclasserror =
+                @"Failed to delete class, you must have at least one class at all times!";
+
+        }
+
         public sealed partial class ColorsNamespace : LocaleNamespace
         {
 
@@ -1570,220 +1574,221 @@ public static partial class Strings
 
         }
 
-    #region Serialization
+        #region Serialization
 
-    public static bool Load()
-    {
-        var filepath = Path.Combine(ServerContext.ResourceDirectory, "server_strings.json");
-
-        // Really don't want two JsonSave() return points...
-        // ReSharper disable once InvertIf
-        if (File.Exists(filepath))
+        public static bool Load()
         {
-            var json = File.ReadAllText(filepath, Encoding.UTF8);
+            var filepath = Path.Combine(ServerContext.ResourceDirectory, "server_strings.json");
+
+            // Really don't want two JsonSave() return points...
+            // ReSharper disable once InvertIf
+            if (File.Exists(filepath))
+            {
+                var json = File.ReadAllText(filepath, Encoding.UTF8);
+                try
+                {
+                    Root = JsonConvert.DeserializeObject<RootNamespace>(json) ?? Root;
+                }
+                catch (Exception exception)
+                {
+                    if (exception.Message.Contains("Commands.announcement"))
+                    {
+                        throw new Exception(
+                            "Server strings invalid! Upgrade steps to B6 were not followed correctly. Server must close!"
+                        );
+                    }
+
+                    Log.Error(exception);
+
+                    return false;
+                }
+            }
+
+            return Save();
+        }
+
+        public static bool Save()
+        {
             try
             {
-                Root = JsonConvert.DeserializeObject<RootNamespace>(json) ?? Root;
+                var filepath = Path.Combine(ServerContext.ResourceDirectory, "server_strings.json");
+                Directory.CreateDirectory(ServerContext.ResourceDirectory);
+                var json = JsonConvert.SerializeObject(Root, Formatting.Indented, new LocalizedStringConverter());
+                File.WriteAllText(filepath, json, Encoding.UTF8);
+
+                return true;
             }
             catch (Exception exception)
             {
-                if (exception.Message.Contains("Commands.announcement"))
-                {
-                    throw new Exception(
-                        "Server strings invalid! Upgrade steps to B6 were not followed correctly. Server must close!"
-                    );
-                }
-
                 Log.Error(exception);
 
                 return false;
             }
         }
 
-        return Save();
-    }
+        #endregion
 
-    public static bool Save()
-    {
-        try
+        #region Root Namespace
+
+        static Strings()
         {
-            var filepath = Path.Combine(ServerContext.ResourceDirectory, "server_strings.json");
-            Directory.CreateDirectory(ServerContext.ResourceDirectory);
-            var json = JsonConvert.SerializeObject(Root, Formatting.Indented, new LocalizedStringConverter());
-            File.WriteAllText(filepath, json, Encoding.UTF8);
-
-            return true;
+            Root = new RootNamespace();
         }
-        catch (Exception exception)
+
+        private static RootNamespace Root { get; set; }
+
+        // ReSharper disable MemberHidesStaticFromOuterClass
+        private sealed partial class RootNamespace : LocaleNamespace
         {
-            Log.Error(exception);
-            return false;
+
+            public readonly AccountNamespace Account = new AccountNamespace();
+
+            public readonly BagsNamespace Bags = new BagsNamespace();
+
+            public readonly BanksNamespace Banks = new BanksNamespace();
+
+            public readonly ChatNamespace Chat = new ChatNamespace();
+
+            public readonly ClassesNamespace Classes = new ClassesNamespace();
+
+            public readonly ColorsNamespace Colors = new ColorsNamespace();
+
+            public readonly CombatNamespace Combat = new CombatNamespace();
+
+            public readonly CommandoutputNamespace Commandoutput = new CommandoutputNamespace();
+
+            public readonly CommandsNamespace Commands = new CommandsNamespace();
+
+            public readonly CraftingNamespace Crafting = new CraftingNamespace();
+
+            public readonly DatabaseNamespace Database = new DatabaseNamespace();
+
+            public readonly ErrorsNamespace Errors = new ErrorsNamespace();
+
+            public readonly EventsNamespace Events = new EventsNamespace();
+
+            public readonly FormulasNamespace Formulas = new FormulasNamespace();
+
+            public readonly FriendsNamespace Friends = new FriendsNamespace();
+
+            public readonly GeneralNamespace General = new GeneralNamespace();
+
+            public readonly IntroNamespace Intro = new IntroNamespace();
+
+            public readonly ItemsNamespace Items = new ItemsNamespace();
+
+            public readonly MappingNamespace Mapping = new MappingNamespace();
+
+            public readonly MigrationNamespace Migration = new MigrationNamespace();
+
+            public readonly NetDebugNamespace NetDebug = new NetDebugNamespace();
+
+            public readonly NetworkingNamespace Networking = new NetworkingNamespace();
+
+            public readonly NotificationsNamespace NotificationsNamespace = new NotificationsNamespace();
+
+            public readonly PartiesNamespace Parties = new PartiesNamespace();
+
+            public readonly PasswordResetNotificationNamespace PasswordResetNotificationNamespace =
+                new PasswordResetNotificationNamespace();
+
+            public readonly PlayerNamespace Player = new PlayerNamespace();
+
+            public readonly PortcheckingNamespace Portchecking = new PortcheckingNamespace();
+
+            public readonly QuestsNamespace Quests = new QuestsNamespace();
+
+            public readonly RegexNamespace Regex = new RegexNamespace();
+
+            public readonly ShopsNamespace Shops = new ShopsNamespace();
+
+            public readonly TradingNamespace Trading = new TradingNamespace();
+
+            public readonly UpnpNamespace Upnp = new UpnpNamespace();
+
+            public readonly GuildsNamespace Guilds = new GuildsNamespace();
+
+            public readonly NationsNamespace Nations = new NationsNamespace();
+
         }
-    }
 
-    #endregion
+        // ReSharper restore MemberHidesStaticFromOuterClass
 
-    #region Root Namespace
+        #endregion
 
-    static Strings()
-    {
-        Root = new RootNamespace();
-    }
+        #region Namespace Exposure
 
-    private static RootNamespace Root { get; set; }
+        public static AccountNamespace Account => Root.Account;
 
-    // ReSharper disable MemberHidesStaticFromOuterClass
-    private sealed partial class RootNamespace : LocaleNamespace
-    {
+        public static BagsNamespace Bags => Root.Bags;
 
-        public readonly AccountNamespace Account = new AccountNamespace();
+        public static BanksNamespace Banks => Root.Banks;
 
-        public readonly BagsNamespace Bags = new BagsNamespace();
+        public static ChatNamespace Chat => Root.Chat;
 
-        public readonly BanksNamespace Banks = new BanksNamespace();
+        public static ClassesNamespace Classes => Root.Classes;
 
-        public readonly ChatNamespace Chat = new ChatNamespace();
+        public static ColorsNamespace Colors => Root.Colors;
 
-        public readonly ClassesNamespace Classes = new ClassesNamespace();
+        public static CombatNamespace Combat => Root.Combat;
 
-        public readonly ColorsNamespace Colors = new ColorsNamespace();
+        public static CommandoutputNamespace Commandoutput => Root.Commandoutput;
 
-        public readonly CombatNamespace Combat = new CombatNamespace();
+        public static CommandsNamespace Commands => Root.Commands;
 
-        public readonly CommandoutputNamespace Commandoutput = new CommandoutputNamespace();
+        public static CraftingNamespace Crafting => Root.Crafting;
 
-        public readonly CommandsNamespace Commands = new CommandsNamespace();
+        public static DatabaseNamespace Database => Root.Database;
 
-        public readonly CraftingNamespace Crafting = new CraftingNamespace();
+        public static ErrorsNamespace Errors => Root.Errors;
 
-        public readonly DatabaseNamespace Database = new DatabaseNamespace();
+        public static EventsNamespace Events => Root.Events;
 
-        public readonly ErrorsNamespace Errors = new ErrorsNamespace();
+        public static FormulasNamespace Formulas => Root.Formulas;
 
-        public readonly EventsNamespace Events = new EventsNamespace();
+        public static FriendsNamespace Friends => Root.Friends;
 
-        public readonly FormulasNamespace Formulas = new FormulasNamespace();
+        public static GeneralNamespace General => Root.General;
 
-        public readonly FriendsNamespace Friends = new FriendsNamespace();
+        public static GuildsNamespace Guilds => Root.Guilds;
 
         public static NationsNamespace Nations => Root.Nations;
 
         public static IntroNamespace Intro => Root.Intro;
 
-        public readonly GeneralNamespace General = new GeneralNamespace();
+        public static ItemsNamespace Items => Root.Items;
 
-        public readonly IntroNamespace Intro = new IntroNamespace();
+        public static MappingNamespace Mapping => Root.Mapping;
 
-        public readonly ItemsNamespace Items = new ItemsNamespace();
+        public static MigrationNamespace Migration => Root.Migration;
 
-        public readonly MappingNamespace Mapping = new MappingNamespace();
+        public static NetDebugNamespace NetDebug => Root.NetDebug;
 
-        public readonly MigrationNamespace Migration = new MigrationNamespace();
+        public static NetworkingNamespace Networking => Root.Networking;
 
-        public readonly NetDebugNamespace NetDebug = new NetDebugNamespace();
+        public static NotificationsNamespace Notifications => Root.NotificationsNamespace;
 
-        public readonly NetworkingNamespace Networking = new NetworkingNamespace();
+        public static PartiesNamespace Parties => Root.Parties;
 
-        public readonly NotificationsNamespace NotificationsNamespace = new NotificationsNamespace();
+        public static PasswordResetNotificationNamespace PasswordResetNotification =>
+            Root.PasswordResetNotificationNamespace;
 
-        public readonly PartiesNamespace Parties = new PartiesNamespace();
+        public static PlayerNamespace Player => Root.Player;
 
-        public readonly PasswordResetNotificationNamespace PasswordResetNotificationNamespace =
-            new PasswordResetNotificationNamespace();
+        public static PortcheckingNamespace Portchecking => Root.Portchecking;
 
-        public readonly PlayerNamespace Player = new PlayerNamespace();
+        public static QuestsNamespace Quests => Root.Quests;
 
-        public readonly PortcheckingNamespace Portchecking = new PortcheckingNamespace();
+        public static RegexNamespace Regex => Root.Regex;
 
-        public readonly QuestsNamespace Quests = new QuestsNamespace();
+        public static ShopsNamespace Shops => Root.Shops;
 
-        public readonly RegexNamespace Regex = new RegexNamespace();
+        public static TradingNamespace Trading => Root.Trading;
 
-        public readonly ShopsNamespace Shops = new ShopsNamespace();
+        public static UpnpNamespace Upnp => Root.Upnp;
 
-        public readonly TradingNamespace Trading = new TradingNamespace();
-
-        public readonly UpnpNamespace Upnp = new UpnpNamespace();
-
-        public readonly GuildsNamespace Guilds = new GuildsNamespace();
+        #endregion
 
     }
-
-    // ReSharper restore MemberHidesStaticFromOuterClass
-
-    #endregion
-
-    #region Namespace Exposure
-
-    public static AccountNamespace Account => Root.Account;
-
-    public static BagsNamespace Bags => Root.Bags;
-
-    public static BanksNamespace Banks => Root.Banks;
-
-    public static ChatNamespace Chat => Root.Chat;
-
-    public static ClassesNamespace Classes => Root.Classes;
-
-    public static ColorsNamespace Colors => Root.Colors;
-
-    public static CombatNamespace Combat => Root.Combat;
-
-    public static CommandoutputNamespace Commandoutput => Root.Commandoutput;
-
-    public static CommandsNamespace Commands => Root.Commands;
-
-    public static CraftingNamespace Crafting => Root.Crafting;
-
-    public static DatabaseNamespace Database => Root.Database;
-
-    public static ErrorsNamespace Errors => Root.Errors;
-
-    public static EventsNamespace Events => Root.Events;
-
-    public static FormulasNamespace Formulas => Root.Formulas;
-
-    public static FriendsNamespace Friends => Root.Friends;
-
-    public static GeneralNamespace General => Root.General;
-
-    public static GuildsNamespace Guilds => Root.Guilds;
-
-        public static NationsNamespace Nations => Root.Nations;
-
-        public static IntroNamespace Intro => Root.Intro;
-
-    public static ItemsNamespace Items => Root.Items;
-
-    public static MappingNamespace Mapping => Root.Mapping;
-
-    public static MigrationNamespace Migration => Root.Migration;
-
-    public static NetDebugNamespace NetDebug => Root.NetDebug;
-
-    public static NetworkingNamespace Networking => Root.Networking;
-
-    public static NotificationsNamespace Notifications => Root.NotificationsNamespace;
-
-    public static PartiesNamespace Parties => Root.Parties;
-
-    public static PasswordResetNotificationNamespace PasswordResetNotification =>
-        Root.PasswordResetNotificationNamespace;
-
-    public static PlayerNamespace Player => Root.Player;
-
-    public static PortcheckingNamespace Portchecking => Root.Portchecking;
-
-    public static QuestsNamespace Quests => Root.Quests;
-
-    public static RegexNamespace Regex => Root.Regex;
-
-    public static ShopsNamespace Shops => Root.Shops;
-
-    public static TradingNamespace Trading => Root.Trading;
-
-    public static UpnpNamespace Upnp => Root.Upnp;
-
-    #endregion
 
 }

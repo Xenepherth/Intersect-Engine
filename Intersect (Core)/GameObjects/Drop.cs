@@ -1,10 +1,13 @@
-namespace Intersect.GameObjects;
+using System;
 
-public partial class Drop
+namespace Intersect.GameObjects
 {
-    public double Chance { get; set; }
+    public partial class Drop
+    {
+        public double Chance { get; set; }
 
-    public Guid ItemId { get; set; }
+        public Guid ItemId { get; set; }
 
-    public int Quantity { get; set; }
+        public int Quantity { get; set; }
+    }
 }

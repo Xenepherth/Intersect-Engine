@@ -1,44 +1,46 @@
-﻿namespace Intersect.Client.Framework.Gwen;
-
-
-/// <summary>
-///     Key constants.
-/// </summary>
-public enum Key
+﻿namespace Intersect.Client.Framework.Gwen
 {
 
-    Invalid = 0,
+    /// <summary>
+    ///     Key constants.
+    /// </summary>
+    public enum Key
+    {
 
-    Return = 1,
+        Invalid = 0,
 
-    Backspace = 2,
+        Return = 1,
 
-    Delete = 3,
+        Backspace = 2,
 
-    Left = 4,
+        Delete = 3,
 
-    Right = 5,
+        Left = 4,
 
-    Shift = 6,
+        Right = 5,
 
-    Tab = 7,
+        Shift = 6,
 
-    Space = 8,
+        Tab = 7,
 
-    Home = 9,
+        Space = 8,
 
-    End = 10,
+        Home = 9,
 
-    Control = 11,
+        End = 10,
 
-    Up = 12,
+        Control = 11,
 
-    Down = 13,
+        Up = 12,
 
-    Escape = 14,
+        Down = 13,
 
-    Alt = 15,
+        Escape = 14,
 
-    Count = 16
+        Alt = 15,
+
+        Count = 16
+
+    }
 
 }

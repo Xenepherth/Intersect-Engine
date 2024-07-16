@@ -1,54 +1,55 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 
-namespace Intersect.Server.Web.RestApi.Payloads;
-
-
-[TypeConverter(typeof(Converter))]
-public partial struct LookupKey
+namespace Intersect.Server.Web.RestApi.Payloads
 {
 
-    public bool HasName => !string.IsNullOrWhiteSpace(Name);
-
-    public bool HasId => Guid.Empty != Id;
-
-    public bool IsNameInvalid => !HasId && Name != null;
-
-    public bool IsIdInvalid => !HasId && Name == null;
-
-    public bool IsInvalid => !HasId && !HasName;
-
-    public Guid Id { get; private set; }
-
-    public string Name { get; private set; }
-
-    public override string ToString()
-    {
-        return HasId ? Id.ToString() : Name;
-    }
-
-    public partial class Converter : TypeConverter
+    [TypeConverter(typeof(Converter))]
+    public partial struct LookupKey
     {
 
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        public bool HasName => !string.IsNullOrWhiteSpace(Name);
+
+        public bool HasId => Guid.Empty != Id;
+
+        public bool IsNameInvalid => !HasId && Name != null;
+
+        public bool IsIdInvalid => !HasId && Name == null;
+
+        public bool IsInvalid => !HasId && !HasName;
+
+        public Guid Id { get; private set; }
+
+        public string Name { get; private set; }
+
+        public override string ToString()
         {
-            return typeof(string) == sourceType || typeof(Guid) == sourceType;
+            return HasId ? Id.ToString() : Name;
         }
 
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        public partial class Converter : TypeConverter
         {
-            if (Guid.TryParse(value as string, out var guid))
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
-                return new LookupKey
-                {
-                    Id = guid
-                };
+                return typeof(string) == sourceType || typeof(Guid) == sourceType;
             }
 
-            return new LookupKey
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
             {
-                Name = value as string
-            };
+                if (Guid.TryParse(value as string, out var guid))
+                {
+                    return new LookupKey
+                    {
+                        Id = guid
+                    };
+                }
+
+                return new LookupKey
+                {
+                    Name = value as string
+                };
+            }
         }
     }
 }

@@ -1,32 +1,35 @@
-﻿using MessagePack;
+﻿using System;
 
-namespace Intersect.Admin.Actions;
+using MessagePack;
 
-[MessagePackObject]
-public partial class WarpToLocationAction : AdminAction
+namespace Intersect.Admin.Actions
 {
-    //Parameterless Constructor for MessagePack
-    public WarpToLocationAction()
+    [MessagePackObject]
+    public partial class WarpToLocationAction : AdminAction
     {
+        //Parameterless Constructor for MessagePack
+        public WarpToLocationAction()
+        {
 
+        }
+
+        public WarpToLocationAction(Guid mapId, byte x, byte y)
+        {
+            MapId = mapId;
+            X = x;
+            Y = y;
+        }
+
+        [Key(1)]
+        public override Enums.AdminAction Action { get; } = Enums.AdminAction.WarpTo;
+
+        [Key(2)]
+        public Guid MapId { get; set; }
+
+        [Key(3)]
+        public byte X { get; set; }
+
+        [Key(4)]
+        public byte Y { get; set; }
     }
-
-    public WarpToLocationAction(Guid mapId, byte x, byte y)
-    {
-        MapId = mapId;
-        X = x;
-        Y = y;
-    }
-
-    [Key(1)]
-    public override Enums.AdminAction Action { get; } = Enums.AdminAction.WarpTo;
-
-    [Key(2)]
-    public Guid MapId { get; set; }
-
-    [Key(3)]
-    public byte X { get; set; }
-
-    [Key(4)]
-    public byte Y { get; set; }
 }

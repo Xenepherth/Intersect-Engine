@@ -1,15 +1,17 @@
 ﻿using Intersect.Server.Entities;
 
-namespace Intersect.Server.Maps;
-
-
-public partial class MapResourceSpawn
+namespace Intersect.Server.Maps
 {
 
-    public Resource Entity;
+    public partial class MapResourceSpawn
+    {
 
-    public int EntityIndex = -1;
+        public Resource Entity;
 
-    public long RespawnTime = -1;
+        public int EntityIndex = -1;
+
+        public long RespawnTime = -1;
+
+    }
 
 }

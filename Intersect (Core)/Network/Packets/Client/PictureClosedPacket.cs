@@ -1,21 +1,24 @@
 ﻿using MessagePack;
+using System;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class PictureClosedPacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    //Parameterless Constructor for MessagePack
-    public PictureClosedPacket()
+    [MessagePackObject]
+    public partial class PictureClosedPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public PictureClosedPacket()
+        {
+        }
 
-    public PictureClosedPacket(Guid eventId)
-    {
-        EventId = eventId;
-    }
+        public PictureClosedPacket(Guid eventId)
+        {
+            EventId = eventId;
+        }
 
-    [Key(0)]
-    public Guid EventId { get; set; }
+        [Key(0)]
+        public Guid EventId { get; set; }
+
+    }
 
 }

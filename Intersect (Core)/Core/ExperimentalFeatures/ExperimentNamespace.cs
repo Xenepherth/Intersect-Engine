@@ -1,8 +1,12 @@
-﻿namespace Intersect.Core.ExperimentalFeatures;
+﻿using System;
 
-
-[Serializable]
-public abstract partial class ExperimentNamespace
+namespace Intersect.Core.ExperimentalFeatures
 {
+
+    [Serializable]
+    public abstract partial class ExperimentNamespace
+    {
+
+    }
 
 }

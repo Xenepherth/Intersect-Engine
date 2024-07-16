@@ -1,4 +1,6 @@
 using Intersect.Logging;
+using Intersect.Reflection;
+using Intersect.Server.Database.DataMigrations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 

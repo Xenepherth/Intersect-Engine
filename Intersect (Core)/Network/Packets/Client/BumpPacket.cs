@@ -1,25 +1,28 @@
 ﻿using MessagePack;
+using System;
 
-namespace Intersect.Network.Packets.Client;
-
-[MessagePackObject]
-public partial class BumpPacket : IntersectPacket
+namespace Intersect.Network.Packets.Client
 {
-    //Parameterless Constructor for MessagePack
-    public BumpPacket()
+    [MessagePackObject]
+    public partial class BumpPacket : IntersectPacket
     {
+        //Parameterless Constructor for MessagePack
+        public BumpPacket()
+        {
+        }
+
+        public BumpPacket(Guid mapId, Guid eventId)
+        {
+            MapId = mapId;
+            EventId = eventId;
+        }
+
+        [Key(0)]
+        public Guid MapId { get; set; }
+
+        [Key(1)]
+        public Guid EventId { get; set; }
+
     }
-
-    public BumpPacket(Guid mapId, Guid eventId)
-    {
-        MapId = mapId;
-        EventId = eventId;
-    }
-
-    [Key(0)]
-    public Guid MapId { get; set; }
-
-    [Key(1)]
-    public Guid EventId { get; set; }
 
 }

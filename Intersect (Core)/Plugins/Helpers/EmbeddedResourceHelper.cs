@@ -1,99 +1,104 @@
 ﻿using Intersect.Plugins.Interfaces;
+
+using System;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 
-namespace Intersect.Plugins.Helpers;
-
-/// <inheritdoc />
-internal sealed partial class EmbeddedResourceHelper : IEmbeddedResourceHelper
+namespace Intersect.Plugins.Helpers
 {
-    private Assembly Assembly { get; }
-
-    internal EmbeddedResourceHelper(Assembly assembly)
+    /// <inheritdoc />
+    internal sealed partial class EmbeddedResourceHelper : IEmbeddedResourceHelper
     {
-        Assembly = assembly;
-    }
+        private Assembly Assembly { get; }
 
-    /// <inheritdoc />
-    public bool Exists(string resourceName) => Assembly.GetManifestResourceInfo(Resolve(resourceName)) != null;
-
-    /// <inheritdoc />
-    public ManifestResourceInfo GetInfo(string resourceName) =>
-        Assembly.GetManifestResourceInfo(Resolve(resourceName)) ??
-        throw new InvalidOperationException("Resource exists but info is null.");
-
-    /// <inheritdoc />
-    public Stream Read(string resourceName) =>
-        Assembly.GetManifestResourceStream(Resolve(resourceName)) ??
-        throw new InvalidOperationException("Resource exists but stream is null.");
-
-    /// <inheritdoc />
-    public string Resolve(string resourceName)
-    {
-        if (string.IsNullOrWhiteSpace(resourceName))
+        internal EmbeddedResourceHelper(Assembly assembly)
         {
-            throw new ArgumentNullException(
-                nameof(resourceName), $@"{nameof(resourceName)} cannot be null, empty, or whitespace."
-            );
+            Assembly = assembly;
         }
 
-        var partialManifestResourceName = resourceName.Replace("/", ".");
-        var manifestResourceName = Assembly.GetManifestResourceNames()
-            .Where(
-                potentialManifestResourceName => potentialManifestResourceName.EndsWith(partialManifestResourceName)
-            )
-            .OrderBy(potentialManifestResourceName => potentialManifestResourceName.Length)
-            .FirstOrDefault();
+        /// <inheritdoc />
+        public bool Exists(string resourceName) => Assembly.GetManifestResourceInfo(Resolve(resourceName)) != null;
 
-        if (manifestResourceName == default)
+        /// <inheritdoc />
+        public ManifestResourceInfo GetInfo(string resourceName) =>
+            Assembly.GetManifestResourceInfo(Resolve(resourceName)) ??
+            throw new InvalidOperationException("Resource exists but info is null.");
+
+        /// <inheritdoc />
+        public Stream Read(string resourceName) =>
+            Assembly.GetManifestResourceStream(Resolve(resourceName)) ??
+            throw new InvalidOperationException("Resource exists but stream is null.");
+
+        /// <inheritdoc />
+        public string Resolve(string resourceName)
         {
-            throw new FileNotFoundException($@"Unable to find resource: {resourceName}");
+            if (string.IsNullOrWhiteSpace(resourceName))
+            {
+                throw new ArgumentNullException(
+                    nameof(resourceName), $@"{nameof(resourceName)} cannot be null, empty, or whitespace."
+                );
+            }
+
+            var partialManifestResourceName = resourceName.Replace("/", ".");
+            var manifestResourceName = Assembly.GetManifestResourceNames()
+                .Where(
+                    potentialManifestResourceName => potentialManifestResourceName.EndsWith(partialManifestResourceName)
+                )
+                .OrderBy(potentialManifestResourceName => potentialManifestResourceName.Length)
+                .FirstOrDefault();
+
+            if (manifestResourceName == default)
+            {
+                throw new FileNotFoundException($@"Unable to find resource: {resourceName}");
+            }
+
+            return manifestResourceName;
         }
 
-        return manifestResourceName;
-    }
+        /// <inheritdoc />
+        public bool TryGetInfo(string resourceName, out ManifestResourceInfo resourceInfo)
+        {
+            try
+            {
+                resourceInfo = GetInfo(resourceName);
+                return true;
+            }
+            catch
+            {
+                resourceInfo = default;
+                return false;
+            }
+        }
 
-    /// <inheritdoc />
-    public bool TryGetInfo(string resourceName, out ManifestResourceInfo resourceInfo)
-    {
-        try
+        /// <inheritdoc />
+        public bool TryRead(string resourceName, out Stream stream)
         {
-            resourceInfo = GetInfo(resourceName);
-            return true;
+            try
+            {
+                stream = Read(resourceName);
+                return true;
+            }
+            catch
+            {
+                stream = default;
+                return false;
+            }
         }
-        catch
-        {
-            resourceInfo = default;
-            return false;
-        }
-    }
 
-    /// <inheritdoc />
-    public bool TryRead(string resourceName, out Stream stream)
-    {
-        try
+        /// <inheritdoc />
+        public bool TryResolve(string resourceName, out string manifestResourceName)
         {
-            stream = Read(resourceName);
-            return true;
-        }
-        catch
-        {
-            stream = default;
-            return false;
-        }
-    }
-
-    /// <inheritdoc />
-    public bool TryResolve(string resourceName, out string manifestResourceName)
-    {
-        try
-        {
-            manifestResourceName = Resolve(resourceName);
-            return true;
-        }
-        catch
-        {
-            manifestResourceName = default;
-            return false;
+            try
+            {
+                manifestResourceName = Resolve(resourceName);
+                return true;
+            }
+            catch
+            {
+                manifestResourceName = default;
+                return false;
+            }
         }
     }
 }

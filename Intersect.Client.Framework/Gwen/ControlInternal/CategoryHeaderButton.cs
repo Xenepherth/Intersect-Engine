@@ -1,39 +1,41 @@
 ﻿using Intersect.Client.Framework.Gwen.Control;
 
-namespace Intersect.Client.Framework.Gwen.ControlInternal;
-
-
-/// <summary>
-///     Header of CollapsibleCategory.
-/// </summary>
-public partial class CategoryHeaderButton : Button
+namespace Intersect.Client.Framework.Gwen.ControlInternal
 {
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="CategoryHeaderButton" /> class.
+    ///     Header of CollapsibleCategory.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    public CategoryHeaderButton(Base parent) : base(parent)
+    public partial class CategoryHeaderButton : Button
     {
-        ShouldDrawBackground = false;
-        IsToggle = true;
-        Alignment = Pos.Center;
-        TextPadding = new Padding(3, 0, 3, 0);
-    }
 
-    /// <summary>
-    ///     Updates control colors.
-    /// </summary>
-    public override void UpdateColors()
-    {
-        if (IsDepressed || ToggleState)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="CategoryHeaderButton" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        public CategoryHeaderButton(Base parent) : base(parent)
         {
-            TextColor = Skin.Colors.Category.HeaderClosed;
+            ShouldDrawBackground = false;
+            IsToggle = true;
+            Alignment = Pos.Center;
+            TextPadding = new Padding(3, 0, 3, 0);
         }
-        else
+
+        /// <summary>
+        ///     Updates control colors.
+        /// </summary>
+        public override void UpdateColors()
         {
-            TextColor = Skin.Colors.Category.Header;
+            if (IsDepressed || ToggleState)
+            {
+                TextColor = Skin.Colors.Category.HeaderClosed;
+            }
+            else
+            {
+                TextColor = Skin.Colors.Category.Header;
+            }
         }
+
     }
 
 }

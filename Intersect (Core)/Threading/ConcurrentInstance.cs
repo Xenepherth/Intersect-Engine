@@ -1,99 +1,103 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
 
 using Intersect.Logging;
 
-namespace Intersect.Threading;
-
-
-public partial class ConcurrentInstance<TInstance> where TInstance : class
+namespace Intersect.Threading
 {
 
-    private readonly object mLock;
-
-    private TInstance mInstance;
-
-    public ConcurrentInstance()
+    public partial class ConcurrentInstance<TInstance> where TInstance : class
     {
-        mLock = new object();
-    }
 
-    public bool HasInstance => mInstance != null;
+        private readonly object mLock;
 
-    public TInstance Instance => mInstance ?? throw new InvalidOperationException();
+        private TInstance mInstance;
 
-    public void ClearWith(TInstance instance, Action action)
-    {
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
-        Log.Info($@"Acquiring context lock... ({stopwatch.ElapsedMilliseconds}ms)");
-        Acquire();
-        Log.Info($@"Acquired. ({stopwatch.ElapsedMilliseconds}ms)");
-
-        if (mInstance != instance)
+        public ConcurrentInstance()
         {
-            Log.Info($@"Exiting lock... ({stopwatch.ElapsedMilliseconds}ms)");
+            mLock = new object();
+        }
+
+        public bool HasInstance => mInstance != null;
+
+        public TInstance Instance => mInstance ?? throw new InvalidOperationException();
+
+        public void ClearWith(TInstance instance, Action action)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Log.Info($@"Acquiring context lock... ({stopwatch.ElapsedMilliseconds}ms)");
+            Acquire();
+            Log.Info($@"Acquired. ({stopwatch.ElapsedMilliseconds}ms)");
+
+            if (mInstance != instance)
+            {
+                Log.Info($@"Exiting lock... ({stopwatch.ElapsedMilliseconds}ms)");
+                Monitor.Exit(mLock);
+            }
+
+            action.Invoke();
+
+            Log.Info($@"Clearing instance... ({stopwatch.ElapsedMilliseconds}ms)");
+            Clear(instance);
+
+            Log.Info($@"Releasing context lock... ({stopwatch.ElapsedMilliseconds}ms)");
+            Release();
+            Log.Info($@"Released. ({stopwatch.ElapsedMilliseconds}ms)");
+        }
+
+        public void Acquire()
+        {
+            Monitor.Enter(mLock);
+        }
+
+        public void Release()
+        {
+            if (!Monitor.IsEntered(mLock))
+            {
+                return;
+            }
+
+            Monitor.Pulse(mLock);
             Monitor.Exit(mLock);
         }
 
-        action.Invoke();
-
-        Log.Info($@"Clearing instance... ({stopwatch.ElapsedMilliseconds}ms)");
-        Clear(instance);
-
-        Log.Info($@"Releasing context lock... ({stopwatch.ElapsedMilliseconds}ms)");
-        Release();
-        Log.Info($@"Released. ({stopwatch.ElapsedMilliseconds}ms)");
-    }
-
-    public void Acquire()
-    {
-        Monitor.Enter(mLock);
-    }
-
-    public void Release()
-    {
-        if (!Monitor.IsEntered(mLock))
+        public void Set(TInstance instance)
         {
-            return;
-        }
-
-        Monitor.Pulse(mLock);
-        Monitor.Exit(mLock);
-    }
-
-    public void Set(TInstance instance)
-    {
-        if (!Monitor.TryEnter(mLock, 1000))
-        {
-            throw new InvalidOperationException();
-        }
-
-        try
-        {
-            if (mInstance != null)
+            if (!Monitor.TryEnter(mLock, 1000))
             {
-                Monitor.Wait(mLock);
+                throw new InvalidOperationException();
             }
 
-            mInstance = instance;
-        }
-        finally
-        {
-            Release();
-        }
-    }
+            try
+            {
+                if (mInstance != null)
+                {
+                    Monitor.Wait(mLock);
+                }
 
-    public void Clear(TInstance instance)
-    {
-        if (mInstance == instance)
-        {
-            mInstance = null;
+                mInstance = instance;
+            }
+            finally
+            {
+                Release();
+            }
         }
-    }
 
-    public static implicit operator TInstance(ConcurrentInstance<TInstance> concurrentInstance)
-    {
-        return concurrentInstance.mInstance;
+        public void Clear(TInstance instance)
+        {
+            if (mInstance == instance)
+            {
+                mInstance = null;
+            }
+        }
+
+        public static implicit operator TInstance(ConcurrentInstance<TInstance> concurrentInstance)
+        {
+            return concurrentInstance.mInstance;
+        }
+
     }
 
 }

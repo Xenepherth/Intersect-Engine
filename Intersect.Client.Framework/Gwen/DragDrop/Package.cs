@@ -1,19 +1,21 @@
 ﻿using Intersect.Client.Framework.Gwen.Control;
 
-namespace Intersect.Client.Framework.Gwen.DragDrop;
-
-
-public partial class Package
+namespace Intersect.Client.Framework.Gwen.DragDrop
 {
 
-    public Base DrawControl;
+    public partial class Package
+    {
 
-    public Point HoldOffset;
+        public Base DrawControl;
 
-    public bool IsDraggable;
+        public Point HoldOffset;
 
-    public string Name;
+        public bool IsDraggable;
 
-    public object UserData;
+        public string Name;
+
+        public object UserData;
+
+    }
 
 }

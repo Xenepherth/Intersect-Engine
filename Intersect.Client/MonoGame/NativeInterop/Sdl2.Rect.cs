@@ -1,9 +1,10 @@
-namespace Intersect.Client.MonoGame.NativeInterop;
-
-public struct SDL_Rect
+namespace Intersect.Client.MonoGame.NativeInterop
 {
-    public int x;
-    public int y;
-    public int w;
-    public int h;
+    public struct SDL_Rect
+    {
+        public int x;
+        public int y;
+        public int w;
+        public int h;
+    }
 }

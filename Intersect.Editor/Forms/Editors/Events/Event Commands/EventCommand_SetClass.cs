@@ -1,49 +1,54 @@
-﻿using Intersect.Editor.Localization;
+﻿using System;
+using System.Windows.Forms;
+
+using Intersect.Editor.Localization;
 using Intersect.GameObjects;
 using Intersect.GameObjects.Events.Commands;
 
-namespace Intersect.Editor.Forms.Editors.Events.Event_Commands;
-
-
-public partial class EventCommandSetClass : UserControl
+namespace Intersect.Editor.Forms.Editors.Events.Event_Commands
 {
 
-    private readonly FrmEvent mEventEditor;
-
-    private SetClassCommand mMyCommand;
-
-    public EventCommandSetClass(SetClassCommand refCommand, FrmEvent editor)
+    public partial class EventCommandSetClass : UserControl
     {
-        InitializeComponent();
-        mMyCommand = refCommand;
-        mEventEditor = editor;
-        InitLocalization();
-        cmbClass.Items.Clear();
-        cmbClass.Items.AddRange(ClassBase.Names);
-        cmbClass.SelectedIndex = ClassBase.ListIndex(mMyCommand.ClassId);
-    }
 
-    private void InitLocalization()
-    {
-        grpSetClass.Text = Strings.EventSetClass.title;
-        lblClass.Text = Strings.EventSetClass.label;
-        btnSave.Text = Strings.EventSetClass.okay;
-        btnCancel.Text = Strings.EventSetClass.cancel;
-    }
+        private readonly FrmEvent mEventEditor;
 
-    private void btnSave_Click(object sender, EventArgs e)
-    {
-        if (cmbClass.SelectedIndex > -1)
+        private SetClassCommand mMyCommand;
+
+        public EventCommandSetClass(SetClassCommand refCommand, FrmEvent editor)
         {
-            mMyCommand.ClassId = ClassBase.IdFromList(cmbClass.SelectedIndex);
+            InitializeComponent();
+            mMyCommand = refCommand;
+            mEventEditor = editor;
+            InitLocalization();
+            cmbClass.Items.Clear();
+            cmbClass.Items.AddRange(ClassBase.Names);
+            cmbClass.SelectedIndex = ClassBase.ListIndex(mMyCommand.ClassId);
         }
 
-        mEventEditor.FinishCommandEdit();
-    }
+        private void InitLocalization()
+        {
+            grpSetClass.Text = Strings.EventSetClass.title;
+            lblClass.Text = Strings.EventSetClass.label;
+            btnSave.Text = Strings.EventSetClass.okay;
+            btnCancel.Text = Strings.EventSetClass.cancel;
+        }
 
-    private void btnCancel_Click(object sender, EventArgs e)
-    {
-        mEventEditor.CancelCommandEdit();
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (cmbClass.SelectedIndex > -1)
+            {
+                mMyCommand.ClassId = ClassBase.IdFromList(cmbClass.SelectedIndex);
+            }
+
+            mEventEditor.FinishCommandEdit();
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            mEventEditor.CancelCommandEdit();
+        }
+
     }
 
 }

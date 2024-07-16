@@ -1,8 +1,9 @@
-﻿namespace Intersect.Client.Framework.Entities;
-
-public interface IFriendInstance
+﻿namespace Intersect.Client.Framework.Entities
 {
-    string Map { get; set; }
-    string Name { get; set; }
-    bool Online { get; set; }
+    public interface IFriendInstance
+    {
+        string Map { get; set; }
+        string Name { get; set; }
+        bool Online { get; set; }
+    }
 }

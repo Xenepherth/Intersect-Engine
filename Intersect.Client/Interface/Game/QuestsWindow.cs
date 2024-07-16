@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Intersect.Client.Core;
 using Intersect.Client.Framework.File_Management;
+using Intersect.Client.Framework.Graphics;
+using Intersect.Client.Framework.Gwen;
 using Intersect.Client.Framework.Gwen.Control;
 using Intersect.Client.Framework.Gwen.Control.EventArguments;
 using Intersect.Client.General;
@@ -9,420 +14,422 @@ using Intersect.Enums;
 using Intersect.GameObjects;
 using Intersect.Utilities;
 
-namespace Intersect.Client.Interface.Game;
-
-
-public partial class QuestsWindow
+namespace Intersect.Client.Interface.Game
 {
 
-    private Button mBackButton;
-
-    private ScrollControl mQuestDescArea;
-
-    private RichLabel mQuestDescLabel;
-
-    private Label mQuestDescTemplateLabel;
-
-    private ListBox mQuestList;
-
-    private Label mQuestStatus;
-
-    //Controls
-    private WindowControl mQuestsWindow;
-
-    private Label mQuestTitle;
-
-    private Button mQuitButton;
-
-    private QuestBase mSelectedQuest;
-
-    //Init
-    public QuestsWindow(Canvas gameCanvas)
+    public partial class QuestsWindow
     {
-        mQuestsWindow = new WindowControl(gameCanvas, Strings.QuestLog.Title, false, "QuestsWindow");
-        mQuestsWindow.DisableResizing();
 
-        mQuestList = new ListBox(mQuestsWindow, "QuestList");
-        mQuestList.EnableScroll(false, true);
+        private Button mBackButton;
 
-        mQuestTitle = new Label(mQuestsWindow, "QuestTitle");
-        mQuestTitle.SetText("");
+        private ScrollControl mQuestDescArea;
 
-        mQuestStatus = new Label(mQuestsWindow, "QuestStatus");
-        mQuestStatus.SetText("");
+        private RichLabel mQuestDescLabel;
 
-        mQuestDescArea = new ScrollControl(mQuestsWindow, "QuestDescription");
+        private Label mQuestDescTemplateLabel;
 
-        mQuestDescTemplateLabel = new Label(mQuestsWindow, "QuestDescriptionTemplate");
+        private ListBox mQuestList;
 
-        mQuestDescLabel = new RichLabel(mQuestDescArea);
+        private Label mQuestStatus;
 
-        mBackButton = new Button(mQuestsWindow, "BackButton");
-        mBackButton.Text = Strings.QuestLog.Back;
-        mBackButton.Clicked += _backButton_Clicked;
+        //Controls
+        private WindowControl mQuestsWindow;
 
-        mQuitButton = new Button(mQuestsWindow, "AbandonQuestButton");
-        mQuitButton.SetText(Strings.QuestLog.Abandon);
-        mQuitButton.Clicked += _quitButton_Clicked;
+        private Label mQuestTitle;
 
-        mQuestsWindow.LoadJsonUi(GameContentManager.UI.InGame, Graphics.Renderer.GetResolutionString());
-    }
+        private Button mQuitButton;
 
-    private void _quitButton_Clicked(Base sender, ClickedEventArgs arguments)
-    {
-        if (mSelectedQuest != null)
+        private QuestBase mSelectedQuest;
+
+        //Init
+        public QuestsWindow(Canvas gameCanvas)
         {
-            new InputBox(
-                Strings.QuestLog.AbandonTitle.ToString(mSelectedQuest.Name),
-                Strings.QuestLog.AbandonPrompt.ToString(mSelectedQuest.Name), true, InputBox.InputType.YesNo,
-                AbandonQuest, null, mSelectedQuest.Id
-            );
+            mQuestsWindow = new WindowControl(gameCanvas, Strings.QuestLog.Title, false, "QuestsWindow");
+            mQuestsWindow.DisableResizing();
+
+            mQuestList = new ListBox(mQuestsWindow, "QuestList");
+            mQuestList.EnableScroll(false, true);
+
+            mQuestTitle = new Label(mQuestsWindow, "QuestTitle");
+            mQuestTitle.SetText("");
+
+            mQuestStatus = new Label(mQuestsWindow, "QuestStatus");
+            mQuestStatus.SetText("");
+
+            mQuestDescArea = new ScrollControl(mQuestsWindow, "QuestDescription");
+
+            mQuestDescTemplateLabel = new Label(mQuestsWindow, "QuestDescriptionTemplate");
+
+            mQuestDescLabel = new RichLabel(mQuestDescArea);
+
+            mBackButton = new Button(mQuestsWindow, "BackButton");
+            mBackButton.Text = Strings.QuestLog.Back;
+            mBackButton.Clicked += _backButton_Clicked;
+
+            mQuitButton = new Button(mQuestsWindow, "AbandonQuestButton");
+            mQuitButton.SetText(Strings.QuestLog.Abandon);
+            mQuitButton.Clicked += _quitButton_Clicked;
+
+            mQuestsWindow.LoadJsonUi(GameContentManager.UI.InGame, Graphics.Renderer.GetResolutionString());
         }
-    }
 
-    void AbandonQuest(object sender, EventArgs e)
-    {
-        PacketSender.SendAbandonQuest((Guid) ((InputBox) sender).UserData);
-    }
-
-    private void _backButton_Clicked(Base sender, ClickedEventArgs arguments)
-    {
-        mSelectedQuest = null;
-        UpdateSelectedQuest();
-    }
-
-    //Methods
-    public void Update(bool shouldUpdateList)
-    {
-        if (shouldUpdateList)
+        private void _quitButton_Clicked(Base sender, ClickedEventArgs arguments)
         {
-            UpdateQuestList();
+            if (mSelectedQuest != null)
+            {
+                new InputBox(
+                    Strings.QuestLog.AbandonTitle.ToString(mSelectedQuest.Name),
+                    Strings.QuestLog.AbandonPrompt.ToString(mSelectedQuest.Name), true, InputBox.InputType.YesNo,
+                    AbandonQuest, null, mSelectedQuest.Id
+                );
+            }
+        }
+
+        void AbandonQuest(object sender, EventArgs e)
+        {
+            PacketSender.SendAbandonQuest((Guid) ((InputBox) sender).UserData);
+        }
+
+        private void _backButton_Clicked(Base sender, ClickedEventArgs arguments)
+        {
+            mSelectedQuest = null;
             UpdateSelectedQuest();
         }
 
-        if (mQuestsWindow.IsHidden)
+        //Methods
+        public void Update(bool shouldUpdateList)
         {
-            return;
-        }
-
-        if (mSelectedQuest != null)
-        {
-            if (Globals.Me.QuestProgress.ContainsKey(mSelectedQuest.Id))
+            if (shouldUpdateList)
             {
-                if (Globals.Me.QuestProgress[mSelectedQuest.Id].Completed &&
-                    Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId == Guid.Empty)
-                {
-                    //Completed
-                    if (!mSelectedQuest.LogAfterComplete)
-                    {
-                        mSelectedQuest = null;
-                        UpdateSelectedQuest();
-                    }
+                UpdateQuestList();
+                UpdateSelectedQuest();
+            }
 
-                    return;
-                }
-                else
+            if (mQuestsWindow.IsHidden)
+            {
+                return;
+            }
+
+            if (mSelectedQuest != null)
+            {
+                if (Globals.Me.QuestProgress.ContainsKey(mSelectedQuest.Id))
                 {
-                    if (Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId == Guid.Empty)
+                    if (Globals.Me.QuestProgress[mSelectedQuest.Id].Completed &&
+                        Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId == Guid.Empty)
                     {
-                        //Not Started
-                        if (!mSelectedQuest.LogBeforeOffer)
+                        //Completed
+                        if (!mSelectedQuest.LogAfterComplete)
                         {
                             mSelectedQuest = null;
                             UpdateSelectedQuest();
                         }
+
+                        return;
                     }
-
-                    return;
-                }
-            }
-
-            if (!mSelectedQuest.LogBeforeOffer)
-            {
-                mSelectedQuest = null;
-                UpdateSelectedQuest();
-            }
-        }
-    }
-
-    private void UpdateQuestList()
-    {
-        mQuestList.RemoveAllRows();
-        if (Globals.Me != null)
-        {
-            var quests = QuestBase.Lookup.Values;
-
-            var dict = new Dictionary<string, List<Tuple<QuestBase, int, Color>>>();
-
-            foreach (QuestBase quest in quests)
-            {
-                if (quest != null)
-                {
-                    AddQuestToDict(dict, quest);
-                }
-            }
-
-
-            foreach (var category in Options.Instance.Quest.Categories)
-            {
-                if (dict.ContainsKey(category))
-                {
-                    AddCategoryToList(category, Color.White);
-                    var sortedList = dict[category].OrderBy(l => l.Item2).ThenBy(l => l.Item1.OrderValue).ToList();
-                    foreach (var qst in sortedList)
+                    else
                     {
-                        AddQuestToList(qst.Item1.Name, qst.Item3, qst.Item1.Id, true);
-                    }
-                }
-            }
-
-            if (dict.ContainsKey(""))
-            {
-                var sortedList = dict[""].OrderBy(l => l.Item2).ThenBy(l => l.Item1.OrderValue).ToList();
-                foreach (var qst in sortedList)
-                {
-                    AddQuestToList(qst.Item1.Name, qst.Item3, qst.Item1.Id, false);
-                }
-            }
-
-        }
-    }
-
-    private void AddQuestToDict(Dictionary<string, List<Tuple<QuestBase, int, Color>>> dict, QuestBase quest)
-    {
-        var category = "";
-        var add = false;
-        var color = Color.White;
-        var orderVal = -1;
-        if (Globals.Me.QuestProgress.ContainsKey(quest.Id))
-        {
-            if (Globals.Me.QuestProgress[quest.Id].TaskId != Guid.Empty)
-            {
-                add = true;
-                category = !TextUtils.IsNone(quest.InProgressCategory) ? quest.InProgressCategory : "";
-                color = CustomColors.QuestWindow.InProgress;
-                orderVal = 1;
-            }
-            else
-            {
-                if (Globals.Me.QuestProgress[quest.Id].Completed)
-                {
-                    if (quest.LogAfterComplete)
-                    {
-                        add = true;
-                        category = !TextUtils.IsNone(quest.CompletedCategory) ? quest.CompletedCategory : "";
-                        color = CustomColors.QuestWindow.Completed;
-                        orderVal = 3;
-                    }
-                }
-                else
-                {
-                    if (quest.LogBeforeOffer && !Globals.Me.HiddenQuests.Contains(quest.Id))
-                    {
-                        add = true;
-                        category = !TextUtils.IsNone(quest.UnstartedCategory) ? quest.UnstartedCategory : "";
-                        color = CustomColors.QuestWindow.NotStarted;
-                        orderVal = 2;
-                    }
-                }
-            }
-        }
-        else
-        {
-            if (quest.LogBeforeOffer && !Globals.Me.HiddenQuests.Contains(quest.Id))
-            {
-                add = true;
-                category = !TextUtils.IsNone(quest.UnstartedCategory) ? quest.UnstartedCategory : "";
-                color = CustomColors.QuestWindow.NotStarted;
-                orderVal = 2;
-            }
-        }
-
-        if (add)
-        {
-            if (!dict.ContainsKey(category))
-            {
-                dict.Add(category, new List<Tuple<QuestBase, int, Color>>());
-            }
-
-            dict[category].Add(new Tuple<QuestBase, int, Color>(quest, orderVal, color));
-        }
-    }
-
-    private void AddQuestToList(string name, Color clr, Guid questId, bool indented = true)
-    {
-        var item = mQuestList.AddRow((indented ? "\t\t\t" : "") + name);
-        item.UserData = questId;
-        item.Clicked += QuestListItem_Clicked;
-        item.Selected += Item_Selected;
-        item.SetTextColor(clr);
-        item.RenderColor = new Color(50, 255, 255, 255);
-    }
-
-    private void AddCategoryToList(string name, Color clr)
-    {
-        var item = mQuestList.AddRow(name);
-        item.MouseInputEnabled = false;
-        item.SetTextColor(clr);
-        item.RenderColor = new Color(0, 255, 255, 255);
-    }
-
-    private void Item_Selected(Base sender, ItemSelectedEventArgs arguments)
-    {
-        mQuestList.UnselectAll();
-    }
-
-    private void QuestListItem_Clicked(Base sender, ClickedEventArgs arguments)
-    {
-        var questNum = (Guid) ((ListBoxRow) sender).UserData;
-        var quest = QuestBase.Get(questNum);
-        if (quest != null)
-        {
-            mSelectedQuest = quest;
-            UpdateSelectedQuest();
-        }
-
-        mQuestList.UnselectAll();
-    }
-
-    private void UpdateSelectedQuest()
-    {
-        if (mSelectedQuest == null)
-        {
-            mQuestList.Show();
-            mQuestTitle.Hide();
-            mQuestDescArea.Hide();
-            mQuestStatus.Hide();
-            mBackButton.Hide();
-            mQuitButton.Hide();
-        }
-        else
-        {
-            mQuestDescLabel.ClearText();
-            mQuitButton.IsDisabled = true;
-            ListBoxRow rw;
-            string[] myText = null;
-            var taskString = new List<string>();
-            if (Globals.Me.QuestProgress.ContainsKey(mSelectedQuest.Id))
-            {
-                if (Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId != Guid.Empty)
-                {
-                    //In Progress
-                    mQuestStatus.SetText(Strings.QuestLog.InProgress);
-                    mQuestStatus.SetTextColor(CustomColors.QuestWindow.InProgress, Label.ControlState.Normal);
-                    mQuestDescTemplateLabel.SetTextColor(CustomColors.QuestWindow.QuestDesc, Label.ControlState.Normal);
-                    
-                    if (mSelectedQuest.InProgressDescription.Length > 0)
-                    {    
-                        mQuestDescLabel.AddText(mSelectedQuest.InProgressDescription, mQuestDescTemplateLabel);
-
-                        mQuestDescLabel.AddLineBreak();
-                        mQuestDescLabel.AddLineBreak();
-                    }
-
-                    mQuestDescLabel.AddText(Strings.QuestLog.CurrentTask, mQuestDescTemplateLabel);
-
-                    mQuestDescLabel.AddLineBreak();
-                    for (var i = 0; i < mSelectedQuest.Tasks.Count; i++)
-                    {
-                        if (mSelectedQuest.Tasks[i].Id == Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId)
+                        if (Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId == Guid.Empty)
                         {
-                            if (mSelectedQuest.Tasks[i].Description.Length > 0)
+                            //Not Started
+                            if (!mSelectedQuest.LogBeforeOffer)
                             {
-                                mQuestDescLabel.AddText(mSelectedQuest.Tasks[i].Description, mQuestDescTemplateLabel);
-
-                                mQuestDescLabel.AddLineBreak();
-                                mQuestDescLabel.AddLineBreak();
-                            }
-
-                            if (mSelectedQuest.Tasks[i].Objective == QuestObjective.GatherItems) //Gather Items
-                            {
-                                mQuestDescLabel.AddText(
-                                    Strings.QuestLog.TaskItem.ToString(
-                                        Globals.Me.QuestProgress[mSelectedQuest.Id].TaskProgress,
-                                        mSelectedQuest.Tasks[i].Quantity,
-                                        ItemBase.GetName(mSelectedQuest.Tasks[i].TargetId)
-                                    ), mQuestDescTemplateLabel
-                                );
-                            }
-                            else if (mSelectedQuest.Tasks[i].Objective == QuestObjective.KillNpcs) //Kill Npcs
-                            {
-                                mQuestDescLabel.AddText(
-                                    Strings.QuestLog.TaskNpc.ToString(
-                                        Globals.Me.QuestProgress[mSelectedQuest.Id].TaskProgress,
-                                        mSelectedQuest.Tasks[i].Quantity,
-                                        NpcBase.GetName(mSelectedQuest.Tasks[i].TargetId)
-                                    ), mQuestDescTemplateLabel
-                                );
+                                mSelectedQuest = null;
+                                UpdateSelectedQuest();
                             }
                         }
-                    }
 
-                    mQuitButton.IsDisabled = !mSelectedQuest.Quitable;
+                        return;
+                    }
+                }
+
+                if (!mSelectedQuest.LogBeforeOffer)
+                {
+                    mSelectedQuest = null;
+                    UpdateSelectedQuest();
+                }
+            }
+        }
+
+        private void UpdateQuestList()
+        {
+            mQuestList.RemoveAllRows();
+            if (Globals.Me != null)
+            {
+                var quests = QuestBase.Lookup.Values;
+
+                var dict = new Dictionary<string, List<Tuple<QuestBase, int, Color>>>();
+
+                foreach (QuestBase quest in quests)
+                {
+                    if (quest != null)
+                    {
+                        AddQuestToDict(dict, quest);
+                    }
+                }
+
+
+                foreach (var category in Options.Instance.Quest.Categories)
+                {
+                    if (dict.ContainsKey(category))
+                    {
+                        AddCategoryToList(category, Color.White);
+                        var sortedList = dict[category].OrderBy(l => l.Item2).ThenBy(l => l.Item1.OrderValue).ToList();
+                        foreach (var qst in sortedList)
+                        {
+                            AddQuestToList(qst.Item1.Name, qst.Item3, qst.Item1.Id, true);
+                        }
+                    }
+                }
+
+                if (dict.ContainsKey(""))
+                {
+                    var sortedList = dict[""].OrderBy(l => l.Item2).ThenBy(l => l.Item1.OrderValue).ToList();
+                    foreach (var qst in sortedList)
+                    {
+                        AddQuestToList(qst.Item1.Name, qst.Item3, qst.Item1.Id, false);
+                    }
+                }
+
+            }
+        }
+
+        private void AddQuestToDict(Dictionary<string, List<Tuple<QuestBase, int, Color>>> dict, QuestBase quest)
+        {
+            var category = "";
+            var add = false;
+            var color = Color.White;
+            var orderVal = -1;
+            if (Globals.Me.QuestProgress.ContainsKey(quest.Id))
+            {
+                if (Globals.Me.QuestProgress[quest.Id].TaskId != Guid.Empty)
+                {
+                    add = true;
+                    category = !TextUtils.IsNone(quest.InProgressCategory) ? quest.InProgressCategory : "";
+                    color = CustomColors.QuestWindow.InProgress;
+                    orderVal = 1;
                 }
                 else
                 {
-                    if (Globals.Me.QuestProgress[mSelectedQuest.Id].Completed)
+                    if (Globals.Me.QuestProgress[quest.Id].Completed)
                     {
-                        //Completed
-                        if (mSelectedQuest.LogAfterComplete)
+                        if (quest.LogAfterComplete)
                         {
-                            mQuestStatus.SetText(Strings.QuestLog.Completed);
-                            mQuestStatus.SetTextColor(CustomColors.QuestWindow.Completed, Label.ControlState.Normal);
-                            mQuestDescLabel.AddText(mSelectedQuest.EndDescription, mQuestDescTemplateLabel);
+                            add = true;
+                            category = !TextUtils.IsNone(quest.CompletedCategory) ? quest.CompletedCategory : "";
+                            color = CustomColors.QuestWindow.Completed;
+                            orderVal = 3;
                         }
                     }
                     else
                     {
-                        //Not Started
-                        if (mSelectedQuest.LogBeforeOffer)
+                        if (quest.LogBeforeOffer && !Globals.Me.HiddenQuests.Contains(quest.Id))
                         {
-                            mQuestStatus.SetText(Strings.QuestLog.NotStarted);
-                            mQuestStatus.SetTextColor(CustomColors.QuestWindow.NotStarted, Label.ControlState.Normal);
-                            mQuestDescLabel.AddText(mSelectedQuest.BeforeDescription, mQuestDescTemplateLabel);
-
-                            mQuitButton?.Hide();
+                            add = true;
+                            category = !TextUtils.IsNone(quest.UnstartedCategory) ? quest.UnstartedCategory : "";
+                            color = CustomColors.QuestWindow.NotStarted;
+                            orderVal = 2;
                         }
                     }
                 }
             }
             else
             {
-                //Not Started
-                if (mSelectedQuest.LogBeforeOffer)
+                if (quest.LogBeforeOffer && !Globals.Me.HiddenQuests.Contains(quest.Id))
                 {
-                    mQuestStatus.SetText(Strings.QuestLog.NotStarted);
-                    mQuestStatus.SetTextColor(CustomColors.QuestWindow.NotStarted, Label.ControlState.Normal);
-                    mQuestDescLabel.AddText(mSelectedQuest.BeforeDescription, mQuestDescTemplateLabel);
+                    add = true;
+                    category = !TextUtils.IsNone(quest.UnstartedCategory) ? quest.UnstartedCategory : "";
+                    color = CustomColors.QuestWindow.NotStarted;
+                    orderVal = 2;
                 }
             }
 
-            mQuestList.Hide();
-            mQuestTitle.IsHidden = false;
-            mQuestTitle.Text = mSelectedQuest.Name;
-            mQuestDescArea.IsHidden = false;
-            mQuestDescLabel.Width = mQuestDescArea.Width - mQuestDescArea.GetVerticalScrollBar().Width;
-            mQuestDescLabel.SizeToChildren(false, true);
-            mQuestStatus.Show();
-            mBackButton.Show();
-            mQuitButton.Show();
+            if (add)
+            {
+                if (!dict.ContainsKey(category))
+                {
+                    dict.Add(category, new List<Tuple<QuestBase, int, Color>>());
+                }
+
+                dict[category].Add(new Tuple<QuestBase, int, Color>(quest, orderVal, color));
+            }
         }
-    }
 
-    public void Show()
-    {
-        mQuestsWindow.IsHidden = false;
-    }
+        private void AddQuestToList(string name, Color clr, Guid questId, bool indented = true)
+        {
+            var item = mQuestList.AddRow((indented ? "\t\t\t" : "") + name);
+            item.UserData = questId;
+            item.Clicked += QuestListItem_Clicked;
+            item.Selected += Item_Selected;
+            item.SetTextColor(clr);
+            item.RenderColor = new Color(50, 255, 255, 255);
+        }
 
-    public bool IsVisible()
-    {
-        return !mQuestsWindow.IsHidden;
-    }
+        private void AddCategoryToList(string name, Color clr)
+        {
+            var item = mQuestList.AddRow(name);
+            item.MouseInputEnabled = false;
+            item.SetTextColor(clr);
+            item.RenderColor = new Color(0, 255, 255, 255);
+        }
 
-    public void Hide()
-    {
-        mQuestsWindow.IsHidden = true;
-        mSelectedQuest = null;
+        private void Item_Selected(Base sender, ItemSelectedEventArgs arguments)
+        {
+            mQuestList.UnselectAll();
+        }
+
+        private void QuestListItem_Clicked(Base sender, ClickedEventArgs arguments)
+        {
+            var questNum = (Guid) ((ListBoxRow) sender).UserData;
+            var quest = QuestBase.Get(questNum);
+            if (quest != null)
+            {
+                mSelectedQuest = quest;
+                UpdateSelectedQuest();
+            }
+
+            mQuestList.UnselectAll();
+        }
+
+        private void UpdateSelectedQuest()
+        {
+            if (mSelectedQuest == null)
+            {
+                mQuestList.Show();
+                mQuestTitle.Hide();
+                mQuestDescArea.Hide();
+                mQuestStatus.Hide();
+                mBackButton.Hide();
+                mQuitButton.Hide();
+            }
+            else
+            {
+                mQuestDescLabel.ClearText();
+                mQuitButton.IsDisabled = true;
+                ListBoxRow rw;
+                string[] myText = null;
+                var taskString = new List<string>();
+                if (Globals.Me.QuestProgress.ContainsKey(mSelectedQuest.Id))
+                {
+                    if (Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId != Guid.Empty)
+                    {
+                        //In Progress
+                        mQuestStatus.SetText(Strings.QuestLog.InProgress);
+                        mQuestStatus.SetTextColor(CustomColors.QuestWindow.InProgress, Label.ControlState.Normal);
+                        mQuestDescTemplateLabel.SetTextColor(CustomColors.QuestWindow.QuestDesc, Label.ControlState.Normal);
+                        
+                        if (mSelectedQuest.InProgressDescription.Length > 0)
+                        {    
+                            mQuestDescLabel.AddText(mSelectedQuest.InProgressDescription, mQuestDescTemplateLabel);
+
+                            mQuestDescLabel.AddLineBreak();
+                            mQuestDescLabel.AddLineBreak();
+                        }
+
+                        mQuestDescLabel.AddText(Strings.QuestLog.CurrentTask, mQuestDescTemplateLabel);
+
+                        mQuestDescLabel.AddLineBreak();
+                        for (var i = 0; i < mSelectedQuest.Tasks.Count; i++)
+                        {
+                            if (mSelectedQuest.Tasks[i].Id == Globals.Me.QuestProgress[mSelectedQuest.Id].TaskId)
+                            {
+                                if (mSelectedQuest.Tasks[i].Description.Length > 0)
+                                {
+                                    mQuestDescLabel.AddText(mSelectedQuest.Tasks[i].Description, mQuestDescTemplateLabel);
+
+                                    mQuestDescLabel.AddLineBreak();
+                                    mQuestDescLabel.AddLineBreak();
+                                }
+
+                                if (mSelectedQuest.Tasks[i].Objective == QuestObjective.GatherItems) //Gather Items
+                                {
+                                    mQuestDescLabel.AddText(
+                                        Strings.QuestLog.TaskItem.ToString(
+                                            Globals.Me.QuestProgress[mSelectedQuest.Id].TaskProgress,
+                                            mSelectedQuest.Tasks[i].Quantity,
+                                            ItemBase.GetName(mSelectedQuest.Tasks[i].TargetId)
+                                        ), mQuestDescTemplateLabel
+                                    );
+                                }
+                                else if (mSelectedQuest.Tasks[i].Objective == QuestObjective.KillNpcs) //Kill Npcs
+                                {
+                                    mQuestDescLabel.AddText(
+                                        Strings.QuestLog.TaskNpc.ToString(
+                                            Globals.Me.QuestProgress[mSelectedQuest.Id].TaskProgress,
+                                            mSelectedQuest.Tasks[i].Quantity,
+                                            NpcBase.GetName(mSelectedQuest.Tasks[i].TargetId)
+                                        ), mQuestDescTemplateLabel
+                                    );
+                                }
+                            }
+                        }
+
+                        mQuitButton.IsDisabled = !mSelectedQuest.Quitable;
+                    }
+                    else
+                    {
+                        if (Globals.Me.QuestProgress[mSelectedQuest.Id].Completed)
+                        {
+                            //Completed
+                            if (mSelectedQuest.LogAfterComplete)
+                            {
+                                mQuestStatus.SetText(Strings.QuestLog.Completed);
+                                mQuestStatus.SetTextColor(CustomColors.QuestWindow.Completed, Label.ControlState.Normal);
+                                mQuestDescLabel.AddText(mSelectedQuest.EndDescription, mQuestDescTemplateLabel);
+                            }
+                        }
+                        else
+                        {
+                            //Not Started
+                            if (mSelectedQuest.LogBeforeOffer)
+                            {
+                                mQuestStatus.SetText(Strings.QuestLog.NotStarted);
+                                mQuestStatus.SetTextColor(CustomColors.QuestWindow.NotStarted, Label.ControlState.Normal);
+                                mQuestDescLabel.AddText(mSelectedQuest.BeforeDescription, mQuestDescTemplateLabel);
+
+                                mQuitButton?.Hide();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //Not Started
+                    if (mSelectedQuest.LogBeforeOffer)
+                    {
+                        mQuestStatus.SetText(Strings.QuestLog.NotStarted);
+                        mQuestStatus.SetTextColor(CustomColors.QuestWindow.NotStarted, Label.ControlState.Normal);
+                        mQuestDescLabel.AddText(mSelectedQuest.BeforeDescription, mQuestDescTemplateLabel);
+                    }
+                }
+
+                mQuestList.Hide();
+                mQuestTitle.IsHidden = false;
+                mQuestTitle.Text = mSelectedQuest.Name;
+                mQuestDescArea.IsHidden = false;
+                mQuestDescLabel.Width = mQuestDescArea.Width - mQuestDescArea.GetVerticalScrollBar().Width;
+                mQuestDescLabel.SizeToChildren(false, true);
+                mQuestStatus.Show();
+                mBackButton.Show();
+                mQuitButton.Show();
+            }
+        }
+
+        public void Show()
+        {
+            mQuestsWindow.IsHidden = false;
+        }
+
+        public bool IsVisible()
+        {
+            return !mQuestsWindow.IsHidden;
+        }
+
+        public void Hide()
+        {
+            mQuestsWindow.IsHidden = true;
+            mSelectedQuest = null;
+        }
+
     }
 
 }

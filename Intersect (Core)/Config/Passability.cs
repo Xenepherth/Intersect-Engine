@@ -2,29 +2,30 @@
 
 using Newtonsoft.Json;
 
-namespace Intersect.Config;
-
-public partial class Passability
+namespace Intersect.Config
 {
-    public bool Arena = false;
-
-    private bool[] mPassableCache;
-
-    //Can players move through each other on the following map types/moralities
-    public bool Normal = false;
-
-    public bool Safe = true;
-
-    [JsonIgnore]
-    public bool[] Passable
+    public partial class Passability
     {
-        get => mPassableCache ?? (mPassableCache = new[] { Normal, Safe, Arena });
-        set => mPassableCache = value;
-    }
+        public bool Arena = false;
 
-    [OnDeserialized]
-    internal void OnDeserializedMethod(StreamingContext context)
-    {
-        Passable = new[] { Normal, Safe, Arena };
+        private bool[] mPassableCache;
+
+        //Can players move through each other on the following map types/moralities
+        public bool Normal = false;
+
+        public bool Safe = true;
+
+        [JsonIgnore]
+        public bool[] Passable
+        {
+            get => mPassableCache ?? (mPassableCache = new[] { Normal, Safe, Arena });
+            set => mPassableCache = value;
+        }
+
+        [OnDeserialized]
+        internal void OnDeserializedMethod(StreamingContext context)
+        {
+            Passable = new[] { Normal, Safe, Arena };
+        }
     }
 }

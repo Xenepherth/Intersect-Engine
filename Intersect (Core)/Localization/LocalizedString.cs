@@ -1,65 +1,69 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 
-namespace Intersect.Localization;
+using Newtonsoft.Json;
 
-
-public partial class LocalizedStringConverter : JsonConverter<LocalizedString>
+namespace Intersect.Localization
 {
 
-    public override void WriteJson(JsonWriter writer, LocalizedString value, JsonSerializer serializer)
+    public partial class LocalizedStringConverter : JsonConverter<LocalizedString>
     {
-        writer.WriteValue(value?.ToString());
-    }
 
-    public override LocalizedString ReadJson(
-        JsonReader reader,
-        Type objectType,
-        LocalizedString existingValue,
-        bool hasExistingValue,
-        JsonSerializer serializer
-    )
-    {
-        return reader.Value as string;
-    }
-
-}
-
-[Serializable]
-public partial class LocalizedString : Localized
-{
-
-    private readonly string mValue;
-
-    public LocalizedString(string value)
-    {
-        mValue = value;
-    }
-
-    public static implicit operator LocalizedString(string value)
-    {
-        return new LocalizedString(value);
-    }
-
-    public static implicit operator string(LocalizedString str)
-    {
-        return str.mValue;
-    }
-
-    public override string ToString()
-    {
-        return mValue;
-    }
-
-    public string ToString(params object[] args)
-    {
-        try
+        public override void WriteJson(JsonWriter writer, LocalizedString value, JsonSerializer serializer)
         {
-            return args?.Length == 0 ? mValue : string.Format(mValue, args ?? new object[] { });
+            writer.WriteValue(value?.ToString());
         }
-        catch (FormatException)
+
+        public override LocalizedString ReadJson(
+            JsonReader reader,
+            Type objectType,
+            LocalizedString existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer
+        )
         {
-            return "Format Exception!";
+            return reader.Value as string;
         }
+
+    }
+
+    [Serializable]
+    public partial class LocalizedString : Localized
+    {
+
+        private readonly string mValue;
+
+        public LocalizedString(string value)
+        {
+            mValue = value;
+        }
+
+        public static implicit operator LocalizedString(string value)
+        {
+            return new LocalizedString(value);
+        }
+
+        public static implicit operator string(LocalizedString str)
+        {
+            return str.mValue;
+        }
+
+        public override string ToString()
+        {
+            return mValue;
+        }
+
+        public string ToString(params object[] args)
+        {
+            try
+            {
+                return args?.Length == 0 ? mValue : string.Format(mValue, args ?? new object[] { });
+            }
+            catch (FormatException)
+            {
+                return "Format Exception!";
+            }
+        }
+
     }
 
 }

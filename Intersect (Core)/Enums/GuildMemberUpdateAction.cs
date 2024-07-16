@@ -1,14 +1,15 @@
-﻿namespace Intersect.Enums;
-
-public enum GuildMemberUpdateAction
+﻿namespace Intersect.Enums
 {
-    Invite = 0,
+    public enum GuildMemberUpdateAction
+    {
+        Invite = 0,
 
-    Remove,
+        Remove,
 
-    Promote,
+        Promote,
 
-    Demote,
+        Demote,
 
-    Transfer,
+        Transfer,
+    }
 }

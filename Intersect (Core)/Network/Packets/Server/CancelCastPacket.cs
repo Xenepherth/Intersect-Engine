@@ -1,21 +1,24 @@
 ﻿using MessagePack;
+using System;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class CancelCastPacket : IntersectPacket
+namespace Intersect.Network.Packets.Server
 {
-    //Parameterless Constructor for MessagePack
-    public CancelCastPacket()
+    [MessagePackObject]
+    public partial class CancelCastPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public CancelCastPacket()
+        {
+        }
 
-    public CancelCastPacket(Guid entityId)
-    {
-        EntityId = entityId;
-    }
+        public CancelCastPacket(Guid entityId)
+        {
+            EntityId = entityId;
+        }
 
-    [Key(0)]
-    public Guid EntityId { get; set; }
+        [Key(0)]
+        public Guid EntityId { get; set; }
+
+    }
 
 }

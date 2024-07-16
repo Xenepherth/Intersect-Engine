@@ -1,84 +1,88 @@
-﻿using Intersect.Utilities;
+﻿using System;
+
+using Intersect.Utilities;
 
 using Newtonsoft.Json;
 
-namespace Intersect.Core.ExperimentalFeatures;
-
-
-public partial struct ExperimentalFlag : IExperimentalFlag
+namespace Intersect.Core.ExperimentalFeatures
 {
 
-    private readonly IExperimentalFlag mParentFlag;
-
-    [JsonProperty(nameof(Guid))] private Guid mGuid;
-
-    [JsonIgnore]
-    public Guid Guid => mGuid;
-
-    [JsonProperty(nameof(Name))] private string mName;
-
-    [JsonIgnore]
-    public string Name => mName;
-
-    [JsonProperty(nameof(Enabled))] private bool mEnabled;
-
-    [JsonIgnore]
-    public bool Enabled => (mParentFlag?.Enabled ?? true) && mEnabled;
-
-    private ExperimentalFlag(ExperimentalFlag flag, bool enabled = false)
+    public partial struct ExperimentalFlag : IExperimentalFlag
     {
-        mParentFlag = flag.mParentFlag;
-        mGuid = flag.Guid;
-        mName = flag.Name;
-        mEnabled = enabled;
-    }
 
-    public ExperimentalFlag(
-        string name,
-        Guid namespaceId,
-        bool enabled = false,
-        IExperimentalFlag parentFlag = null
-    )
-    {
-        if (string.IsNullOrWhiteSpace(name))
+        private readonly IExperimentalFlag mParentFlag;
+
+        [JsonProperty(nameof(Guid))] private Guid mGuid;
+
+        [JsonIgnore]
+        public Guid Guid => mGuid;
+
+        [JsonProperty(nameof(Name))] private string mName;
+
+        [JsonIgnore]
+        public string Name => mName;
+
+        [JsonProperty(nameof(Enabled))] private bool mEnabled;
+
+        [JsonIgnore]
+        public bool Enabled => (mParentFlag?.Enabled ?? true) && mEnabled;
+
+        private ExperimentalFlag(ExperimentalFlag flag, bool enabled = false)
         {
-            throw new ArgumentNullException(nameof(name));
+            mParentFlag = flag.mParentFlag;
+            mGuid = flag.Guid;
+            mName = flag.Name;
+            mEnabled = enabled;
         }
 
-        mParentFlag = parentFlag;
-        mGuid = GuidUtils.CreateNamed(namespaceId, name);
-        mName = name;
-        mEnabled = enabled;
-    }
+        public ExperimentalFlag(
+            string name,
+            Guid namespaceId,
+            bool enabled = false,
+            IExperimentalFlag parentFlag = null
+        )
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
 
-    public IExperimentalFlag With(bool enabled)
-    {
-        return new ExperimentalFlag(this, enabled);
-    }
+            mParentFlag = parentFlag;
+            mGuid = GuidUtils.CreateNamed(namespaceId, name);
+            mName = name;
+            mEnabled = enabled;
+        }
 
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(IExperimentalFlag other)
-    {
-        return this == other;
-    }
+        public IExperimentalFlag With(bool enabled)
+        {
+            return new ExperimentalFlag(this, enabled);
+        }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="flag"></param>
-    public static implicit operator bool(ExperimentalFlag flag)
-    {
-        return flag.Enabled;
-    }
+        /// <inheritdoc cref="IEquatable{T}" />
+        public bool Equals(IExperimentalFlag other)
+        {
+            return this == other;
+        }
 
-    public static bool operator ==(ExperimentalFlag a, IExperimentalFlag b)
-    {
-        return a.Guid == b.Guid && a.Enabled == b.Enabled;
-    }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="flag"></param>
+        public static implicit operator bool(ExperimentalFlag flag)
+        {
+            return flag.Enabled;
+        }
 
-    public static bool operator !=(ExperimentalFlag a, IExperimentalFlag b)
-    {
-        return a.Guid != b.Guid || a.Enabled != b.Enabled;
+        public static bool operator ==(ExperimentalFlag a, IExperimentalFlag b)
+        {
+            return a.Guid == b.Guid && a.Enabled == b.Enabled;
+        }
+
+        public static bool operator !=(ExperimentalFlag a, IExperimentalFlag b)
+        {
+            return a.Guid != b.Guid || a.Enabled != b.Enabled;
+        }
+
     }
 
 }

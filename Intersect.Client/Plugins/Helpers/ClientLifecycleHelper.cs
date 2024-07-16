@@ -4,60 +4,63 @@ using Intersect.Client.General;
 using Intersect.Client.Interface;
 using Intersect.Client.Plugins.Interfaces;
 using Intersect.Plugins.Helpers;
+using System;
+using System.Collections.Generic;
 
-namespace Intersect.Client.Plugins.Helpers;
-
-/// <inheritdoc cref="IClientLifecycleHelper"/>
-internal sealed partial class ClientLifecycleHelper : ContextHelper<IClientPluginContext>, IClientLifecycleHelper
+namespace Intersect.Client.Plugins.Helpers
 {
-    /// <inheritdoc />
-    public event LifecycleChangeStateHandler LifecycleChangeState;
-
-    /// <inheritdoc />
-    public event GameUpdateHandler GameUpdate;
-
-    /// <inheritdoc />
-    public event GameDrawHandler GameDraw;
-
-    internal ClientLifecycleHelper(IClientPluginContext context) : base(context)
+    /// <inheritdoc cref="IClientLifecycleHelper"/>
+    internal sealed partial class ClientLifecycleHelper : ContextHelper<IClientPluginContext>, IClientLifecycleHelper
     {
-        Globals.ClientLifecycleHelpers.Add(this);
-    }
+        /// <inheritdoc />
+        public event LifecycleChangeStateHandler LifecycleChangeState;
 
-    ~ClientLifecycleHelper()
-    {
-        Globals.ClientLifecycleHelpers.Remove(this);
-    }
+        /// <inheritdoc />
+        public event GameUpdateHandler GameUpdate;
 
-    /// <inheritdoc />
-    public IMutableInterface Interface =>
-        Client.Interface.Interface.MenuUi ?? Client.Interface.Interface.GameUi as IMutableInterface;
+        /// <inheritdoc />
+        public event GameDrawHandler GameDraw;
 
-    /// <inheritdoc />
-    public void OnLifecycleChangeState(GameStates state)
-    {
-        var lifecycleChangeStateArgs = new LifecycleChangeStateArgs(state);
-        LifecycleChangeState?.Invoke(Context, lifecycleChangeStateArgs);
-    }
+        internal ClientLifecycleHelper(IClientPluginContext context) : base(context)
+        {
+            Globals.ClientLifecycleHelpers.Add(this);
+        }
 
-    /// <inheritdoc />
-    public void OnGameUpdate(GameStates state, IPlayer player, Dictionary<Guid, IEntity> knownEntities, TimeSpan deltaTime)
-    {
-        var GameUpdateArgs = new GameUpdateArgs(state, player, knownEntities, deltaTime);
-        GameUpdate?.Invoke(Context, GameUpdateArgs);
-    }
+        ~ClientLifecycleHelper()
+        {
+            Globals.ClientLifecycleHelpers.Remove(this);
+        }
 
-    /// <inheritdoc />
-    public void OnGameDraw(DrawStates state, TimeSpan deltaTime)
-    {
-        var gameDrawArgs = new GameDrawArgs(state, deltaTime);
-        GameDraw?.Invoke(Context, gameDrawArgs);
-    }
+        /// <inheritdoc />
+        public IMutableInterface Interface =>
+            Client.Interface.Interface.MenuUi ?? Client.Interface.Interface.GameUi as IMutableInterface;
 
-    /// <inheritdoc />
-    public void OnGameDraw(DrawStates state, IEntity entity, TimeSpan deltaTime)
-    {
-        var gameDrawArgs = new GameDrawArgs(state, entity, deltaTime);
-        GameDraw?.Invoke(Context, gameDrawArgs);
+        /// <inheritdoc />
+        public void OnLifecycleChangeState(GameStates state)
+        {
+            var lifecycleChangeStateArgs = new LifecycleChangeStateArgs(state);
+            LifecycleChangeState?.Invoke(Context, lifecycleChangeStateArgs);
+        }
+
+        /// <inheritdoc />
+        public void OnGameUpdate(GameStates state, IPlayer player, Dictionary<Guid, IEntity> knownEntities, TimeSpan deltaTime)
+        {
+            var GameUpdateArgs = new GameUpdateArgs(state, player, knownEntities, deltaTime);
+            GameUpdate?.Invoke(Context, GameUpdateArgs);
+        }
+
+        /// <inheritdoc />
+        public void OnGameDraw(DrawStates state, TimeSpan deltaTime)
+        {
+            var gameDrawArgs = new GameDrawArgs(state, deltaTime);
+            GameDraw?.Invoke(Context, gameDrawArgs);
+        }
+
+        /// <inheritdoc />
+        public void OnGameDraw(DrawStates state, IEntity entity, TimeSpan deltaTime)
+        {
+            var gameDrawArgs = new GameDrawArgs(state, entity, deltaTime);
+            GameDraw?.Invoke(Context, gameDrawArgs);
+        }
     }
 }

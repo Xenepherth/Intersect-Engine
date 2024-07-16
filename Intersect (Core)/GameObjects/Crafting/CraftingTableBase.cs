@@ -1,37 +1,39 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using Intersect.GameObjects.Crafting;
 using Intersect.Models;
 
 using Newtonsoft.Json;
 
-namespace Intersect.GameObjects;
-
-public partial class CraftingTableBase : DatabaseObject<CraftingTableBase>, IFolderable
+namespace Intersect.GameObjects
 {
-    [NotMapped]
-    public DbList<CraftBase> Crafts = new DbList<CraftBase>();
-
-    [JsonConstructor]
-    public CraftingTableBase(Guid id) : base(id)
+    public partial class CraftingTableBase : DatabaseObject<CraftingTableBase>, IFolderable
     {
-        Name = "New Table";
-    }
+        [NotMapped]
+        public DbList<CraftBase> Crafts = new DbList<CraftBase>();
 
-    //Parameterless constructor for EF
-    public CraftingTableBase()
-    {
-        Name = "New Table";
-    }
+        [JsonConstructor]
+        public CraftingTableBase(Guid id) : base(id)
+        {
+            Name = "New Table";
+        }
 
-    [JsonIgnore]
-    [Column("Crafts")]
-    public string CraftsJson
-    {
-        get => JsonConvert.SerializeObject(Crafts, Formatting.None);
-        protected set => Crafts = JsonConvert.DeserializeObject<DbList<CraftBase>>(value);
-    }
+        //Parameterless constructor for EF
+        public CraftingTableBase()
+        {
+            Name = "New Table";
+        }
 
-    /// <inheritdoc />
-    public string Folder { get; set; } = "";
+        [JsonIgnore]
+        [Column("Crafts")]
+        public string CraftsJson
+        {
+            get => JsonConvert.SerializeObject(Crafts, Formatting.None);
+            protected set => Crafts = JsonConvert.DeserializeObject<DbList<CraftBase>>(value);
+        }
+
+        /// <inheritdoc />
+        public string Folder { get; set; } = "";
+    }
 }

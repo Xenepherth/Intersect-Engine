@@ -1,24 +1,28 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
 
-namespace Intersect.Editor.Maps;
+using Microsoft.Xna.Framework.Graphics;
 
-
-public partial class MapGridItem
+namespace Intersect.Editor.Maps
 {
 
-    public MapGridItem(Guid id, string name = "", int revision = 0)
+    public partial class MapGridItem
     {
-        MapId = id;
-        this.Name = name;
-        this.Revision = revision;
+
+        public MapGridItem(Guid id, string name = "", int revision = 0)
+        {
+            MapId = id;
+            this.Name = name;
+            this.Revision = revision;
+        }
+
+        public string Name { get; set; }
+
+        public int Revision { get; set; }
+
+        public Guid MapId { get; set; }
+
+        public Texture2D Tex { get; set; }
+
     }
-
-    public string Name { get; set; }
-
-    public int Revision { get; set; }
-
-    public Guid MapId { get; set; }
-
-    public Texture2D Tex { get; set; }
 
 }

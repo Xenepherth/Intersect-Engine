@@ -1,32 +1,39 @@
-﻿namespace Intersect.Enums;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public enum SpellCastFailureReason
+namespace Intersect.Enums
 {
-    None,
+    public enum SpellCastFailureReason
+    {
+        None,
 
-    InvalidSpell,
+        InvalidSpell,
 
-    InsufficientHP,
+        InsufficientHP,
 
-    InsufficientMP,
+        InsufficientMP,
 
-    InvalidTarget,
+        InvalidTarget,
 
-    Silenced,
+        Silenced,
 
-    Stunned,
+        Stunned,
 
-    Asleep,
+        Asleep,
 
-    InvalidProjectile,
+        InvalidProjectile,
 
-    InsufficientItems,
+        InsufficientItems,
 
-    Snared,
+        Snared,
 
-    OutOfRange,
+        OutOfRange,
 
-    ConditionsNotMet,
+        ConditionsNotMet,
 
-    OnCooldown,
+        OnCooldown,
+    }
 }

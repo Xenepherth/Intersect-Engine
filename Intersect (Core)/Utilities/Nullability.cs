@@ -1,17 +1,21 @@
-﻿namespace Intersect.Utilities;
+﻿using System;
 
-
-public static partial class Nullability
+namespace Intersect.Utilities
 {
 
-    public static T IsNotNull<T>(this T value)
+    public static partial class Nullability
     {
-        if (value == null)
+
+        public static T IsNotNull<T>(this T value)
         {
-            throw new InvalidOperationException();
+            if (value == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return value;
         }
 
-        return value;
     }
 
 }

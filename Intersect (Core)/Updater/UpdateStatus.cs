@@ -1,11 +1,12 @@
-﻿namespace Intersect.Updater;
-
-public enum UpdateStatus
+﻿namespace Intersect.Updater
 {
-    Checking = 0,
-    Updating = 1,
-    Restart,
-    Done,
-    Error,
-    None
+    public enum UpdateStatus
+    {
+        Checking = 0,
+        Updating = 1,
+        Restart,
+        Done,
+        Error,
+        None
+    }
 }

@@ -1,21 +1,23 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Server;
-
-[MessagePackObject]
-public partial class ConfigPacket : IntersectPacket
+namespace Intersect.Network.Packets.Server
 {
-    //Parameterless Constructor for MessagePack
-    public ConfigPacket()
+    [MessagePackObject]
+    public partial class ConfigPacket : IntersectPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public ConfigPacket()
+        {
+        }
 
-    public ConfigPacket(string config)
-    {
-        Config = config;
-    }
+        public ConfigPacket(string config)
+        {
+            Config = config;
+        }
 
-    [Key(0)]
-    public string Config { get; set; }
+        [Key(0)]
+        public string Config { get; set; }
+
+    }
 
 }

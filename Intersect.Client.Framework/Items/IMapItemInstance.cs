@@ -1,9 +1,12 @@
-﻿namespace Intersect.Client.Framework.Items;
+﻿using System;
 
-public interface IMapItemInstance : IItem
+namespace Intersect.Client.Framework.Items
 {
-    int TileIndex { get; }
-    Guid Id { get; set; }
-    int X { get; set; }
-    int Y { get; set; }
+    public interface IMapItemInstance : IItem
+    {
+        int TileIndex { get; }
+        Guid Id { get; set; }
+        int X { get; set; }
+        int Y { get; set; }
+    }
 }

@@ -1,33 +1,37 @@
-﻿namespace Intersect.Logging.Output;
+﻿using System;
 
-
-public interface ILogOutput
+namespace Intersect.Logging.Output
 {
 
-    LogLevel LogLevel { get; set; }
+    public interface ILogOutput
+    {
 
-    void Write(LogConfiguration configuration, LogLevel logLevel, string message);
+        LogLevel LogLevel { get; set; }
 
-    void Write(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        string format,
-        params object[] args
-    );
+        void Write(LogConfiguration configuration, LogLevel logLevel, string message);
 
-    void Write(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        Exception exception,
-        string message
-    );
+        void Write(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            string format,
+            params object[] args
+        );
 
-    void Write(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        Exception exception,
-        string format,
-        params object[] args
-    );
+        void Write(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            Exception exception,
+            string message
+        );
+
+        void Write(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            Exception exception,
+            string format,
+            params object[] args
+        );
+
+    }
 
 }

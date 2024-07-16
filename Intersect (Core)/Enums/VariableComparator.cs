@@ -1,16 +1,17 @@
-namespace Intersect.Enums;
-
-public enum VariableComparator
+namespace Intersect.Enums
 {
-    Equal = 0,
+    public enum VariableComparator
+    {
+        Equal = 0,
 
-    GreaterOrEqual,
+        GreaterOrEqual,
 
-    LesserOrEqual,
+        LesserOrEqual,
 
-    Greater,
+        Greater,
 
-    Less,
+        Less,
 
-    NotEqual,
+        NotEqual,
+    }
 }

@@ -1,58 +1,59 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Intersect.Server.Database;
-
-public abstract partial class ContextInterface<TContext> : IDisposable where TContext : IDbContext
+namespace Intersect.Server.Database
 {
-    private static readonly object Lock = new object();
-
-    protected ContextInterface(TContext context)
+    public abstract partial class ContextInterface<TContext> : IDisposable where TContext : IDbContext
     {
-        Context = context;
-        Monitor.Enter(Lock);
-    }
+        private static readonly object Lock = new object();
 
-    public TContext Context { get; }
-
-    #region Implementation of IDbContext
-
-    /// <inheritdoc />
-    public DatabaseFacade Database => Context.Database;
-
-    /// <inheritdoc />
-    public int SaveChanges() => Context.SaveChanges();
-
-    /// <inheritdoc />
-    public int SaveChanges(bool acceptAllChangesOnSuccess) => Context.SaveChanges(acceptAllChangesOnSuccess);
-
-    /// <inheritdoc />
-    public Task<int>
-        SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) =>
-        Context.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-
-    /// <inheritdoc />
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
-        Context.SaveChangesAsync(cancellationToken);
-
-    #endregion
-
-    #region IDisposable
-
-    protected void Dispose(bool disposing)
-    {
-        if (disposing)
+        protected ContextInterface(TContext context)
         {
-            Context.SaveChanges();
-            Monitor.Exit(Lock);
+            Context = context;
+            Monitor.Enter(Lock);
         }
-    }
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+        public TContext Context { get; }
 
-    #endregion IDisposable
+        #region Implementation of IDbContext
+
+        /// <inheritdoc />
+        public DatabaseFacade Database => Context.Database;
+
+        /// <inheritdoc />
+        public int SaveChanges() => Context.SaveChanges();
+
+        /// <inheritdoc />
+        public int SaveChanges(bool acceptAllChangesOnSuccess) => Context.SaveChanges(acceptAllChangesOnSuccess);
+
+        /// <inheritdoc />
+        public Task<int>
+            SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default) =>
+            Context.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+
+        /// <inheritdoc />
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+            Context.SaveChangesAsync(cancellationToken);
+
+        #endregion
+
+        #region IDisposable
+
+        protected void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Context.SaveChanges();
+                Monitor.Exit(Lock);
+            }
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion IDisposable
+    }
 }

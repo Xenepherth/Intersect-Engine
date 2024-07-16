@@ -1,18 +1,19 @@
-﻿namespace Intersect.Client.Framework.Input;
-
-public enum MouseButtons
+﻿namespace Intersect.Client.Framework.Input
 {
+    public enum MouseButtons
+    {
 
-    None = -1,
+        None = -1,
 
-    Left = 0,
+        Left = 0,
 
-    Right,
+        Right,
 
-    Middle,
+        Middle,
 
-    X1,
+        X1,
 
-    X2
+        X2
 
+    }
 }

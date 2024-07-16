@@ -1,82 +1,84 @@
 using MessagePack;
 
-namespace Intersect;
-
-[MessagePackObject]
-public partial struct Point
+namespace Intersect
 {
-    [Key(0)]
-    public int X { get; set; }
-
-    [Key(1)]
-    public int Y { get; set; }
-
-    public Point(int x, int y)
+    [MessagePackObject]
+    public partial struct Point
     {
-        X = x;
-        Y = y;
-    }
+        [Key(0)]
+        public int X { get; set; }
 
-    public override bool Equals(object obj)
-    {
-        if (obj is Point)
+        [Key(1)]
+        public int Y { get; set; }
+
+        public Point(int x, int y)
         {
-            return (Point) obj == this;
+            X = x;
+            Y = y;
         }
 
-        return false;
-    }
-
-    public bool Equals(Point other)
-    {
-        return X == other.X && Y == other.Y;
-    }
-
-    public override int GetHashCode()
-    {
-        return X.GetHashCode() ^ Y.GetHashCode();
-    }
-
-    public static string ToString(Point pnt)
-    {
-        return pnt.X + "," + pnt.Y;
-    }
-
-    public static Point FromString(string val)
-    {
-        if (string.IsNullOrEmpty(val))
+        public override bool Equals(object obj)
         {
-            return Point.Empty;
+            if (obj is Point)
+            {
+                return (Point) obj == this;
+            }
+
+            return false;
         }
 
-        var strs = val.Split(",".ToCharArray());
-        var parts = new int[strs.Length];
-        for (var i = 0; i < strs.Length; i++)
+        public bool Equals(Point other)
         {
-            parts[i] = int.Parse(strs[i]);
+            return X == other.X && Y == other.Y;
         }
 
-        return new Point(parts[0], parts[1]);
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode();
+        }
+
+        public static string ToString(Point pnt)
+        {
+            return pnt.X + "," + pnt.Y;
+        }
+
+        public static Point FromString(string val)
+        {
+            if (string.IsNullOrEmpty(val))
+            {
+                return Point.Empty;
+            }
+
+            var strs = val.Split(",".ToCharArray());
+            var parts = new int[strs.Length];
+            for (var i = 0; i < strs.Length; i++)
+            {
+                parts[i] = int.Parse(strs[i]);
+            }
+
+            return new Point(parts[0], parts[1]);
+        }
+
+        public static Point Empty => new Point();
+
+        public static bool operator !=(Point left, Point right)
+        {
+            return left.X != right.X || left.Y != right.Y;
+        }
+
+        public static bool operator ==(Point left, Point right)
+        {
+            return left.X == right.X && left.Y == right.Y;
+        }
+
+        public static Point operator +(Point left, Point right) => new Point(left.X + right.X, left.Y + right.Y);
+
+        public static Point operator -(Point left, Point right) => new Point(left.X + right.X, left.Y + right.Y);
+
+        public static Point operator *(Point point, float scalar) => new Point((int)(point.X * scalar), (int)(point.Y * scalar));
+
+        public static Point operator /(Point point, float scalar) => new Point((int)(point.X / scalar), (int)(point.Y / scalar));
+
     }
-
-    public static Point Empty => new Point();
-
-    public static bool operator !=(Point left, Point right)
-    {
-        return left.X != right.X || left.Y != right.Y;
-    }
-
-    public static bool operator ==(Point left, Point right)
-    {
-        return left.X == right.X && left.Y == right.Y;
-    }
-
-    public static Point operator +(Point left, Point right) => new Point(left.X + right.X, left.Y + right.Y);
-
-    public static Point operator -(Point left, Point right) => new Point(left.X + right.X, left.Y + right.Y);
-
-    public static Point operator *(Point point, float scalar) => new Point((int)(point.X * scalar), (int)(point.Y * scalar));
-
-    public static Point operator /(Point point, float scalar) => new Point((int)(point.X / scalar), (int)(point.Y / scalar));
 
 }

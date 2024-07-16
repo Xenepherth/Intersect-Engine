@@ -1,6 +1,9 @@
-﻿namespace Intersect.Client.Framework.Core.Sounds;
+﻿using System;
 
-public interface IMapSound : ISound
+namespace Intersect.Client.Framework.Core.Sounds
 {
-    void UpdatePosition(int x, int y, Guid mapId);
+    public interface IMapSound : ISound
+    {
+        void UpdatePosition(int x, int y, Guid mapId);
+    }
 }

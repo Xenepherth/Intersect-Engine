@@ -1,10 +1,11 @@
-﻿namespace Intersect.Client.Framework.Core.Sounds;
-
-public interface ISound
+﻿namespace Intersect.Client.Framework.Core.Sounds
 {
-    bool Loaded { get; set; }
-    bool Loop { get; set; }
+    public interface ISound
+    {
+        bool Loaded { get; set; }
+        bool Loop { get; set; }
 
-    void Stop();
-    bool Update();
+        void Stop();
+        bool Update();
+    }
 }

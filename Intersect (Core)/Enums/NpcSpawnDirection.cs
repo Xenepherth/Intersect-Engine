@@ -1,14 +1,15 @@
-﻿namespace Intersect.Enums;
-
-public enum NpcSpawnDirection
+﻿namespace Intersect.Enums
 {
-    Random = 0,
+    public enum NpcSpawnDirection
+    {
+        Random = 0,
 
-    Up,
+        Up,
 
-    Down,
+        Down,
 
-    Left,
+        Left,
 
-    Right,
+        Right,
+    }
 }

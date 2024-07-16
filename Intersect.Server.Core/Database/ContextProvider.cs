@@ -1,36 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Intersect.Server.Database;
-
-public sealed partial class ContextProvider
+namespace Intersect.Server.Database
 {
-    private Dictionary<Type, DbContext> Contexts { get; } = new();
-    private Dictionary<Type, Type> ContextInterfaceTypes { get; } = new();
-
-    public void Add<TContext>(TContext context) where TContext : IntersectDbContext<TContext>
+    public sealed partial class ContextProvider
     {
-        var contextType = typeof(TContext);
-        var contextInterfaceType = contextType.GetInterfaces()
-            .FirstOrDefault(type => typeof(IDbContext) != type && typeof(IDbContext).IsAssignableFrom(type));
-        if (Contexts.ContainsKey(contextInterfaceType))
+        private Dictionary<Type, DbContext> Contexts { get; } = new();
+        private Dictionary<Type, Type> ContextInterfaceTypes { get; } = new();
+
+        public void Add<TContext>(TContext context) where TContext : IntersectDbContext<TContext>
         {
-            throw new Exception($"Context for {contextInterfaceType.Name} already exists.");
+            var contextType = typeof(TContext);
+            var contextInterfaceType = contextType.GetInterfaces()
+                .FirstOrDefault(type => typeof(IDbContext) != type && typeof(IDbContext).IsAssignableFrom(type));
+            if (Contexts.ContainsKey(contextInterfaceType))
+            {
+                throw new Exception($"Context for {contextInterfaceType.Name} already exists.");
+            }
+
+            Contexts[contextInterfaceType] = context;
         }
 
-        Contexts[contextInterfaceType] = context;
-    }
+        #region Implementation of IContextProvider
 
-    #region Implementation of IContextProvider
-
-    public TContext Access<TContext, TContextInterface>() where TContext : class, IDbContext
-    {
-        if (!Contexts.TryGetValue(typeof(TContext), out var context))
+        public TContext Access<TContext, TContextInterface>() where TContext : class, IDbContext
         {
-            throw new Exception($"No context of type {typeof(TContext).Name} exists.");
+            if (!Contexts.TryGetValue(typeof(TContext), out var context))
+            {
+                throw new Exception($"No context of type {typeof(TContext).Name} exists.");
+            }
+
+            return Activator.CreateInstance(typeof(TContextInterface), new object[] { context }) as TContext;
         }
 
-        return Activator.CreateInstance(typeof(TContextInterface), new object[] { context }) as TContext;
+        #endregion
     }
-
-    #endregion
 }

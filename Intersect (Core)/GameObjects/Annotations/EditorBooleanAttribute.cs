@@ -1,28 +1,30 @@
+using System;
 using System.Reflection;
 
 using Intersect.Localization;
 
-namespace Intersect.GameObjects.Annotations;
-
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public class EditorBooleanAttribute : EditorDisplayAttribute
+namespace Intersect.GameObjects.Annotations
 {
-    public BooleanStyle Style { get; set; } = BooleanStyle.YesNo;
-
-    [Obsolete("We want to re-implement strings to be object-oriented.")]
-    public override string Format(Type stringsType, object value)
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class EditorBooleanAttribute : EditorDisplayAttribute
     {
-        if (stringsType == default)
-        {
-            throw new ArgumentNullException(nameof(stringsType));
-        }
+        public BooleanStyle Style { get; set; } = BooleanStyle.YesNo;
 
-        var formatBooleanMethodInfo = stringsType.GetMethod("FormatBoolean", BindingFlags.Public | BindingFlags.Static);
-        if (formatBooleanMethodInfo == default)
+        [Obsolete("We want to re-implement strings to be object-oriented.")]
+        public override string Format(Type stringsType, object value)
         {
-            throw new InvalidOperationException($"{stringsType.FullName}.{nameof(stringsType)} is missing.");
-        }
+            if (stringsType == default)
+            {
+                throw new ArgumentNullException(nameof(stringsType));
+            }
 
-        return formatBooleanMethodInfo.Invoke(null, new[] { value, Style })?.ToString();
+            var formatBooleanMethodInfo = stringsType.GetMethod("FormatBoolean", BindingFlags.Public | BindingFlags.Static);
+            if (formatBooleanMethodInfo == default)
+            {
+                throw new InvalidOperationException($"{stringsType.FullName}.{nameof(stringsType)} is missing.");
+            }
+
+            return formatBooleanMethodInfo.Invoke(null, new[] { value, Style })?.ToString();
+        }
     }
 }

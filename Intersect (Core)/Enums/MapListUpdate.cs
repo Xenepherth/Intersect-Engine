@@ -1,12 +1,13 @@
-namespace Intersect.Enums;
-
-public enum MapListUpdate
+namespace Intersect.Enums
 {
-    MoveItem = 0,
+    public enum MapListUpdate
+    {
+        MoveItem = 0,
 
-    AddFolder = 1,
+        AddFolder = 1,
 
-    Rename = 2,
+        Rename = 2,
 
-    Delete = 3,
+        Delete = 3,
+    }
 }

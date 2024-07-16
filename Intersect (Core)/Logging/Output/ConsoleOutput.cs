@@ -1,77 +1,81 @@
-﻿namespace Intersect.Logging.Output;
+﻿using System;
 
-
-public partial class ConsoleOutput : ILogOutput
+namespace Intersect.Logging.Output
 {
 
-    public ConsoleOutput(LogLevel logLevel = LogLevel.All)
+    public partial class ConsoleOutput : ILogOutput
     {
-        LogLevel = logLevel;
-    }
 
-    public LogLevel LogLevel { get; set; }
-
-    public void Write(LogConfiguration configuration, LogLevel logLevel, string message)
-    {
-        InternalWrite(configuration, logLevel, null, message);
-    }
-
-    public void Write(LogConfiguration configuration, LogLevel logLevel, string format, params object[] args)
-    {
-        InternalWrite(configuration, logLevel, null, format, args);
-    }
-
-    public void Write(LogConfiguration configuration, LogLevel logLevel, Exception exception, string message)
-    {
-        InternalWrite(configuration, logLevel, exception, message);
-    }
-
-    public void Write(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        Exception exception,
-        string format,
-        params object[] args
-    )
-    {
-        InternalWrite(configuration, logLevel, exception, format, args);
-    }
-
-    protected void InternalWrite(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        Exception exception,
-        string format,
-        params object[] args
-    )
-    {
-        if (LogLevel < logLevel)
+        public ConsoleOutput(LogLevel logLevel = LogLevel.All)
         {
-            return;
+            LogLevel = logLevel;
         }
 
-        var writer = Console.Out;
-        if (LogLevel < LogLevel.Info)
+        public LogLevel LogLevel { get; set; }
+
+        public void Write(LogConfiguration configuration, LogLevel logLevel, string message)
         {
-            writer = Console.Error;
+            InternalWrite(configuration, logLevel, null, message);
         }
 
-        writer.Write(
-            configuration.Formatter.Format(configuration, logLevel, DateTime.UtcNow, exception, format, args)
-        );
+        public void Write(LogConfiguration configuration, LogLevel logLevel, string format, params object[] args)
+        {
+            InternalWrite(configuration, logLevel, null, format, args);
+        }
 
-        writer.Flush();
-    }
+        public void Write(LogConfiguration configuration, LogLevel logLevel, Exception exception, string message)
+        {
+            InternalWrite(configuration, logLevel, exception, message);
+        }
 
-    private static void Flush()
-    {
-        Console.Error.Flush();
-        Console.Out.Flush();
-    }
+        public void Write(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            Exception exception,
+            string format,
+            params object[] args
+        )
+        {
+            InternalWrite(configuration, logLevel, exception, format, args);
+        }
 
-    public void Close()
-    {
-        Flush();
+        protected void InternalWrite(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            Exception exception,
+            string format,
+            params object[] args
+        )
+        {
+            if (LogLevel < logLevel)
+            {
+                return;
+            }
+
+            var writer = Console.Out;
+            if (LogLevel < LogLevel.Info)
+            {
+                writer = Console.Error;
+            }
+
+            writer.Write(
+                configuration.Formatter.Format(configuration, logLevel, DateTime.UtcNow, exception, format, args)
+            );
+
+            writer.Flush();
+        }
+
+        private static void Flush()
+        {
+            Console.Error.Flush();
+            Console.Out.Flush();
+        }
+
+        public void Close()
+        {
+            Flush();
+        }
+
     }
 
 }

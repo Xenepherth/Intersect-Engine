@@ -1,10 +1,13 @@
-namespace Intersect.Extensions;
+using System.Collections.Generic;
 
-public static partial class KeyValuePairExtensions
+namespace Intersect.Extensions
 {
-    public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> pair, out TKey key, out TValue val)
+    public static partial class KeyValuePairExtensions
     {
-        key = pair.Key;
-        val = pair.Value;
+        public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> pair, out TKey key, out TValue val)
+        {
+            key = pair.Key;
+            val = pair.Value;
+        }
     }
 }

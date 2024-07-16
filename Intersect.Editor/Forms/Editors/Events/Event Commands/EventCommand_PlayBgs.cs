@@ -1,58 +1,63 @@
-﻿using Intersect.Editor.Content;
+﻿using System;
+using System.Windows.Forms;
+
+using Intersect.Editor.Content;
 using Intersect.Editor.Localization;
 using Intersect.GameObjects.Events.Commands;
 using Intersect.Utilities;
 
-namespace Intersect.Editor.Forms.Editors.Events.Event_Commands;
-
-
-public partial class EventCommandPlayBgs : UserControl
+namespace Intersect.Editor.Forms.Editors.Events.Event_Commands
 {
 
-    private readonly FrmEvent mEventEditor;
-
-    private PlaySoundCommand mMyCommand;
-
-    public EventCommandPlayBgs(PlaySoundCommand refCommand, FrmEvent editor)
+    public partial class EventCommandPlayBgs : UserControl
     {
-        InitializeComponent();
-        mMyCommand = refCommand;
-        mEventEditor = editor;
-        InitLocalization();
-        cmbSound.Items.Clear();
-        cmbSound.Items.Add(Strings.General.None);
-        cmbSound.Items.AddRange(GameContentManager.SmartSortedSoundNames);
-        if (cmbSound.Items.IndexOf(TextUtils.NullToNone(mMyCommand.File)) > -1)
+
+        private readonly FrmEvent mEventEditor;
+
+        private PlaySoundCommand mMyCommand;
+
+        public EventCommandPlayBgs(PlaySoundCommand refCommand, FrmEvent editor)
         {
-            cmbSound.SelectedIndex = cmbSound.Items.IndexOf(TextUtils.NullToNone(mMyCommand.File));
+            InitializeComponent();
+            mMyCommand = refCommand;
+            mEventEditor = editor;
+            InitLocalization();
+            cmbSound.Items.Clear();
+            cmbSound.Items.Add(Strings.General.None);
+            cmbSound.Items.AddRange(GameContentManager.SmartSortedSoundNames);
+            if (cmbSound.Items.IndexOf(TextUtils.NullToNone(mMyCommand.File)) > -1)
+            {
+                cmbSound.SelectedIndex = cmbSound.Items.IndexOf(TextUtils.NullToNone(mMyCommand.File));
+            }
+            else
+            {
+                cmbSound.SelectedIndex = 0;
+            }
         }
-        else
+
+        private void InitLocalization()
         {
-            cmbSound.SelectedIndex = 0;
+            grpPlayBGS.Text = Strings.EventPlayBgs.title;
+            lblSound.Text = Strings.EventPlayBgs.label;
+            btnSave.Text = Strings.EventPlayBgs.okay;
+            btnCancel.Text = Strings.EventPlayBgs.cancel;
         }
-    }
 
-    private void InitLocalization()
-    {
-        grpPlayBGS.Text = Strings.EventPlayBgs.title;
-        lblSound.Text = Strings.EventPlayBgs.label;
-        btnSave.Text = Strings.EventPlayBgs.okay;
-        btnCancel.Text = Strings.EventPlayBgs.cancel;
-    }
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            mMyCommand.File = TextUtils.SanitizeNone(cmbSound?.Text);
+            mEventEditor.FinishCommandEdit();
+        }
 
-    private void btnSave_Click(object sender, EventArgs e)
-    {
-        mMyCommand.File = TextUtils.SanitizeNone(cmbSound?.Text);
-        mEventEditor.FinishCommandEdit();
-    }
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            mEventEditor.CancelCommandEdit();
+        }
 
-    private void btnCancel_Click(object sender, EventArgs e)
-    {
-        mEventEditor.CancelCommandEdit();
-    }
+        private void cmbSprite_SelectedIndexChanged(object sender, EventArgs e)
+        {
+        }
 
-    private void cmbSprite_SelectedIndexChanged(object sender, EventArgs e)
-    {
     }
 
 }

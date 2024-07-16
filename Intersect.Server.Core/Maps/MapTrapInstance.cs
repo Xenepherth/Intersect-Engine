@@ -1,89 +1,94 @@
+using System;
+
 using Intersect.GameObjects;
 using Intersect.Server.Entities;
 using Intersect.Server.Entities.Events;
+using Intersect.Server.General;
 using Intersect.Server.Maps;
 using Intersect.Utilities;
 
-namespace Intersect.Server.Classes.Maps;
-
-
-public partial class MapTrapInstance
+namespace Intersect.Server.Classes.Maps
 {
-    public Guid Id { get; } = Guid.NewGuid();
 
-    private long Duration;
-
-    public Guid MapId;
-    
-    public Guid MapInstanceId;
-
-    public Entity Owner;
-
-    public SpellBase ParentSpell;
-
-    public bool Triggered = false;
-
-    public byte X;
-
-    public byte Y;
-
-    public byte Z;
-
-    public MapTrapInstance(Entity owner, SpellBase parentSpell, Guid mapId, Guid mapInstanceId, byte x, byte y, byte z)
+    public partial class MapTrapInstance
     {
-        Owner = owner;
-        ParentSpell = parentSpell;
-        Duration = Timing.Global.Milliseconds + ParentSpell.Combat.TrapDuration;
-        MapId = mapId;
-        MapInstanceId = mapInstanceId;
-        X = x;
-        Y = y;
-        Z = z;
-    }
+        public Guid Id { get; } = Guid.NewGuid();
 
-    public void CheckEntityHasDetonatedTrap(Entity entity)
-    {
-        if (!Triggered)
+        private long Duration;
+
+        public Guid MapId;
+        
+        public Guid MapInstanceId;
+
+        public Entity Owner;
+
+        public SpellBase ParentSpell;
+
+        public bool Triggered = false;
+
+        public byte X;
+
+        public byte Y;
+
+        public byte Z;
+
+        public MapTrapInstance(Entity owner, SpellBase parentSpell, Guid mapId, Guid mapInstanceId, byte x, byte y, byte z)
         {
-            if (entity.MapId == MapId && entity.X == X && entity.Y == Y && entity.Z == Z)
+            Owner = owner;
+            ParentSpell = parentSpell;
+            Duration = Timing.Global.Milliseconds + ParentSpell.Combat.TrapDuration;
+            MapId = mapId;
+            MapInstanceId = mapInstanceId;
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public void CheckEntityHasDetonatedTrap(Entity entity)
+        {
+            if (!Triggered)
             {
-                if (entity is Player entityPlayer && Owner is Player ownerPlayer)
+                if (entity.MapId == MapId && entity.X == X && entity.Y == Y && entity.Z == Z)
                 {
+                    if (entity is Player entityPlayer && Owner is Player ownerPlayer)
+                    {
                         //Don't detonate on yourself and party members on non-friendly spells!
                         if (Owner == entity || ownerPlayer.InParty(entityPlayer) || (!Options.Instance.Nation.AllowNationMemberPvp && ownerPlayer.Nation != null && ownerPlayer.Nation == entityPlayer.Nation) || (!Options.Instance.Guild.AllowGuildMemberPvp && ownerPlayer.Guild != null && ownerPlayer.Guild == entityPlayer.Guild))
-                    { 
-                        if (!ParentSpell.Combat.Friendly)
                         {
-                            return;
+                            if (!ParentSpell.Combat.Friendly)
+                            {
+                                return;
+                            }
                         }
                     }
-                }
 
-                if (entity is EventPageInstance)
-                {
-                    return;
-                }
+                    if (entity is EventPageInstance)
+                    {
+                        return;
+                    }
 
-                Owner.TryAttack(entity, ParentSpell, false, true);
-                Triggered = true;
+                    Owner.TryAttack(entity, ParentSpell, false, true);
+                    Triggered = true;
+                }
             }
         }
-    }
 
-    public void Update()
-    {
-        if (MapController.TryGetInstanceFromMap(MapId, MapInstanceId, out var mapInstance))
+        public void Update()
         {
-            if (Triggered)
+            if (MapController.TryGetInstanceFromMap(MapId, MapInstanceId, out var mapInstance))
             {
-                mapInstance.RemoveTrap(this);
-            }
+                if (Triggered)
+                {
+                    mapInstance.RemoveTrap(this);
+                }
 
-            if (Timing.Global.Milliseconds > Duration)
-            {
-                mapInstance.RemoveTrap(this);
+                if (Timing.Global.Milliseconds > Duration)
+                {
+                    mapInstance.RemoveTrap(this);
+                }
             }
         }
+
     }
 
 }

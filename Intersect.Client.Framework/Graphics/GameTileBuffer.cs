@@ -1,21 +1,23 @@
-﻿namespace Intersect.Client.Framework.Graphics;
-
-
-public abstract partial class GameTileBuffer
+﻿namespace Intersect.Client.Framework.Graphics
 {
 
-    public static int TileBufferCount { get; set; } = 0;
+    public abstract partial class GameTileBuffer
+    {
 
-    public abstract bool Supported { get; }
+        public static int TileBufferCount { get; set; } = 0;
 
-    public abstract GameTexture Texture { get; protected set; }
+        public abstract bool Supported { get; }
 
-    public abstract bool AddTile(GameTexture texture, float x, float y, int srcX, int srcY, int srcW, int srcH);
+        public abstract GameTexture Texture { get; protected set; }
 
-    public abstract bool UpdateTile(GameTexture texture, float x, float y, int srcX, int srcY, int srcW, int srcH);
+        public abstract bool AddTile(GameTexture texture, float x, float y, int srcX, int srcY, int srcW, int srcH);
 
-    public abstract bool SetData();
+        public abstract bool UpdateTile(GameTexture texture, float x, float y, int srcX, int srcY, int srcW, int srcH);
 
-    public abstract void Dispose();
+        public abstract bool SetData();
+
+        public abstract void Dispose();
+
+    }
 
 }

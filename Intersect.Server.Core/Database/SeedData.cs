@@ -1,28 +1,30 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Intersect.Server.Database;
-
-
-public abstract partial class SeedData<TType> where TType : class
+namespace Intersect.Server.Database
 {
 
-    public void SeedIfEmpty(ISeedableContext context)
+    public abstract partial class SeedData<TType> where TType : class
     {
-        var dbSet = context.GetDbSet<TType>();
 
-        if (dbSet == null)
+        public void SeedIfEmpty(ISeedableContext context)
         {
-            return;
+            var dbSet = context.GetDbSet<TType>();
+
+            if (dbSet == null)
+            {
+                return;
+            }
+
+            if (dbSet.FirstOrDefault() != null)
+            {
+                return;
+            }
+
+            Seed(dbSet);
         }
 
-        if (dbSet.FirstOrDefault() != null)
-        {
-            return;
-        }
+        public abstract void Seed(DbSet<TType> dbSet);
 
-        Seed(dbSet);
     }
-
-    public abstract void Seed(DbSet<TType> dbSet);
 
 }

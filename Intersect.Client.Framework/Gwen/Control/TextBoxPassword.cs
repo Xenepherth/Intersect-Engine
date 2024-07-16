@@ -1,48 +1,52 @@
-﻿namespace Intersect.Client.Framework.Gwen.Control;
+﻿using System;
 
-
-/// <summary>
-///     Text box with masked text.
-/// </summary>
-/// <remarks>
-///     This class doesn't prevent programatic access to the text in any way.
-/// </remarks>
-public partial class TextBoxPassword : TextBox
+namespace Intersect.Client.Framework.Gwen.Control
 {
 
-    private string mMask;
-
-    private char mMaskCharacter;
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="TextBoxPassword" /> class.
+    ///     Text box with masked text.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    public TextBoxPassword(Base parent, string name = "") : base(parent, name)
+    /// <remarks>
+    ///     This class doesn't prevent programatic access to the text in any way.
+    /// </remarks>
+    public partial class TextBoxPassword : TextBox
     {
-        mMaskCharacter = '*';
-    }
 
-    /// <summary>
-    ///     Character used in place of actual characters for display.
-    /// </summary>
-    public char MaskCharacter
-    {
-        get => mMaskCharacter;
-        set => mMaskCharacter = value;
-    }
+        private string mMask;
 
-    /// <summary>
-    ///     Handler for text changed event.
-    /// </summary>
-    protected override void OnTextChanged()
-    {
-        mMask = new String(MaskCharacter, Text.Length);
-        TextOverride = mMask;
-        base.OnTextChanged();
+        private char mMaskCharacter;
 
-        //Really hacky way to make sure the size for the mask is calculated.
-        base.Children[0].SizeToChildren();
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="TextBoxPassword" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        public TextBoxPassword(Base parent, string name = "") : base(parent, name)
+        {
+            mMaskCharacter = '*';
+        }
+
+        /// <summary>
+        ///     Character used in place of actual characters for display.
+        /// </summary>
+        public char MaskCharacter
+        {
+            get => mMaskCharacter;
+            set => mMaskCharacter = value;
+        }
+
+        /// <summary>
+        ///     Handler for text changed event.
+        /// </summary>
+        protected override void OnTextChanged()
+        {
+            mMask = new String(MaskCharacter, Text.Length);
+            TextOverride = mMask;
+            base.OnTextChanged();
+
+            //Really hacky way to make sure the size for the mask is calculated.
+            base.Children[0].SizeToChildren();
+        }
+
     }
 
 }

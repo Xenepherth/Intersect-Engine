@@ -1,23 +1,27 @@
-﻿namespace Intersect.Client.Spells;
+﻿using System;
 
-
-public partial class Spell
+namespace Intersect.Client.Spells
 {
 
-    public Guid Id { get; set; }
-
-    public Spell Clone()
+    public partial class Spell
     {
-        var newSpell = new Spell() {
-            Id = Id
-        };
 
-        return newSpell;
-    }
+        public Guid Id { get; set; }
 
-    public void Load(Guid spellId)
-    {
-        Id = spellId;
+        public Spell Clone()
+        {
+            var newSpell = new Spell() {
+                Id = Id
+            };
+
+            return newSpell;
+        }
+
+        public void Load(Guid spellId)
+        {
+            Id = spellId;
+        }
+
     }
 
 }

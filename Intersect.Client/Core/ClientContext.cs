@@ -7,68 +7,69 @@ using Intersect.Plugins;
 using Intersect.Plugins.Interfaces;
 using Intersect.Reflection;
 
-namespace Intersect.Client.Core;
-
-/// <summary>
-/// Implements <see cref="IClientContext"/>.
-/// </summary>
-internal sealed partial class ClientContext : ApplicationContext<ClientContext, ClientCommandLineOptions>, IClientContext
+namespace Intersect.Client.Core
 {
-    internal static bool IsSinglePlayer { get; set; }
-
-    private IPlatformRunner mPlatformRunner;
-
-    internal ClientContext(ClientCommandLineOptions startupOptions, Logger logger, IPacketHelper packetHelper) : base(
-        startupOptions, logger, packetHelper
-    )
+    /// <summary>
+    /// Implements <see cref="IClientContext"/>.
+    /// </summary>
+    internal sealed partial class ClientContext : ApplicationContext<ClientContext, ClientCommandLineOptions>, IClientContext
     {
-        FactoryRegistry<IPluginContext>.RegisterFactory(new ClientPluginContext.Factory());
-    }
+        internal static bool IsSinglePlayer { get; set; }
 
-    protected override bool UsesMainThread => true;
+        private IPlatformRunner mPlatformRunner;
 
-    public IPlatformRunner PlatformRunner
-    {
-        get => mPlatformRunner ?? throw new ArgumentNullException(nameof(PlatformRunner));
-        private set => mPlatformRunner = value;
-    }
-
-    /// <inheritdoc />
-    protected override void InternalStart()
-    {
-        Networking.Network.PacketHandler = new PacketHandler(this, PacketHelper.HandlerRegistry);
-        PlatformRunner = typeof(ClientContext).Assembly.CreateInstanceOf<IPlatformRunner>();
-        PlatformRunner.Start(this, PostStartup);
-    }
-
-    #region Exception Handling
-
-    internal static void DispatchUnhandledException(
-        Exception exception,
-        bool isTerminating = true,
-        bool wait = false
-    )
-    {
-        var sender = Thread.CurrentThread;
-        var task = Task.Factory.StartNew(
-            () => HandleUnhandledException(sender, new UnhandledExceptionEventArgs(exception, isTerminating))
-        );
-
-        if (wait)
+        internal ClientContext(ClientCommandLineOptions startupOptions, Logger logger, IPacketHelper packetHelper) : base(
+            startupOptions, logger, packetHelper
+        )
         {
-            task.Wait();
+            FactoryRegistry<IPluginContext>.RegisterFactory(new ClientPluginContext.Factory());
         }
-    }
 
-    #endregion Exception Handling
+        protected override bool UsesMainThread => true;
 
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-
-        if (disposing)
+        public IPlatformRunner PlatformRunner
         {
-            PacketHelper.HandlerRegistry.Dispose();
+            get => mPlatformRunner ?? throw new ArgumentNullException(nameof(PlatformRunner));
+            private set => mPlatformRunner = value;
+        }
+
+        /// <inheritdoc />
+        protected override void InternalStart()
+        {
+            Networking.Network.PacketHandler = new PacketHandler(this, PacketHelper.HandlerRegistry);
+            PlatformRunner = typeof(ClientContext).Assembly.CreateInstanceOf<IPlatformRunner>();
+            PlatformRunner.Start(this, PostStartup);
+        }
+
+        #region Exception Handling
+
+        internal static void DispatchUnhandledException(
+            Exception exception,
+            bool isTerminating = true,
+            bool wait = false
+        )
+        {
+            var sender = Thread.CurrentThread;
+            var task = Task.Factory.StartNew(
+                () => HandleUnhandledException(sender, new UnhandledExceptionEventArgs(exception, isTerminating))
+            );
+
+            if (wait)
+            {
+                task.Wait();
+            }
+        }
+
+        #endregion Exception Handling
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                PacketHelper.HandlerRegistry.Dispose();
+            }
         }
     }
 }

@@ -1,45 +1,48 @@
-﻿using Intersect.Factories;
+﻿using System;
+
+using Intersect.Factories;
 using Intersect.Plugins;
 using Intersect.Plugins.Contexts;
 using Intersect.Plugins.Interfaces;
 using Intersect.Server.Plugins.Helpers;
 
-namespace Intersect.Server.Plugins;
-
-/// <summary>
-/// Implementation of <see cref="IServerPluginContext"/>.
-/// </summary>
-internal sealed partial class ServerPluginContext : PluginContext<ServerPluginContext, IServerLifecycleHelper>,
-    IServerPluginContext
+namespace Intersect.Server.Plugins
 {
     /// <summary>
-    /// <see cref="IPluginContext"/> factory that creates instances of <see cref="IServerPluginContext"/>.
+    /// Implementation of <see cref="IServerPluginContext"/>.
     /// </summary>
-    internal sealed partial class Factory : IFactory<IPluginContext>
+    internal sealed partial class ServerPluginContext : PluginContext<ServerPluginContext, IServerLifecycleHelper>,
+        IServerPluginContext
     {
-        /// <inheritdoc />
-        public IPluginContext Create(params object[] args)
+        /// <summary>
+        /// <see cref="IPluginContext"/> factory that creates instances of <see cref="IServerPluginContext"/>.
+        /// </summary>
+        internal sealed partial class Factory : IFactory<IPluginContext>
         {
-            if (args.Length < 1)
+            /// <inheritdoc />
+            public IPluginContext Create(params object[] args)
             {
-                throw new ArgumentException($@"Need to provide an instance of {nameof(IManifestHelper)}.");
-            }
+                if (args.Length < 1)
+                {
+                    throw new ArgumentException($@"Need to provide an instance of {nameof(IManifestHelper)}.");
+                }
 
-            if (!(args[0] is Plugin plugin))
-            {
-                throw new ArgumentException($@"First argument needs to be non-null and of type {nameof(Plugin)}.");
-            }
+                if (!(args[0] is Plugin plugin))
+                {
+                    throw new ArgumentException($@"First argument needs to be non-null and of type {nameof(Plugin)}.");
+                }
 
-            return new ServerPluginContext(plugin);
+                return new ServerPluginContext(plugin);
+            }
         }
-    }
 
-    /// <inheritdoc />
-    public ServerPluginContext(Plugin plugin) : base(plugin)
-    {
-        Lifecycle = new ServerLifecycleHelper(this);
-    }
+        /// <inheritdoc />
+        public ServerPluginContext(Plugin plugin) : base(plugin)
+        {
+            Lifecycle = new ServerLifecycleHelper(this);
+        }
 
-    /// <inheritdoc />
-    public override IServerLifecycleHelper Lifecycle { get; }
+        /// <inheritdoc />
+        public override IServerLifecycleHelper Lifecycle { get; }
+    }
 }

@@ -1,19 +1,21 @@
-﻿namespace Intersect.Client.Framework.Graphics;
-
-
-public enum GameBlendModes
+﻿namespace Intersect.Client.Framework.Graphics
 {
 
-    Add = 0,
+    public enum GameBlendModes
+    {
 
-    Alpha,
+        Add = 0,
 
-    Multiply,
+        Alpha,
 
-    None,
+        Multiply,
 
-    Opaque,
+        None,
 
-    Cutout
+        Opaque,
+
+        Cutout
+
+    }
 
 }

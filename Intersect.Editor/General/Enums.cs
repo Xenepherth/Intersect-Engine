@@ -1,70 +1,72 @@
-﻿namespace Intersect.Editor.General;
-
-
-public enum EditorTypes
+﻿namespace Intersect.Editor.General
 {
 
-    Animation = 0,
+    public enum EditorTypes
+    {
 
-    Item = 1,
+        Animation = 0,
 
-    Npc = 2,
+        Item = 1,
 
-    Resource = 3,
+        Npc = 2,
 
-    Spell = 4,
+        Resource = 3,
 
-    Class = 5,
+        Spell = 4,
 
-    Quest = 6,
+        Class = 5,
 
-    Projectile = 7,
+        Quest = 6,
 
-    Event = 8,
+        Projectile = 7,
 
-    CommonEvent = 9,
+        Event = 8,
 
-    SwitchVariable = 10,
+        CommonEvent = 9,
 
-    Shop = 11,
+        SwitchVariable = 10,
 
-}
+        Shop = 11,
 
-public enum MapListUpdates
-{
+    }
 
-    MoveItem = 0,
+    public enum MapListUpdates
+    {
 
-    AddFolder = 1,
+        MoveItem = 0,
 
-    Rename = 2,
+        AddFolder = 1,
 
-    Delete = 3,
+        Rename = 2,
 
-}
+        Delete = 3,
 
-public enum EditingTool
-{
+    }
 
-    Brush = 0,
+    public enum EditingTool
+    {
 
-    Selection = 1,
+        Brush = 0,
 
-    Rectangle = 2,
+        Selection = 1,
 
-    Fill = 3,
+        Rectangle = 2,
 
-    Erase = 4,
+        Fill = 3,
 
-    Dropper = 5,
+        Erase = 4,
 
-}
+        Dropper = 5,
 
-public enum SelectionTypes
-{
+    }
 
-    AllLayers = 0,
+    public enum SelectionTypes
+    {
 
-    CurrentLayer = 1,
+        AllLayers = 0,
+
+        CurrentLayer = 1,
+
+    }
 
 }

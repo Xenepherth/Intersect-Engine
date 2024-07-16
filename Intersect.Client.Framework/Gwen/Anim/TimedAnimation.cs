@@ -1,85 +1,89 @@
-﻿namespace Intersect.Client.Framework.Gwen.Anim;
+﻿using System;
 
-
-// Timed animation. Provides a useful base for animations.
-public partial class TimedAnimation : Animation
+namespace Intersect.Client.Framework.Gwen.Anim
 {
 
-    private float mEase;
-
-    private float mEnd;
-
-    private bool mFinished;
-
-    private float mStart;
-
-    private bool mStarted;
-
-    public TimedAnimation(float length, float delay = 0.0f, float ease = 1.0f)
+    // Timed animation. Provides a useful base for animations.
+    public partial class TimedAnimation : Animation
     {
-        mStart = Platform.Neutral.GetTimeInSeconds() + delay;
-        mEnd = mStart + length;
-        mEase = ease;
-        mStarted = false;
-        mFinished = false;
-    }
 
-    public override bool Finished => mFinished;
+        private float mEase;
 
-    protected override void Think()
-    {
-        //base.Think();
+        private float mEnd;
 
-        if (mFinished)
+        private bool mFinished;
+
+        private float mStart;
+
+        private bool mStarted;
+
+        public TimedAnimation(float length, float delay = 0.0f, float ease = 1.0f)
         {
-            return;
+            mStart = Platform.Neutral.GetTimeInSeconds() + delay;
+            mEnd = mStart + length;
+            mEase = ease;
+            mStarted = false;
+            mFinished = false;
         }
 
-        var current = Platform.Neutral.GetTimeInSeconds();
-        var secondsIn = current - mStart;
-        if (secondsIn < 0.0)
+        public override bool Finished => mFinished;
+
+        protected override void Think()
         {
-            return;
+            //base.Think();
+
+            if (mFinished)
+            {
+                return;
+            }
+
+            var current = Platform.Neutral.GetTimeInSeconds();
+            var secondsIn = current - mStart;
+            if (secondsIn < 0.0)
+            {
+                return;
+            }
+
+            if (!mStarted)
+            {
+                mStarted = true;
+                OnStart();
+            }
+
+            var delta = secondsIn / (mEnd - mStart);
+            if (delta < 0.0f)
+            {
+                delta = 0.0f;
+            }
+
+            if (delta > 1.0f)
+            {
+                delta = 1.0f;
+            }
+
+            Run((float) Math.Pow(delta, mEase));
+
+            if (delta == 1.0f)
+            {
+                mFinished = true;
+                OnFinish();
+            }
         }
 
-        if (!mStarted)
+        // These are the magic functions you should be overriding
+
+        protected virtual void OnStart()
         {
-            mStarted = true;
-            OnStart();
         }
 
-        var delta = secondsIn / (mEnd - mStart);
-        if (delta < 0.0f)
+        protected virtual void Run(float delta)
         {
-            delta = 0.0f;
         }
 
-        if (delta > 1.0f)
+        protected virtual void OnFinish()
         {
-            delta = 1.0f;
         }
 
-        Run((float) Math.Pow(delta, mEase));
-
-        if (delta == 1.0f)
-        {
-            mFinished = true;
-            OnFinish();
-        }
-    }
-
-    // These are the magic functions you should be overriding
-
-    protected virtual void OnStart()
-    {
-    }
-
-    protected virtual void Run(float delta)
-    {
-    }
-
-    protected virtual void OnFinish()
-    {
     }
 
 }

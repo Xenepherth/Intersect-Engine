@@ -1,20 +1,21 @@
-namespace Intersect.Enums;
-
-public enum ItemType
+namespace Intersect.Enums
 {
-    None = 0,
+    public enum ItemType
+    {
+        None = 0,
 
-    Equipment = 1,
+        Equipment = 1,
 
-    Consumable = 2,
+        Consumable = 2,
 
-    Currency = 3,
+        Currency = 3,
 
-    Spell = 4,
+        Spell = 4,
 
-    Event = 5,
+        Event = 5,
 
-    Bag = 6,
+        Bag = 6,
 
-    Material = 7,
+        Material = 7,
+    }
 }

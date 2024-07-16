@@ -9,51 +9,53 @@ using Newtonsoft.Json;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
 
-namespace Intersect.Server.Database.PlayerData.Players;
-
-
-public partial class HotbarSlot : ISlot, IPlayerOwned
+namespace Intersect.Server.Database.PlayerData.Players
 {
 
-    public HotbarSlot()
+    public partial class HotbarSlot : ISlot, IPlayerOwned
     {
-    }
 
-    public HotbarSlot(int slot)
-    {
-        Slot = slot;
-    }
+        public HotbarSlot()
+        {
+        }
 
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity), JsonIgnore]
-    public Guid Id { get; private set; }
+        public HotbarSlot(int slot)
+        {
+            Slot = slot;
+        }
 
-    public Guid ItemOrSpellId { get; set; } = Guid.Empty;
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity), JsonIgnore]
+        public Guid Id { get; private set; }
 
-    public Guid BagId { get; set; } = Guid.Empty;
+        public Guid ItemOrSpellId { get; set; } = Guid.Empty;
 
-    [Column("PreferredStatBuffs")]
-    [JsonIgnore]
-    public string StatBuffsJson
-    {
-        get => DatabaseUtils.SaveIntArray(PreferredStatBuffs, Enum.GetValues<Stat>().Length);
-        set => PreferredStatBuffs = DatabaseUtils.LoadIntArray(value, Enum.GetValues<Stat>().Length);
-    }
+        public Guid BagId { get; set; } = Guid.Empty;
 
-    [NotMapped]
-    public int[] PreferredStatBuffs { get; set; } = new int[Enum.GetValues<Stat>().Length];
+        [Column("PreferredStatBuffs")]
+        [JsonIgnore]
+        public string StatBuffsJson
+        {
+            get => DatabaseUtils.SaveIntArray(PreferredStatBuffs, Enum.GetValues<Stat>().Length);
+            set => PreferredStatBuffs = DatabaseUtils.LoadIntArray(value, Enum.GetValues<Stat>().Length);
+        }
 
-    [JsonIgnore]
-    public Guid PlayerId { get; private set; }
+        [NotMapped]
+        public int[] PreferredStatBuffs { get; set; } = new int[Enum.GetValues<Stat>().Length];
 
-    [JsonIgnore]
-    public virtual Player Player { get; private set; }
+        [JsonIgnore]
+        public Guid PlayerId { get; private set; }
 
-    [JsonIgnore]
-    public int Slot { get; private set; }
+        [JsonIgnore]
+        public virtual Player Player { get; private set; }
 
-    public string Data()
-    {
-        return JsonConvert.SerializeObject(this);
+        [JsonIgnore]
+        public int Slot { get; private set; }
+
+        public string Data()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
     }
 
 }

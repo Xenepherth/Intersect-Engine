@@ -1,10 +1,13 @@
-﻿namespace Intersect.Client.Framework.Entities;
+﻿using System;
 
-public interface IPartyMember
+namespace Intersect.Client.Framework.Entities
 {
-    Guid Id { get; set; }
-    int Level { get; set; }
-    long[] MaxVital { get; set; }
-    string Name { get; set; }
-    long[] Vital { get; set; }
+    public interface IPartyMember
+    {
+        Guid Id { get; set; }
+        int Level { get; set; }
+        long[] MaxVital { get; set; }
+        string Name { get; set; }
+        long[] Vital { get; set; }
+    }
 }

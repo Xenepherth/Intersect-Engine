@@ -1,28 +1,32 @@
-﻿namespace Intersect.Security;
+﻿using System;
 
-
-[Flags]
-public enum ApiVisibility : uint
+namespace Intersect.Security
 {
 
-    /// <summary>
-    /// Anyone has access.
-    /// </summary>
-    Public = 0xFFFFFFFF,
+    [Flags]
+    public enum ApiVisibility : uint
+    {
 
-    /// <summary>
-    /// Privileged users have access.
-    /// </summary>
-    Restricted = 0x2,
+        /// <summary>
+        /// Anyone has access.
+        /// </summary>
+        Public = 0xFFFFFFFF,
 
-    /// <summary>
-    /// Data owners have access.
-    /// </summary>
-    Private = 0x1,
+        /// <summary>
+        /// Privileged users have access.
+        /// </summary>
+        Restricted = 0x2,
 
-    /// <summary>
-    /// No users have access.
-    /// </summary>
-    Hidden = 0
+        /// <summary>
+        /// Data owners have access.
+        /// </summary>
+        Private = 0x1,
+
+        /// <summary>
+        /// No users have access.
+        /// </summary>
+        Hidden = 0
+
+    }
 
 }

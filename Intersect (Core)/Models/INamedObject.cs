@@ -1,9 +1,11 @@
-﻿namespace Intersect.Models;
-
-
-public interface INamedObject : IObject
+﻿namespace Intersect.Models
 {
 
-    string Name { get; set; }
+    public interface INamedObject : IObject
+    {
+
+        string Name { get; set; }
+
+    }
 
 }

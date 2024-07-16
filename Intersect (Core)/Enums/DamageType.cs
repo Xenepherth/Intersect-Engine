@@ -1,10 +1,11 @@
-namespace Intersect.Enums;
-
-public enum DamageType
+namespace Intersect.Enums
 {
-    Physical = 0,
+    public enum DamageType
+    {
+        Physical = 0,
 
-    Magic,
+        Magic,
 
-    True,
+        True,
+    }
 }

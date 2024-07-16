@@ -4,105 +4,107 @@ using Intersect.Client.Framework.File_Management;
 using Intersect.Client.General;
 using Intersect.Utilities;
 
-namespace Intersect.Client.Core.Sounds;
-
-
-public partial class Sound : ISound
+namespace Intersect.Client.Core.Sounds
 {
 
-    public bool Loaded { get; set; }
-
-    protected string mFilename;
-
-    public string Filename => mFilename;
-
-    protected bool mLoop;
-
-    protected int mLoopInterval;
-
-    protected GameAudioInstance mSound;
-
-    protected float mVolume;
-
-    private long mStoppedTime = -1;
-
-    public Sound(string filename, bool loop, int loopInterval)
+    public partial class Sound : ISound
     {
-        if (string.IsNullOrWhiteSpace(filename))
-        {
-            return;
-        }
 
-        mFilename = GameContentManager.RemoveExtension(filename).ToLower();
-        mLoop = loop;
-        mLoopInterval = loopInterval;
-        var sound = Globals.ContentManager.GetSound(mFilename);
-        if (sound != null)
-        {
-            mSound = sound.CreateInstance();
-            mSound.IsLooping = mLoop && mLoopInterval <= 0;
-           
-            mSound.SetVolume(100);
-            mSound.Play();
-            Loaded = true;
-        }
-    }
+        public bool Loaded { get; set; }
 
-    public bool Loop
-    {
-        get => mLoop;
-        set
+        protected string mFilename;
+
+        public string Filename => mFilename;
+
+        protected bool mLoop;
+
+        protected int mLoopInterval;
+
+        protected GameAudioInstance mSound;
+
+        protected float mVolume;
+
+        private long mStoppedTime = -1;
+
+        public Sound(string filename, bool loop, int loopInterval)
         {
-            mLoop = value;
-            if (mSound != null)
+            if (string.IsNullOrWhiteSpace(filename))
             {
-                mSound.IsLooping = mLoop;
+                return;
+            }
+
+            mFilename = GameContentManager.RemoveExtension(filename).ToLower();
+            mLoop = loop;
+            mLoopInterval = loopInterval;
+            var sound = Globals.ContentManager.GetSound(mFilename);
+            if (sound != null)
+            {
+                mSound = sound.CreateInstance();
+                mSound.IsLooping = mLoop && mLoopInterval <= 0;
+               
+                mSound.SetVolume(100);
+                mSound.Play();
+                Loaded = true;
             }
         }
-    }
 
-    public virtual bool Update()
-    {
-        if (!Loaded)
+        public bool Loop
         {
+            get => mLoop;
+            set
+            {
+                mLoop = value;
+                if (mSound != null)
+                {
+                    mSound.IsLooping = mLoop;
+                }
+            }
+        }
+
+        public virtual bool Update()
+        {
+            if (!Loaded)
+            {
+                return false;
+            }
+
+            if (mLoop && mLoopInterval > 0 && mSound?.State == GameAudioInstance.AudioInstanceState.Stopped)
+            {
+                if (mStoppedTime == -1)
+                {
+                    mStoppedTime = Timing.Global.MillisecondsUtc;
+                }
+                else
+                {
+                    if (mStoppedTime + mLoopInterval < Timing.Global.MillisecondsUtc)
+                    {
+                        mSound.Play();
+                        mStoppedTime = -1;
+                    }
+                }
+                return true;
+            }
+            else if (mLoop || mSound?.State != GameAudioInstance.AudioInstanceState.Stopped)
+            {
+                return true;
+            }
+
+            Stop();
+
             return false;
         }
 
-        if (mLoop && mLoopInterval > 0 && mSound?.State == GameAudioInstance.AudioInstanceState.Stopped)
+        public virtual void Stop()
         {
-            if (mStoppedTime == -1)
+            if (!Loaded)
             {
-                mStoppedTime = Timing.Global.MillisecondsUtc;
+                return;
             }
-            else
-            {
-                if (mStoppedTime + mLoopInterval < Timing.Global.MillisecondsUtc)
-                {
-                    mSound.Play();
-                    mStoppedTime = -1;
-                }
-            }
-            return true;
-        }
-        else if (mLoop || mSound?.State != GameAudioInstance.AudioInstanceState.Stopped)
-        {
-            return true;
+
+            mSound?.Dispose();
+            Loaded = false;
         }
 
-        Stop();
-
-        return false;
-    }
-
-    public virtual void Stop()
-    {
-        if (!Loaded)
-        {
-            return;
-        }
-
-        mSound?.Dispose();
-        Loaded = false;
     }
 
 }

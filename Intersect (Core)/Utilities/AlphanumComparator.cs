@@ -34,6 +34,7 @@
  *
  */
 
+using System;
 using System.Collections;
 using System.Text;
 
@@ -41,116 +42,118 @@ using System.Text;
  * Please compare against the latest Java version at http://www.DaveKoelle.com
  * to see the most recent modifications
  */
-namespace Intersect.Utilities;
-
-
-public partial class AlphanumComparator : IComparer
+namespace Intersect.Utilities
 {
 
-    public int Compare(object x, object y)
+    public partial class AlphanumComparator : IComparer
     {
-        var s1 = x as string;
-        var s2 = y as string;
 
-        if (s1 == null || s2 == null)
+        public int Compare(object x, object y)
         {
+            var s1 = x as string;
+            var s2 = y as string;
+
+            if (s1 == null || s2 == null)
+            {
+                return 0;
+            }
+
+            var thisMarker = 0;
+            var thatMarker = 0;
+
+            while (thisMarker < s1.Length || thatMarker < s2.Length)
+            {
+                if (thisMarker >= s1.Length)
+                {
+                    return -1;
+                }
+
+                if (thatMarker >= s2.Length)
+                {
+                    return 1;
+                }
+
+                var thisCh = s1[thisMarker];
+                var thatCh = s2[thatMarker];
+
+                var thisChunk = new StringBuilder();
+                var thatChunk = new StringBuilder();
+
+                while (thisMarker < s1.Length && (thisChunk.Length == 0 || InChunk(thisCh, thisChunk[0])))
+                {
+                    thisChunk.Append(thisCh);
+                    thisMarker++;
+
+                    if (thisMarker < s1.Length)
+                    {
+                        thisCh = s1[thisMarker];
+                    }
+                }
+
+                while (thatMarker < s2.Length && (thatChunk.Length == 0 || InChunk(thatCh, thatChunk[0])))
+                {
+                    thatChunk.Append(thatCh);
+                    thatMarker++;
+
+                    if (thatMarker < s2.Length)
+                    {
+                        thatCh = s2[thatMarker];
+                    }
+                }
+
+                var result = 0;
+
+                // If both chunks contain numeric characters, sort them numerically
+                if (char.IsDigit(thisChunk[0]) && char.IsDigit(thatChunk[0]))
+                {
+                    var thisNumericChunk = Convert.ToInt32(thisChunk.ToString());
+                    var thatNumericChunk = Convert.ToInt32(thatChunk.ToString());
+
+                    if (thisNumericChunk < thatNumericChunk)
+                    {
+                        result = -1;
+                    }
+
+                    if (thisNumericChunk > thatNumericChunk)
+                    {
+                        result = 1;
+                    }
+                }
+                else
+                {
+                    result = string.Compare(thisChunk.ToString(), thatChunk.ToString(), StringComparison.Ordinal);
+                }
+
+                if (result != 0)
+                {
+                    return result;
+                }
+            }
+
             return 0;
         }
 
-        var thisMarker = 0;
-        var thatMarker = 0;
-
-        while (thisMarker < s1.Length || thatMarker < s2.Length)
+        private static bool InChunk(char ch, char otherCh)
         {
-            if (thisMarker >= s1.Length)
+            var type = ChunkType.Alphanumeric;
+
+            if (char.IsDigit(otherCh))
             {
-                return -1;
+                type = ChunkType.Numeric;
             }
 
-            if (thatMarker >= s2.Length)
-            {
-                return 1;
-            }
-
-            var thisCh = s1[thisMarker];
-            var thatCh = s2[thatMarker];
-
-            var thisChunk = new StringBuilder();
-            var thatChunk = new StringBuilder();
-
-            while (thisMarker < s1.Length && (thisChunk.Length == 0 || InChunk(thisCh, thisChunk[0])))
-            {
-                thisChunk.Append(thisCh);
-                thisMarker++;
-
-                if (thisMarker < s1.Length)
-                {
-                    thisCh = s1[thisMarker];
-                }
-            }
-
-            while (thatMarker < s2.Length && (thatChunk.Length == 0 || InChunk(thatCh, thatChunk[0])))
-            {
-                thatChunk.Append(thatCh);
-                thatMarker++;
-
-                if (thatMarker < s2.Length)
-                {
-                    thatCh = s2[thatMarker];
-                }
-            }
-
-            var result = 0;
-
-            // If both chunks contain numeric characters, sort them numerically
-            if (char.IsDigit(thisChunk[0]) && char.IsDigit(thatChunk[0]))
-            {
-                var thisNumericChunk = Convert.ToInt32(thisChunk.ToString());
-                var thatNumericChunk = Convert.ToInt32(thatChunk.ToString());
-
-                if (thisNumericChunk < thatNumericChunk)
-                {
-                    result = -1;
-                }
-
-                if (thisNumericChunk > thatNumericChunk)
-                {
-                    result = 1;
-                }
-            }
-            else
-            {
-                result = string.Compare(thisChunk.ToString(), thatChunk.ToString(), StringComparison.Ordinal);
-            }
-
-            if (result != 0)
-            {
-                return result;
-            }
+            return (type != ChunkType.Alphanumeric || !char.IsDigit(ch)) &&
+                   (type != ChunkType.Numeric || char.IsDigit(ch));
         }
 
-        return 0;
-    }
-
-    private static bool InChunk(char ch, char otherCh)
-    {
-        var type = ChunkType.Alphanumeric;
-
-        if (char.IsDigit(otherCh))
+        private enum ChunkType
         {
-            type = ChunkType.Numeric;
+
+            Alphanumeric,
+
+            Numeric
+
         }
-
-        return (type != ChunkType.Alphanumeric || !char.IsDigit(ch)) &&
-               (type != ChunkType.Numeric || char.IsDigit(ch));
-    }
-
-    private enum ChunkType
-    {
-
-        Alphanumeric,
-
-        Numeric
 
     }
 

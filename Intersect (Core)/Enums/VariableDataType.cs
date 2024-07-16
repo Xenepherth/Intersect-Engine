@@ -1,12 +1,13 @@
-namespace Intersect.Enums;
-
-public enum VariableDataType : byte
+namespace Intersect.Enums
 {
-    Boolean = 1,
+    public enum VariableDataType : byte
+    {
+        Boolean = 1,
 
-    Integer,
+        Integer,
 
-    String,
+        String,
 
-    Number,
+        Number,
+    }
 }

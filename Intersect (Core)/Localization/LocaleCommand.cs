@@ -1,38 +1,42 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 
-namespace Intersect.Localization;
+using Newtonsoft.Json;
 
-
-[Serializable]
-public partial class LocaleCommand : LocaleDescribableToken
+namespace Intersect.Localization
 {
 
-    [JsonProperty(nameof(Help), NullValueHandling = NullValueHandling.Ignore)]        private LocalizedString mHelp;
-
-    public LocaleCommand()
+    [Serializable]
+    public partial class LocaleCommand : LocaleDescribableToken
     {
-    }
 
-    public LocaleCommand(
-        string name,
-        string description = null,
-        string help = null
-    ) : base(name, description)
-    {
-        mHelp = help?.Trim();
-    }
+        [JsonProperty(nameof(Help), NullValueHandling = NullValueHandling.Ignore)]        private LocalizedString mHelp;
 
-    [JsonIgnore]
-    public LocalizedString Help
-    {
-        get => mHelp ?? "";
-        set
+        public LocaleCommand()
         {
-            if (mHelp == null)
+        }
+
+        public LocaleCommand(
+            string name,
+            string description = null,
+            string help = null
+        ) : base(name, description)
+        {
+            mHelp = help?.Trim();
+        }
+
+        [JsonIgnore]
+        public LocalizedString Help
+        {
+            get => mHelp ?? "";
+            set
             {
-                mHelp = value;
+                if (mHelp == null)
+                {
+                    mHelp = value;
+                }
             }
         }
+
     }
 
 }

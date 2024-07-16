@@ -1,36 +1,39 @@
-namespace Intersect.Server.Maps;
+﻿using System;
 
-public partial struct MapTileLoc
+namespace Intersect.Server.Maps
 {
-    public readonly Guid MapId;
-    public readonly int X;
-    public readonly int Y;
-
-    public MapTileLoc(Guid id, int x, int y)
+    public partial struct MapTileLoc
     {
-        MapId = id;
-        X = x;
-        Y = y;
-    }
+        public readonly Guid MapId;
+        public readonly int X;
+        public readonly int Y;
 
-    public override int GetHashCode()
-    {
-        unchecked
+        public MapTileLoc(Guid id, int x, int y)
         {
-            return MapId.GetHashCode() + (Y * Options.MapHeight) + X;
+            MapId = id;
+            X = x;
+            Y = y;
         }
-    }
 
-    public override bool Equals(object obj)
-    {
-        if (obj is MapTileLoc loc)
+        public override int GetHashCode()
         {
-            if (X == loc.X && Y == loc.Y && MapId == loc.MapId)
+            unchecked
             {
-                return true;
+                return MapId.GetHashCode() + (Y * Options.MapHeight) + X;
             }
         }
 
-        return false;
+        public override bool Equals(object obj)
+        {
+            if (obj is MapTileLoc loc)
+            {
+                if (X == loc.X && Y == loc.Y && MapId == loc.MapId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

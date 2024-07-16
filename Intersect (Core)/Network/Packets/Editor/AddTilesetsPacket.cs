@@ -1,21 +1,23 @@
 ﻿using MessagePack;
 
-namespace Intersect.Network.Packets.Editor;
-
-[MessagePackObject]
-public partial class AddTilesetsPacket : EditorPacket
+namespace Intersect.Network.Packets.Editor
 {
-    //Parameterless Constructor for MessagePack
-    public AddTilesetsPacket()
+    [MessagePackObject]
+    public partial class AddTilesetsPacket : EditorPacket
     {
-    }
+        //Parameterless Constructor for MessagePack
+        public AddTilesetsPacket()
+        {
+        }
 
-    public AddTilesetsPacket(string[] tilesets)
-    {
-        Tilesets = tilesets;
-    }
+        public AddTilesetsPacket(string[] tilesets)
+        {
+            Tilesets = tilesets;
+        }
 
-    [Key(0)]
-    public string[] Tilesets { get; set; }
+        [Key(0)]
+        public string[] Tilesets { get; set; }
+
+    }
 
 }

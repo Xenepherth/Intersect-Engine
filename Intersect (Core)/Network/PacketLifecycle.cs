@@ -1,16 +1,20 @@
-﻿namespace Intersect.Network;
+﻿using System;
+using System.Collections.Generic;
 
-public sealed partial class PacketLifecycle
+namespace Intersect.Network
 {
-    public Type PacketType { get; }
+    public sealed partial class PacketLifecycle
+    {
+        public Type PacketType { get; }
 
-    public IReadOnlyList<IPacketHandler> PreHandlers { get; }
+        public IReadOnlyList<IPacketHandler> PreHandlers { get; }
 
-    public IReadOnlyList<IPacketHandler> PostHandlers { get; }
+        public IReadOnlyList<IPacketHandler> PostHandlers { get; }
 
-    public IPacketHandler Preprocessor { get; }
+        public IPacketHandler Preprocessor { get; }
 
-    public IPacketHandler Handler { get; }
+        public IPacketHandler Handler { get; }
 
 
+    }
 }

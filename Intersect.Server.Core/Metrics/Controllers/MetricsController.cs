@@ -1,40 +1,43 @@
-﻿namespace Intersect.Server.Metrics.Controllers;
+﻿using System.Collections.Generic;
 
-public abstract partial class MetricsController
+namespace Intersect.Server.Metrics.Controllers
 {
-    private int _allocations;
-
-    protected MetricsController(string context)
+    public abstract partial class MetricsController
     {
-        Context = context;
-    }
+        private int _allocations;
 
-    public string Context { get; }
-
-    public List<Histogram> Measurements { get; } = new List<Histogram>();
-
-    public virtual void Clear()
-    {
-        for (var i = 0; i < Measurements.Count; i++)
+        protected MetricsController(string context)
         {
-            Measurements[i].Clear();
+            Context = context;
         }
-    }
 
-    public IDictionary<string, object> Data() {
-        var data = InternalData();
-        _allocations = data.Count;
-        return data;
-    }
+        public string Context { get; }
 
-    protected virtual IDictionary<string, object> InternalData()
-    {
-        var data = new Dictionary<string, object>(_allocations);
-        for (var i = 0; i < Measurements.Count; i++)
+        public List<Histogram> Measurements { get; } = new List<Histogram>();
+
+        public virtual void Clear()
         {
-            var histogram = Measurements[i];
-            data[histogram.Name] = histogram;
+            for (var i = 0; i < Measurements.Count; i++)
+            {
+                Measurements[i].Clear();
+            }
         }
-        return data;
+
+        public IDictionary<string, object> Data() {
+            var data = InternalData();
+            _allocations = data.Count;
+            return data;
+        }
+
+        protected virtual IDictionary<string, object> InternalData()
+        {
+            var data = new Dictionary<string, object>(_allocations);
+            for (var i = 0; i < Measurements.Count; i++)
+            {
+                var histogram = Measurements[i];
+                data[histogram.Name] = histogram;
+            }
+            return data;
+        }
     }
 }

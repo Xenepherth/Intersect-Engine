@@ -1,14 +1,15 @@
 ﻿using Intersect.Client.Framework.Entities;
 
-namespace Intersect.Client.Entities;
-
-public partial class FriendInstance : IFriendInstance
+namespace Intersect.Client.Entities
 {
+    public partial class FriendInstance : IFriendInstance
+    {
 
-    public string Map { get; set; }
+        public string Map { get; set; }
 
-    public string Name { get; set; }
+        public string Name { get; set; }
 
-    public bool Online { get; set; } = false;
+        public bool Online { get; set; } = false;
 
+    }
 }

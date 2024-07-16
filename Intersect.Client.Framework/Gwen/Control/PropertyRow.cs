@@ -1,133 +1,137 @@
-﻿using Intersect.Client.Framework.Gwen.ControlInternal;
+﻿using System;
 
-namespace Intersect.Client.Framework.Gwen.Control;
+using Intersect.Client.Framework.Gwen.ControlInternal;
 
-
-/// <summary>
-///     Single property row.
-/// </summary>
-public partial class PropertyRow : Base
+namespace Intersect.Client.Framework.Gwen.Control
 {
 
-    private readonly Label mLabel;
-
-    private readonly Property.Base mProperty;
-
-    private bool mLastEditing;
-
-    private bool mLastHover;
-
     /// <summary>
-    ///     Initializes a new instance of the <see cref="PropertyRow" /> class.
+    ///     Single property row.
     /// </summary>
-    /// <param name="parent">Parent control.</param>
-    /// <param name="prop">Property control associated with this row.</param>
-    public PropertyRow(Base parent, Property.Base prop) : base(parent)
+    public partial class PropertyRow : Base
     {
-        var label = new PropertyRowLabel(this);
-        label.Dock = Pos.Left;
-        label.Alignment = Pos.Left | Pos.Top;
-        label.Margin = new Margin(2, 2, 0, 0);
-        mLabel = label;
 
-        mProperty = prop;
-        mProperty.Parent = this;
-        mProperty.Dock = Pos.Fill;
-        mProperty.ValueChanged += OnValueChanged;
-    }
+        private readonly Label mLabel;
 
-    /// <summary>
-    ///     Indicates whether the property value is being edited.
-    /// </summary>
-    public bool IsEditing => mProperty != null && mProperty.IsEditing;
+        private readonly Property.Base mProperty;
 
-    /// <summary>
-    ///     Property value.
-    /// </summary>
-    public string Value
-    {
-        get => mProperty.Value;
-        set => mProperty.Value = value;
-    }
+        private bool mLastEditing;
 
-    /// <summary>
-    ///     Indicates whether the control is hovered by mouse pointer.
-    /// </summary>
-    public override bool IsHovered => base.IsHovered || mProperty != null && mProperty.IsHovered;
+        private bool mLastHover;
 
-    /// <summary>
-    ///     Property name.
-    /// </summary>
-    public string Label
-    {
-        get => mLabel.Text;
-        set => mLabel.Text = value;
-    }
-
-    /// <summary>
-    ///     Invoked when the property value has changed.
-    /// </summary>
-    public event GwenEventHandler<EventArgs> ValueChanged;
-
-    /// <summary>
-    ///     Renders the control using specified skin.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void Render(Skin.Base skin)
-    {
-        /* SORRY */
-        if (IsEditing != mLastEditing)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="PropertyRow" /> class.
+        /// </summary>
+        /// <param name="parent">Parent control.</param>
+        /// <param name="prop">Property control associated with this row.</param>
+        public PropertyRow(Base parent, Property.Base prop) : base(parent)
         {
-            OnEditingChanged();
-            mLastEditing = IsEditing;
+            var label = new PropertyRowLabel(this);
+            label.Dock = Pos.Left;
+            label.Alignment = Pos.Left | Pos.Top;
+            label.Margin = new Margin(2, 2, 0, 0);
+            mLabel = label;
+
+            mProperty = prop;
+            mProperty.Parent = this;
+            mProperty.Dock = Pos.Fill;
+            mProperty.ValueChanged += OnValueChanged;
         }
 
-        if (IsHovered != mLastHover)
-        {
-            OnHoverChanged();
-            mLastHover = IsHovered;
-        }
-        /* SORRY */
+        /// <summary>
+        ///     Indicates whether the property value is being edited.
+        /// </summary>
+        public bool IsEditing => mProperty != null && mProperty.IsEditing;
 
-        skin.DrawPropertyRow(this, mLabel.Right, IsEditing, IsHovered | mProperty.IsHovered);
-    }
-
-    /// <summary>
-    ///     Lays out the control's interior according to alignment, padding, dock etc.
-    /// </summary>
-    /// <param name="skin">Skin to use.</param>
-    protected override void Layout(Skin.Base skin)
-    {
-        var parent = Parent as Properties;
-        if (null == parent)
+        /// <summary>
+        ///     Property value.
+        /// </summary>
+        public string Value
         {
-            return;
+            get => mProperty.Value;
+            set => mProperty.Value = value;
         }
 
-        mLabel.Width = parent.SplitWidth;
+        /// <summary>
+        ///     Indicates whether the control is hovered by mouse pointer.
+        /// </summary>
+        public override bool IsHovered => base.IsHovered || mProperty != null && mProperty.IsHovered;
 
-        if (mProperty != null)
+        /// <summary>
+        ///     Property name.
+        /// </summary>
+        public string Label
         {
-            Height = mProperty.Height;
+            get => mLabel.Text;
+            set => mLabel.Text = value;
         }
-    }
 
-    protected virtual void OnValueChanged(Base control, EventArgs args)
-    {
-        if (ValueChanged != null)
+        /// <summary>
+        ///     Invoked when the property value has changed.
+        /// </summary>
+        public event GwenEventHandler<EventArgs> ValueChanged;
+
+        /// <summary>
+        ///     Renders the control using specified skin.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void Render(Skin.Base skin)
         {
-            ValueChanged.Invoke(this, EventArgs.Empty);
+            /* SORRY */
+            if (IsEditing != mLastEditing)
+            {
+                OnEditingChanged();
+                mLastEditing = IsEditing;
+            }
+
+            if (IsHovered != mLastHover)
+            {
+                OnHoverChanged();
+                mLastHover = IsHovered;
+            }
+            /* SORRY */
+
+            skin.DrawPropertyRow(this, mLabel.Right, IsEditing, IsHovered | mProperty.IsHovered);
         }
-    }
 
-    private void OnEditingChanged()
-    {
-        mLabel.Redraw();
-    }
+        /// <summary>
+        ///     Lays out the control's interior according to alignment, padding, dock etc.
+        /// </summary>
+        /// <param name="skin">Skin to use.</param>
+        protected override void Layout(Skin.Base skin)
+        {
+            var parent = Parent as Properties;
+            if (null == parent)
+            {
+                return;
+            }
 
-    private void OnHoverChanged()
-    {
-        mLabel.Redraw();
+            mLabel.Width = parent.SplitWidth;
+
+            if (mProperty != null)
+            {
+                Height = mProperty.Height;
+            }
+        }
+
+        protected virtual void OnValueChanged(Base control, EventArgs args)
+        {
+            if (ValueChanged != null)
+            {
+                ValueChanged.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void OnEditingChanged()
+        {
+            mLabel.Redraw();
+        }
+
+        private void OnHoverChanged()
+        {
+            mLabel.Redraw();
+        }
+
     }
 
 }

@@ -1,16 +1,20 @@
-﻿namespace Intersect.Logging.Formatting;
+﻿using System;
 
-
-public interface ILogFormatter
+namespace Intersect.Logging.Formatting
 {
 
-    string Format(
-        LogConfiguration configuration,
-        LogLevel logLevel,
-        DateTime dateTime,
-        Exception exception,
-        string message,
-        params object[] args
-    );
+    public interface ILogFormatter
+    {
+
+        string Format(
+            LogConfiguration configuration,
+            LogLevel logLevel,
+            DateTime dateTime,
+            Exception exception,
+            string message,
+            params object[] args
+        );
+
+    }
 
 }

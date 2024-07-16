@@ -1,40 +1,44 @@
-﻿namespace Intersect.Utilities;
+﻿using System;
 
-
-public static partial class TextUtils
+namespace Intersect.Utilities
 {
 
-    static TextUtils()
+    public static partial class TextUtils
     {
-        None = "None";
-    }
 
-    public static string None { get; set; }
-
-    public static string StripToLower(string source)
-    {
-        return source?.ToLowerInvariant().Replace(" ", "");
-    }
-
-    public static bool IsNone(string str)
-    {
-        if (string.IsNullOrEmpty(str?.Trim()))
+        static TextUtils()
         {
-            return true;
+            None = "None";
         }
 
-        return string.Equals("None", StripToLower(str), StringComparison.InvariantCultureIgnoreCase) ||
-               string.Equals(None, StripToLower(str), StringComparison.InvariantCultureIgnoreCase);
-    }
+        public static string None { get; set; }
 
-    public static string NullToNone(string nullableString)
-    {
-        return IsNone(nullableString) ? None : nullableString;
-    }
+        public static string StripToLower(string source)
+        {
+            return source?.ToLowerInvariant().Replace(" ", "");
+        }
 
-    public static string SanitizeNone(string nullableString)
-    {
-        return IsNone(nullableString) ? null : nullableString;
+        public static bool IsNone(string str)
+        {
+            if (string.IsNullOrEmpty(str?.Trim()))
+            {
+                return true;
+            }
+
+            return string.Equals("None", StripToLower(str), StringComparison.InvariantCultureIgnoreCase) ||
+                   string.Equals(None, StripToLower(str), StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public static string NullToNone(string nullableString)
+        {
+            return IsNone(nullableString) ? None : nullableString;
+        }
+
+        public static string SanitizeNone(string nullableString)
+        {
+            return IsNone(nullableString) ? null : nullableString;
+        }
+
     }
 
 }

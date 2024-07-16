@@ -3,136 +3,139 @@ using Intersect.Client.Framework.Gwen.Control;
 using Intersect.Client.Framework.Gwen.Control.EventArguments;
 using Intersect.Client.General;
 using Intersect.Client.Networking;
+using System;
 
 using Intersect.Utilities;
 
-namespace Intersect.Client.Interface.Game;
-
-
-partial class PictureWindow
+namespace Intersect.Client.Interface.Game
 {
 
-    //Controls
-    private Canvas mGameCanvas;
-
-    private ImagePanel mPicture;
-
-    public PictureWindow(Canvas gameCanvas)
+    partial class PictureWindow
     {
-        mGameCanvas = gameCanvas;
-        mPicture = new ImagePanel(gameCanvas);
-        mPicture.Clicked += MPicture_Clicked;
-    }
 
-    public string Picture { get; private set; }
+        //Controls
+        private Canvas mGameCanvas;
 
-    public int Size { get; private set; }
+        private ImagePanel mPicture;
 
-    public bool Clickable { get; private set; }
-
-    public void Setup(string picture, int size, bool clickable)
-    {
-        Picture = picture;
-        Size = size;
-        Clickable = clickable;
-
-        mPicture.Texture = Globals.ContentManager.GetTexture(Framework.Content.TextureType.Image, picture);
-        if (mPicture.Texture != null)
+        public PictureWindow(Canvas gameCanvas)
         {
-            mPicture.SetSize(mPicture.Texture.GetWidth(), mPicture.Texture.GetHeight());
-            Align.Center(mPicture);
+            mGameCanvas = gameCanvas;
+            mPicture = new ImagePanel(gameCanvas);
+            mPicture.Clicked += MPicture_Clicked;
+        }
 
-            if (size != (int) PictureSize.Original) // Don't scale if you want to keep the original size.
+        public string Picture { get; private set; }
+
+        public int Size { get; private set; }
+
+        public bool Clickable { get; private set; }
+
+        public void Setup(string picture, int size, bool clickable)
+        {
+            Picture = picture;
+            Size = size;
+            Clickable = clickable;
+
+            mPicture.Texture = Globals.ContentManager.GetTexture(Framework.Content.TextureType.Image, picture);
+            if (mPicture.Texture != null)
             {
-                if (size == (int) PictureSize.StretchToFit)
+                mPicture.SetSize(mPicture.Texture.GetWidth(), mPicture.Texture.GetHeight());
+                Align.Center(mPicture);
+
+                if (size != (int) PictureSize.Original) // Don't scale if you want to keep the original size.
                 {
-                    mPicture.SetSize(mGameCanvas.Width, mGameCanvas.Height);
-                    Align.Center(mPicture);
-                }
-                else
-                {
-                    var n = 1;
-
-                    //If you want half fullscreen size set n to 2.
-                    if (size == (int) PictureSize.HalfScreen)
+                    if (size == (int) PictureSize.StretchToFit)
                     {
-                        n = 2;
-                    }
-
-                    var ar = (float) mPicture.Width / (float) mPicture.Height;
-                    var heightLimit = true;
-                    if (mGameCanvas.Width < mGameCanvas.Height * ar)
-                    {
-                        heightLimit = false;
-                    }
-
-                    if (heightLimit)
-                    {
-                        var height = mGameCanvas.Height;
-                        var width = mGameCanvas.Height * ar;
-                        mPicture.SetSize((int) (width / n), (int) (height / n));
+                        mPicture.SetSize(mGameCanvas.Width, mGameCanvas.Height);
                         Align.Center(mPicture);
                     }
                     else
                     {
-                        var width = mGameCanvas.Width;
-                        var height = width / ar;
-                        mPicture.SetSize((int) (width / n), (int) (height / n));
-                        Align.Center(mPicture);
+                        var n = 1;
+
+                        //If you want half fullscreen size set n to 2.
+                        if (size == (int) PictureSize.HalfScreen)
+                        {
+                            n = 2;
+                        }
+
+                        var ar = (float) mPicture.Width / (float) mPicture.Height;
+                        var heightLimit = true;
+                        if (mGameCanvas.Width < mGameCanvas.Height * ar)
+                        {
+                            heightLimit = false;
+                        }
+
+                        if (heightLimit)
+                        {
+                            var height = mGameCanvas.Height;
+                            var width = mGameCanvas.Height * ar;
+                            mPicture.SetSize((int) (width / n), (int) (height / n));
+                            Align.Center(mPicture);
+                        }
+                        else
+                        {
+                            var width = mGameCanvas.Width;
+                            var height = width / ar;
+                            mPicture.SetSize((int) (width / n), (int) (height / n));
+                            Align.Center(mPicture);
+                        }
                     }
                 }
+
+                mPicture.BringToFront();
+                mPicture.Show();
             }
-
-            mPicture.BringToFront();
-            mPicture.Show();
-        }
-        else
-        {
-            Close();
-        }
-    }
-
-    private void MPicture_Clicked(Base sender, ClickedEventArgs arguments)
-    {
-        if (Clickable)
-        {
-            Close();
-        }
-    }
-
-    public void Close()
-    {
-        if (Picture != null)
-        {
-            PacketSender.SendClosePicture(Globals.Picture?.EventId ?? Guid.Empty);
-            Globals.Picture = null;
-            Picture = null;
-            mPicture.Hide();
-        }
-    }
-
-    public void Update()
-    {
-        if (Picture != null)
-        {
-            if (Globals.Picture != null && Globals.Picture.HideTime > 0 && Timing.Global.Milliseconds > Globals.Picture.ReceiveTime + Globals.Picture.HideTime)
+            else
             {
-                //Should auto close this picture
                 Close();
             }
         }
-    }
 
-    private enum PictureSize
-    {
+        private void MPicture_Clicked(Base sender, ClickedEventArgs arguments)
+        {
+            if (Clickable)
+            {
+                Close();
+            }
+        }
 
-        Original = 0,
+        public void Close()
+        {
+            if (Picture != null)
+            {
+                PacketSender.SendClosePicture(Globals.Picture?.EventId ?? Guid.Empty);
+                Globals.Picture = null;
+                Picture = null;
+                mPicture.Hide();
+            }
+        }
 
-        FullScreen,
+        public void Update()
+        {
+            if (Picture != null)
+            {
+                if (Globals.Picture != null && Globals.Picture.HideTime > 0 && Timing.Global.Milliseconds > Globals.Picture.ReceiveTime + Globals.Picture.HideTime)
+                {
+                    //Should auto close this picture
+                    Close();
+                }
+            }
+        }
 
-        HalfScreen,
+        private enum PictureSize
+        {
 
-        StretchToFit,
+            Original = 0,
+
+            FullScreen,
+
+            HalfScreen,
+
+            StretchToFit,
+
+        }
 
     }
 
