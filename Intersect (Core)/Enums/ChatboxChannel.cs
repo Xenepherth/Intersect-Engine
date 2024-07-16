@@ -1,17 +1,17 @@
 namespace Intersect.Enums
+﻿namespace Intersect.Enums;
+
+public enum ChatboxChannel
 {
-    public enum ChatboxChannel
-    {
-        Player = 0,
+    Player = 0,
 
-        Local,
+    Local,
 
-        Global,
+    Global,
 
-        Party,
+    Party,
 
-        Guild,
+    Guild,
 
-        Nation,
-    }
+    Nation,
 }

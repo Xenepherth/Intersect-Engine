@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Intersect.Enums;
 
-namespace Intersect.Enums
+public enum TypewriterBehavior
 {
-    public enum TypewriterBehavior
-    {
-        Off,
-        Word,
-    }
+    Off,
+    Word,
 }

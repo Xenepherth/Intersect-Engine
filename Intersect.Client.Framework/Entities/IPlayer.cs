@@ -1,38 +1,34 @@
-using System;
-using System.Collections.Generic;
-
 using Intersect.Config.Guilds;
 using Intersect.Config.Nations;
 using Intersect.Enums;
 using Intersect.GameObjects;
 
-namespace Intersect.Client.Framework.Entities
-{
-    public interface IPlayer : IEntity
-    {
-        Guid Class { get; }
-        long Experience { get; }
-        long ExperienceToNextLevel { get; }
-        int StatPoints { get; }
-        bool IsInParty { get; }
-        IReadOnlyList<IPartyMember> PartyMembers { get; }
-        long CombatTimer { get; }
-        Guid TargetIndex { get; }
-        TargetType TargetType { get; }
-        IReadOnlyList<IFriendInstance> Friends { get; }
-        IReadOnlyList<IHotbarInstance> HotbarSlots { get; }
-        IReadOnlyDictionary<Guid, long> ItemCooldowns { get; }
-        IReadOnlyDictionary<Guid, long> SpellCooldowns { get; }
-        IReadOnlyDictionary<Guid, QuestProgress> QuestProgress { get; }
-        Guid[] HiddenQuests { get; }
-        bool IsInGuild { get; }
-        string GuildName { get; }
-        GuildRank GuildRank { get; }
-        bool IsInNation { get; }
-        string NationName { get; }
-        bool IsBusy { get; }
+namespace Intersect.Client.Framework.Entities;
 
-        bool TryGetRealLocation(ref int x, ref int y, ref Guid mapId);
+public interface IPlayer : IEntity
+{
+    Guid Class { get; };
+        long Experience { get; };
+    long ExperienceToNextLevel { get; };
+    int StatPoints { get; }
+        bool IsInParty { get; }
+        IReadOnlyList<IPartyMember> PartyMembers { get; };
+    long CombatTimer { get; };
+    Guid TargetIndex { get; };
+    TargetType TargetType { get; }
+        IReadOnlyList<IFriendInstance> Friends { get; };
+    IReadOnlyList<IHotbarInstance> HotbarSlots { get; };
+    IReadOnlyDictionary<Guid, long> ItemCooldowns { get; };
+    IReadOnlyDictionary<Guid, long> SpellCooldowns { get; };
+    IReadOnlyDictionary<Guid, QuestProgress> QuestProgress { get; };
+    Guid[] HiddenQuests { get; };
+    bool IsInGuild { get; };
+    string GuildName { get; };
+    GuildRank GuildRank { get; };
+    bool IsInNation { get; };
+    string NationName { get; };
+    bool IsBusy { get; };
+    bool TryGetRealLocation(ref int x, ref int y, ref Guid mapId);
         bool TryTarget();
         bool TryTarget(IEntity entity, bool force = false);
         void AutoTarget();
@@ -59,12 +55,5 @@ namespace Intersect.Client.Framework.Entities
         bool IsInMyParty(Guid id);
         bool IsInMyParty(IPlayer player);
         bool TryAttack();
-        bool TryBlock();
-
-
-
-
-        
-        
-    }
+        bool TryBlock();   
 }

@@ -1,13 +1,9 @@
-﻿using System;
+﻿namespace Intersect.Models;
 
-namespace Intersect.Models
+
+public interface IObject
 {
 
-    public interface IObject
-    {
-
-        Guid Id { get; }
-
-    }
+    Guid Id { get; }
 
 }
