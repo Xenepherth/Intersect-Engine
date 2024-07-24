@@ -969,6 +969,8 @@ public partial class Entity : IEntity
 
                     return Globals.Database.GuildMemberOverheadInfo && me.IsGuildMate(player);
 
+                    return Globals.Database.NationMemberOverheadInfo && me.IsNationMate(player);
+
                 default:
                     return IsHovered || Globals.Database.NpcOverheadInfo;
             }
@@ -1611,6 +1613,28 @@ public partial class Entity : IEntity
                     y -= 2 + guildSize.Y;
                 }
 
+                break;
+            case LabelType.Nation:
+                if (this is Player nationplayer)
+                {
+                    // Do we have a header? If so, slightly change the position!
+                    if (string.IsNullOrWhiteSpace(HeaderLabel.Text))
+                    {
+                        y = GetLabelLocation(LabelType.Name);
+                    }
+                    else
+                    {
+                        y = GetLabelLocation(LabelType.Header);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(nationplayer.Nation))
+                    {
+                        break;
+                    }
+
+                    var nationSize = Graphics.Renderer.MeasureText(nationplayer.Nation, Graphics.EntityNameFont, 1);
+                    y -= 2 + nationSize.Y;
+                }
                 break;
         }
 

@@ -2217,6 +2217,18 @@ public static partial class PacketSender
         }
     }
 
+    //NationMsgPacket
+    public static void SendNationMsg(Player player, string message, Color clr, string target = "")
+    {
+        foreach (var p in player.Nation.FindOnlineMembers())
+        {
+            if (p != null)
+            {
+                SendChatMsg(p, message, ChatMessageType.Nation, clr, target);
+            }
+        }
+    }
+
     /// <summary>
     /// Send a player their guild member list.
     /// </summary>
@@ -2237,6 +2249,28 @@ public static partial class PacketSender
         }
 
         player.SendPacket(new GuildPacket(members));
+    }
+
+    /// <summary>
+    /// Send a player their nation member list.
+    /// </summary>
+    /// <param name="player"></param>
+    public static void SendNation(Player player)
+    {
+        if (player == null || player.Nation == null)
+        {
+            return;
+        }
+
+        var members = player.Nation.Members.Values.ToArray();
+        var onlineMembers = player.Nation.FindOnlineMembers();
+
+        foreach (var member in members)
+        {
+            member.Online = onlineMembers.Any(m => m.Id == member.Id);
+        }
+
+        player.SendPacket(new NationPacket(members));
     }
 
     //GuildRequestPacket

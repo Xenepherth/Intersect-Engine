@@ -24,6 +24,8 @@ public interface IPlayer : IEntity
     bool IsInGuild { get; }
     string GuildName { get; }
     GuildRank? GuildRank { get; }
+    bool IsInNation { get; }
+    string NationName { get; }
     bool IsBusy { get; }
 
     bool TryGetRealLocation(ref int x, ref int y, ref Guid mapId);

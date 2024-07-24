@@ -2141,7 +2141,6 @@ internal sealed partial class PacketHandler
         Interface.Interface.GameUi.NotifyUpdateGuildList();
     }
 
-
     //GuildInvitePacket
     public void HandlePacket(IPacketSender packetSender, GuildInvitePacket packet)
     {

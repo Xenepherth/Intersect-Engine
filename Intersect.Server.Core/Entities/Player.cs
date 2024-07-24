@@ -212,6 +212,15 @@ public partial class Player : Entity
     /// </summary>
     [NotMapped] public bool GuildBank;
 
+    [NotMapped][JsonIgnore] public Nation Nation { get; set; }
+
+    [NotMapped][JsonIgnore] public bool IsInNation => Nation != null;
+
+    [NotMapped] public Guid NationId => DbNation?.Id ?? default;
+
+    [JsonIgnore] public Nation DbNation { get; set; }
+
+    public DateTime NationJoinDate { get; set; }
     /// <summary>
     /// Used to tell events when to continue when dealing with fade in/out events and knowing when they're complete on the client's end
     /// </summary>
@@ -344,6 +353,7 @@ public partial class Player : Entity
 
         LoadFriends();
         LoadGuild();
+        LoadNation();
 
         //Upon Sign In Remove Any Items/Spells that have been deleted
         foreach (var itm in Items)
@@ -991,6 +1001,7 @@ public partial class Player : Entity
 
         pkt.Guild = Guild?.Name;
         pkt.GuildRank = GuildRank;
+        pkt.Nation = Nation?.Name;
 
         return pkt;
     }
@@ -1661,7 +1672,7 @@ public partial class Player : Entity
         var friendly = spell?.Combat != null && spell.Combat.Friendly;
         if (entity is Player player)
         {
-            if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild == this.Guild)))
+            if (player.InParty(this) || this == player || (!Options.Instance.Guild.AllowGuildMemberPvp && friendly != (player.Guild != null && player.Guild == this.Guild)) || (!Options.Instance.Nation.AllowNationMemberPvp && friendly != (player.Nation != null && player.Nation == this.Nation)))
             {
                 return friendly;
             }
@@ -5380,6 +5391,11 @@ public partial class Player : Entity
         }
 
         if (IsInGuild && otherPlayer?.Guild?.Id == Guild.Id)
+        {
+            return true;
+        }
+
+        if (IsInNation && otherPlayer?.Nation?.Id == Nation.Id)
         {
             return true;
         }
