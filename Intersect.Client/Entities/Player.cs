@@ -2278,7 +2278,7 @@ public partial class Player : Entity, IPlayer
         }
 
         //Try to move if able and not casting spells.
-        if (IsMoving || MoveTimer >= Timing.Global.Milliseconds ||
+        if (IsMoving || MoveTimer >= Timing.Global.Milliseconds || AttackTimer >= Timing.Global.Milliseconds ||
             (!Options.Combat.MovementCancelsCast && IsCasting))
         {
             return;
