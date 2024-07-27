@@ -1,119 +1,87 @@
-using System.IO;
 using Intersect.Client.Core;
 using Intersect.Client.Framework.File_Management;
-using Intersect.Client.Framework.Graphics;
 using Intersect.Client.Framework.Gwen.Control;
 using Intersect.Client.Framework.Gwen.Control.EventArguments;
 using Intersect.Client.Localization;
 using Intersect.Configuration;
 using Newtonsoft.Json;
 
-namespace Intersect.Client.Interface.Menu
+namespace Intersect.Client.Interface.Menu;
+
+public partial class CreditsWindow : ImagePanel, IMainMenuWindow
 {
+    private readonly MainMenu _mainMenu;
+    private readonly RichLabel _richLabel;
 
-    public partial class CreditsWindow : IMainMenuWindow
+    public CreditsWindow(Canvas parent, MainMenu mainMenu) : base(parent, "CreditsWindow")
     {
+        _mainMenu = mainMenu;
 
-        private Button mBackBtn;
+        var _creditsHeader = new Label(this, "CreditsHeader") { Text = Strings.Credits.Title };
 
-        //Content
-        private ScrollControl mCreditsContent;
+        var _creditsContent = new ScrollControl(this, "CreditsScrollview");
+        _creditsContent.EnableScroll(false, true);
 
-        //Parent
-        private Label mCreditsHeader;
+        _richLabel = new RichLabel(_creditsContent, "CreditsLabel");
 
-        //Controls
-        private ImagePanel mCreditsWindow;
+        var _btnBack = new Button(this, "BackButton") { Text = Strings.Credits.Back };
+        _btnBack.Clicked += BackBtn_Clicked;
 
-        private MainMenu mMainMenu;
+        LoadJsonUi(GameContentManager.UI.Menu, Graphics.Renderer?.GetResolutionString());
+    }
 
-        private RichLabel mRichLabel;
+    private void BackBtn_Clicked(Base sender, ClickedEventArgs arguments)
+    {
+        Hide();
+        _mainMenu.Show();
+    }
 
-        //Init
-        public CreditsWindow(Canvas parent, MainMenu mainMenu)
+    public override void Show()
+    {
+        base.Show();
+        _richLabel.ClearText();
+        var credits = new Credits();
+        var creditsFile = Path.Combine(ClientConfiguration.ResourcesDirectory, "credits.json");
+
+        if (File.Exists(creditsFile))
         {
-            //Assign References
-            mMainMenu = mainMenu;
-
-            //Main Menu Window
-            mCreditsWindow = new ImagePanel(parent, "CreditsWindow");
-
-            //Menu Header
-            mCreditsHeader = new Label(mCreditsWindow, "CreditsHeader");
-            mCreditsHeader.SetText(Strings.Credits.Title);
-
-            mCreditsContent = new ScrollControl(mCreditsWindow, "CreditsScrollview");
-            mCreditsContent.EnableScroll(false, true);
-
-            mRichLabel = new RichLabel(mCreditsContent, "CreditsLabel");
-
-            //Back Button
-            mBackBtn = new Button(mCreditsWindow, "BackButton");
-            mBackBtn.SetText(Strings.Credits.Back);
-            mBackBtn.Clicked += BackBtn_Clicked;
-
-            mCreditsWindow.LoadJsonUi(GameContentManager.UI.Menu, Graphics.Renderer.GetResolutionString());
+            credits = JsonConvert.DeserializeObject<Credits>(File.ReadAllText(creditsFile));
         }
-
-        private void BackBtn_Clicked(Base sender, ClickedEventArgs arguments)
+        else
         {
-            Hide();
-            mMainMenu.Show();
-        }
-
-        //Methods
-        public void Update()
-        {
-        }
-
-        public void Hide()
-        {
-            mCreditsWindow.IsHidden = true;
-        }
-
-        public void Show()
-        {
-            mCreditsWindow.IsHidden = false;
-            mRichLabel.ClearText();
-            var credits = new Credits();
-            var creditsFile = Path.Combine(ClientConfiguration.ResourcesDirectory, "credits.json");
-            if (File.Exists(creditsFile))
+            var line = new Credits.CreditsLine
             {
-                credits = JsonConvert.DeserializeObject<Credits>(File.ReadAllText(creditsFile));
+                Text = "Insert your credits here!",
+                Alignment = "center",
+                Size = 12,
+                TextColor = Color.White,
+                Font = "sourcesansproblack"
+            };
+
+            credits.Lines.Add(line);
+        }
+
+        File.WriteAllText(creditsFile, JsonConvert.SerializeObject(credits, Formatting.Indented));
+
+        foreach (var line in credits?.Lines ?? [])
+        {
+            if (line.Text.Trim().Length == 0)
+            {
+                _richLabel.AddLineBreak();
             }
             else
             {
-                var line = new Credits.CreditsLine();
-                line.Text = "Insert your credits here!";
-                line.Alignment = "center";
-                line.Size = 12;
-                line.Clr = Intersect.Color.White;
-                line.Font = "sourcesansproblack";
-                credits.Lines.Add(line);
+                _richLabel.AddText(
+                    text: line.Text,
+                    color: new Color(line.TextColor?.A ?? 255, line.TextColor?.R ?? 255, line.TextColor?.G ?? 255, line.TextColor?.B ?? 255),
+                    alignment: line.GetAlignment(),
+                    font: GameContentManager.Current.GetFont(line.Font, line.Size)
+                );
+
+                _richLabel.AddLineBreak();
             }
-
-            File.WriteAllText(creditsFile, JsonConvert.SerializeObject(credits, Formatting.Indented));
-
-            foreach (var line in credits.Lines)
-            {
-                if (line.Text.Trim().Length == 0)
-                {
-                    mRichLabel.AddLineBreak();
-                }
-                else
-                {
-                    mRichLabel.AddText(
-                        line.Text, new Color(line.Clr.A, line.Clr.R, line.Clr.G, line.Clr.B), line.GetAlignment(),
-                        GameContentManager.Current.GetFont(line.Font, line.Size)
-                    );
-
-                    mRichLabel.AddLineBreak();
-                }
-            }
-
-            mRichLabel.SizeToChildren(false, true);
         }
 
+        _ = _richLabel.SizeToChildren(false, true);
     }
-
 }
