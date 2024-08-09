@@ -335,6 +335,10 @@ public partial class Chatbox
 
             case ChatboxTab.Guild:
                 mChannelCombobox.SelectByUserData(3);
+                break
+
+            case ChatboxTab.Nation:
+                mChannelCombobox.SelectByUserData(4);
                 break;
 
             default:
@@ -525,6 +529,7 @@ public partial class Chatbox
         mTabButtons[ChatboxTab.Local].Show();
         mTabButtons[ChatboxTab.Party].Show();
         mTabButtons[ChatboxTab.Guild].Show();
+        mTabButtons[ChatboxTab.Nation].Show();
         mTabButtons[ChatboxTab.Global].Show();
         mTabButtons[ChatboxTab.System].Show();
         mChatboxMessages.Show();
@@ -536,7 +541,7 @@ public partial class Chatbox
         mTabButtons[ChatboxTab.All].Hide();
         mTabButtons[ChatboxTab.Local].Hide();
         mTabButtons[ChatboxTab.Party].Hide();
-        mTabButtons[ChatboxTab.Guild].Hide();
+        mTabButtons[ChatboxTab.Nation].Hide();
         mTabButtons[ChatboxTab.Global].Hide();
         mTabButtons[ChatboxTab.System].Hide();
         mChatboxMessages.Hide();
