@@ -335,7 +335,7 @@ public partial class Chatbox
 
             case ChatboxTab.Guild:
                 mChannelCombobox.SelectByUserData(3);
-                break
+                break;
 
             case ChatboxTab.Nation:
                 mChannelCombobox.SelectByUserData(4);
