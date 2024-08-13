@@ -132,7 +132,7 @@ public partial class Chatbox
         mChannelLabel.IsHidden = true;
 
         mChannelCombobox = new ComboBox(mChatboxWindow, "ChatChannelCombobox");
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < 5; i++)
         {
             var menuItem = mChannelCombobox.AddItem(Strings.Chatbox.Channels[i]);
             menuItem.UserData = i;
@@ -143,7 +143,7 @@ public partial class Chatbox
         if (Globals.Me.Type > 0)
         {
             var menuItem = mChannelCombobox.AddItem(Strings.Chatbox.ChannelAdmin);
-            menuItem.UserData = 4;
+            menuItem.UserData = 5;
             menuItem.Selected += MenuItem_Selected;
         }
 

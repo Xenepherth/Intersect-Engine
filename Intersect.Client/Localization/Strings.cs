@@ -668,7 +668,8 @@ public static partial class Strings
             {0, @"local"},
             {1, @"global"},
             {2, @"party"},
-            {3, @"guild"}
+            {3, @"guild"},
+            {4, @"nation"}
         };
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -681,6 +682,7 @@ public static partial class Strings
             { ChatboxTab.Party, @"Party" },
             { ChatboxTab.Global, @"Global" },
             { ChatboxTab.Guild, @"Guild" },
+            { ChatboxTab.Nation, @"Nation" },
             { ChatboxTab.System, @"System" },
         };
 
@@ -1902,6 +1904,12 @@ public static partial class Strings
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public static LocalizedString ShowGuildOverheadInformation = @"Show guild member overhead information";
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public static LocalizedString ShowNationOverheadHpBar = @"Show nation member overhead HP bar";
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public static LocalizedString ShowNationOverheadInformation = @"Show nation member overhead information";
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public static LocalizedString ShowHealthAsPercentage = @"Show health as percentage";
