@@ -1502,6 +1502,7 @@ public static partial class Strings
             {4, @"Spell"},
             {5, @"Special"},
             {6, @"Bag"},
+            {7, @"Material"},
         };
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
